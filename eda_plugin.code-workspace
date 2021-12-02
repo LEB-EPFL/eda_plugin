@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"name": "eda_plugin",
+			"path": "."
+		},
+		{
+			"name": "isimgui",
+			"path": "..\\isimgui"
+		},
+		{
+			"name": "isim",
+			"path": "..\\.envs\\isim"
+		}
+	],
+	"settings": {
+		"python.terminal.activateEnvInCurrentTerminal": true,
+		"python.terminal.activateEnvironment": true
+	}
+}
