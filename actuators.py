@@ -1,18 +1,19 @@
 import threading
 import time
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets
 import numpy as np
 
 from isimgui.EventThread import EventThread
 from eda_gui import EDAParameterForm
-# from isimgui.data_structures import PyImage
+import pycromanager
 
 
 class DAQActuator(QObject):
     """ Deliver new data to the DAQ with the framerate as given by the FrameRateInterpreter."""
 
     new_daq_data = pyqtSignal(np.ndarray)
+    start_acq_signal = pyqtSignal(np.ndarray)
 
     def __init__(self):
         super().__init__()
@@ -26,7 +27,9 @@ class DAQActuator(QObject):
 class MMActuator(QObject):
     """ Once an acquisition is started from the """
 
-    new_daq_data = pyqtSignal(np.ndarray)
+    start_acq_signal = pyqtSignal()
+    new_interval = pyqtSignal(float)
+    stop_acq_signal = pyqtSignal()
 
     def __init__(self, event_thread: EventThread):
         super().__init__()
@@ -34,28 +37,32 @@ class MMActuator(QObject):
         self.core = self.bridge.get_core()
         self.studio = self.bridge.get_studio()
         self.event_thread = event_thread
-        self.interval = 1
+        self.interval = 5
         self.channels = 2
         # Do this so the thread does not go out of scope
         self.threads = []
         self.worker = None
         self.thread = None
 
+
     @pyqtSlot(float)
     def call_action(self, interval):
         print('=== New interval: ', interval)
         self.interval = interval
-        self.worker.sleeper.set()
+        self.new_interval.emit(interval)
+
 
     def start_acq(self):
-        self.worker = Acquisition2(self)
+        self.worker = TimerMMAcquisition(self)
         self.thread = QThread()
         self.thread.setObjectName('Acquisition')
         self.worker.moveToThread(self.thread)
         self.worker.new_image.connect(self.new_image)
         self.worker.acquisition_ended.connect(self.reset_thread)
-        self.thread.started.connect(self.worker.start_acq)
+        # self.worker.start_acq_signal.connect(self.start_acq)
         self.thread.start()
+        self.start_acq_signal.emit()
+
 
     def reset_thread(self):
         self.thread.quit()
@@ -64,51 +71,111 @@ class MMActuator(QObject):
         self.worker = None
 
     def stop_acq(self):
-        self.worker.stop_acq()
+        self.stop_acq_signal.emit()
 
     def new_image(self, image):
         self.event_thread.new_image_event.emit(image)
 
 
-class Acquisition2(QThread):
+class MMAcquisition(QThread):
     new_image = pyqtSignal(object)
     acquisition_ended = pyqtSignal()
 
     def __init__(self, actuator: MMActuator):
+        self.fast_react = True
+
         super().__init__()
         self.studio = actuator.studio
         self.core = actuator.core
         self.bridge = actuator.event_thread.bridge
         self.actuator = actuator
+        self.actuator.start_acq_signal.connect(self.start_acq)
+        self.actuator.stop_acq_signal.connect(self.stop_acq)
+        self.actuator.new_interval.connect(self.change_interval)
+
         settings = self.studio.acquisitions().get_acquisition_settings()
-        settings = settings.copy_builder().interval_ms(100_000_000).build()
-        self.datastore = self.studio.acquisitions().run_acquisition_with_settings(settings, False)
+        settings_builder = settings.copy_builder().interval_ms(100_000_000)
+        if settings.num_frames() < 2:
+            settings = settings_builder.num_frames(1_000)
+        self.settings = settings_builder.build()
+        self.datastore = self.studio.acquisitions().run_acquisition_with_settings(self.settings, False)
         # self.studio.acquisitions().set_pause(True)
         self.pipeline = self.studio.data().copy_application_pipeline(self.datastore, False)
         self.image = self.studio.acquisitions().snap().get(0)
         self.coords_builder = self.image.get_coords().copy_builder()
         self.stop = False
-        self.sleeper = threading.Event()
-        self.fast_react = True
         self.core.snap_image()
-        core_image = self.core.get_tagged_image()
-        metadata = core_image.tags
-        print(metadata)
-        print(dir(metadata))
 
     def stop_acq(self, stop: bool = True):
         self.stop = stop
 
+    @pyqtSlot()
     def start_acq(self):
         self.acquire()
 
     def acquire(self):
-        # start_time = time.perf_counter()
+        pass
+
+    @pyqtSlot(float)
+    def change_interval(self, new_interval: float):\
+        pass
+
+
+class TimerMMAcquisition(MMAcquisition):
+    """ An Acquisition using a timer to trigger a frame acquisition should be more stable
+    for consistent framerate compared to a waiting approach"""
+
+    def __init__(self, actuator: MMActuator):
+        super().__init__(actuator)
+        self.frame = None
+        self.timers = []
+
+
+    @pyqtSlot()
+    def start_acq(self):
+        print('START')
+        self.timer = QTimer()
+        self.timers.append(self.timer)
+        self.timer.timeout.connect(self.acquire)
+        self.timer.setInterval(self.actuator.interval * 1_000)
+        self.frame = 1
+        self.timer.start()
+
+    @pyqtSlot()
+    def stop_acq(self):
+        print('STOP')
+        self.timer.stop()
+        self.studio.get_acquisition_engine().shutdown()
+        self.acquisition_ended.emit()
+        self.datastore.freeze()
+
+    @pyqtSlot(float)
+    def change_interval(self, new_interval: float):
+        self.timer.setInterval(new_interval*1_000)
+
+    def acquire(self):
+            for channel in range(self.actuator.channels):
+                new_coords = self.coords_builder.time_point(self.frame).channel(channel).build()
+                self.pipeline.insert_image(self.image.copy_at_coords(new_coords))
+                time.sleep(self.settings.channels().get(0).exposure()/1000)
+            self.frame += 1
+
+
+class DirectMMAcquisition(MMAcquisition):
+    # TODO also stop the acquisition if the acquisition is stopped from micro-manager
+
+    def __init__(self, actuator: MMActuator):
+        super().__init__(actuator)
+        self.sleeper = threading.Event()
+
+    def change_interval(self):
+        self.sleeper.set()
+
+    def acquire(self):
         frame = 1
         acq_time = 0
         while not self.stop:
-            # Handle this better with an event
-            # https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python
+
             if self.fast_react:
                 self.sleeper.wait(max([0, self.actuator.interval - acq_time]))
                 self.sleeper.clear()
@@ -118,15 +185,42 @@ class Acquisition2(QThread):
             print('frame ', frame)
             for channel in range(self.actuator.channels):
                 new_coords = self.coords_builder.time_point(frame).channel(channel).build()
-                # new_meta = self.metadata_builder.elapsed_time_ms(elapsed).build()
-                # self.image = self.studio.acquisitions().snap().get(0)
                 self.pipeline.insert_image(self.image.copy_at_coords(new_coords))
-                time.sleep(0.1)
+                time.sleep(self.settings.channels().get(0).exposure()/1000)
             frame += 1
             acq_time = time.perf_counter() - acq_start
         self.studio.get_acquisition_engine().shutdown()
         self.acquisition_ended.emit()
         self.datastore.freeze()
+
+
+class PycroAcquisition(QThread):
+    """ This tries to use the inbuilt Acquisition function in pycromanager. Unfortunately, these
+    acquisitions don't start with the default Micro-Manager interface and the acquisition also
+    doesn't seem to be saved in a perfect format, so that Micro-Manager would detect the correct
+    parameters to show the channels upon loading for example. The Acquisitions also don't emit any
+    of the standard Micro-Manager events. Stashed for now because of this"""
+    new_image = pyqtSignal(object)
+    acquisition_ended = pyqtSignal()
+    def __init__(self, actuator: MMActuator):
+        super().__init__()
+        self.studio = actuator.studio
+        self.acquisition = pycromanager.Acquisition(directory='C:/Users/stepp/Desktop/eda_save', name='acquisition_name')
+        self.events = pycromanager.multi_d_acquisition_events(
+                                    num_time_points=100, time_interval_s=0.5,
+                                    channel_group='Channel', channels=['DAPI', 'FITC'],
+                                    order='ct')
+        self.sleeper = threading.Event()  # Might actually not be needed here
+
+    def start_acq(self):
+        self.acquire()
+
+    def acquire(self):
+        self.acquisition.acquire(self.events)
+
+    def send_image(self):
+
+        self.new_image.emit()
 
 
 # class Acquisition(QObject):
@@ -173,6 +267,9 @@ class Acquisition2(QThread):
 class MMActuatorGUI(QtWidgets.QWidget):
     """Specific GUI for the MMActuator, because this needs a Start and Stop
     Button for now."""
+
+    start_acq_signal = pyqtSignal()
+
     def __init__(self, actuator: MMActuator):
         super().__init__()
         self.actuator = actuator
