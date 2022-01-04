@@ -10,6 +10,7 @@ class BinaryFrameRateInterpreter(QObject):
     Decide which imaging speed to use next."""
 
     new_interpretation = pyqtSignal(float)
+    new_parameters = pyqtSignal(ParameterSet)
 
     def __init__(self, param_form: ParameterForm):
         super().__init__()
@@ -32,6 +33,7 @@ class BinaryFrameRateInterpreter(QObject):
             self.interval = params.slow_interval
         self.params = params
         self.new_interpretation.emit(self.interval)
+        self.new_parameters.emit(self.params)
 
     @pyqtSlot(float, int)
     def calculate_interpretation(self, new_value: float, _: int):

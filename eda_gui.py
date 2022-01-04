@@ -33,6 +33,7 @@ class EDAMainGUI(QtWidgets.QWidget):
         self.analyzer.new_decision_parameter.connect(self.plot.add_datapoint)
         self.analyzer.new_decision_parameter.connect(self.interpreter.calculate_interpretation)
         self.interpreter.new_interpretation.connect(self.actuator.call_action)
+        self.interpreter.new_parameters.connect(self.plot.set_thr_lines)
 
 
 class EDAPlot(pg.PlotWidget):
@@ -72,6 +73,11 @@ class EDAPlot(pg.PlotWidget):
         self.x_data = []
         self.y_data = []
 
+    QtCore.pyqtSlot(ParameterSet)
+    def set_thr_lines(self, params: ParameterSet):
+        self.thrLine1.setPos(params.lower_threshold)
+        self.thrLine2.setPos(params.upper_threshold)
+
 
 class NetworkImageViewer(QtWidgets.QGraphicsView):
     def __init__(self):
@@ -82,6 +88,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
 
     def reset_scene_rect(self, shape: Tuple):
         self.setSceneRect(0, 0, *shape)
+        self.fitInView(0, 0, *shape, mode=QtCore.Qt.KeepAspectRatio)
 
     def set_qimage(self, image: np.ndarray):
         image = gray2qimage(np.multiply(image, 6))
@@ -146,8 +153,7 @@ def main():
     actuator_gui = MMActuatorGUI(actuator)
     interpreter = BinaryFrameRateInterpreter(actuator_gui.param_form)
 
-    gui = EDAMainGUI(image_analyser, interpreter,
-                     actuator)
+    gui = EDAMainGUI(image_analyser, interpreter, actuator)
     gui.show()
     actuator_gui.show()
     sys.exit(app.exec_())

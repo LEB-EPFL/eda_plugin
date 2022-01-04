@@ -31,12 +31,13 @@ class MMActuator(QObject):
     new_interval = pyqtSignal(float)
     stop_acq_signal = pyqtSignal()
 
-    def __init__(self, event_thread: EventThread):
+    def __init__(self, event_thread: EventThread, acquisition_mode: str = 'timer'):
         super().__init__()
         self.bridge = event_thread.bridge
         self.core = self.bridge.get_core()
         self.studio = self.bridge.get_studio()
         self.event_thread = event_thread
+        self.acquisition_mode = acquisition_mode
         self.interval = 5
         self.channels = 2
         # Do this so the thread does not go out of scope
@@ -53,7 +54,12 @@ class MMActuator(QObject):
 
 
     def start_acq(self):
-        self.worker = TimerMMAcquisition(self)
+        if self.acquisition_mode.lower() == 'timer':
+            self.worker = TimerMMAcquisition(self)
+        elif self.acquisition_mode.lower() == 'timer':
+            self.worker = DirectMMAcquisition(self)
+        else:
+            raise RuntimeError('Acquisition Mode in Actuator call not known!')
         self.thread = QThread()
         self.thread.setObjectName('Acquisition')
         self.worker.moveToThread(self.thread)
