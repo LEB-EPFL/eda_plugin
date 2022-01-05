@@ -44,7 +44,7 @@ class Actuator(Protocol):
 
 
 class ParameterForm(Protocol):
-    """ Gives one common form for general EDA parameters used by many EDA version. """
+    """ Gives one common form for general EDA parameters used by many EDA implementations. """
 
     new_parameters = pyqtSignal(object)
 

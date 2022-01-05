@@ -27,6 +27,7 @@ class EDAMainGUI(QtWidgets.QWidget):
         self.layout().addWidget(self.plot)
         self.setStyleSheet("background-color:black;")
 
+        # Establish communication between the different parts
         self.analyzer.new_output_shape.connect(self.viewer.reset_scene_rect)
         self.analyzer.new_output_shape.connect(self.plot.reset_plot)
         self.analyzer.new_network_image.connect(self.viewer.set_qimage)
@@ -89,6 +90,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
     def reset_scene_rect(self, shape: Tuple):
         self.setSceneRect(0, 0, *shape)
         self.fitInView(0, 0, *shape, mode=QtCore.Qt.KeepAspectRatio)
+        self.setBackgroundBrush(QtGui.QColor('#222222'))
 
     def set_qimage(self, image: np.ndarray):
         image = gray2qimage(np.multiply(image, 6))
@@ -148,9 +150,9 @@ def main():
 
     app = QtWidgets.QApplication(sys.argv)
 
-    image_analyser = KerasAnalyser()
-    actuator = MMActuator(image_analyser.event_thread)
+    actuator = MMActuator()
     actuator_gui = MMActuatorGUI(actuator)
+    image_analyser = KerasAnalyser(actuator)
     interpreter = BinaryFrameRateInterpreter(actuator_gui.param_form)
 
     gui = EDAMainGUI(image_analyser, interpreter, actuator)
