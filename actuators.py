@@ -1,8 +1,11 @@
 import threading
 import time
+from PyQt5 import QtCore
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets
 import numpy as np
+import winsound
+
 
 from isimgui.EventThread import EventThread
 from eda_gui import EDAParameterForm
@@ -31,13 +34,21 @@ class MMActuator(QObject):
     new_interval = pyqtSignal(float)
     stop_acq_signal = pyqtSignal()
 
-    def __init__(self, event_thread: EventThread, acquisition_mode: str = 'timer'):
+    def __init__(self, event_thread: EventThread = None, acquisition_mode: str = 'timer'):
         super().__init__()
-        self.bridge = event_thread.bridge
+        if event_thread is None:
+            self.event_thread = EventThread()
+            self.event_thread.start(daemon=True)
+        else:
+            self.event_thread = event_thread
+        self.bridge = self.event_thread.bridge
         self.core = self.bridge.get_core()
         self.studio = self.bridge.get_studio()
-        self.event_thread = event_thread
+        self.acquisition_engine = self.studio.get_acquisition_engine()
+
         self.acquisition_mode = acquisition_mode
+
+
         self.interval = 5
         self.channels = 2
         # Do this so the thread does not go out of scope
@@ -56,7 +67,7 @@ class MMActuator(QObject):
     def start_acq(self):
         if self.acquisition_mode.lower() == 'timer':
             self.worker = TimerMMAcquisition(self)
-        elif self.acquisition_mode.lower() == 'timer':
+        elif self.acquisition_mode.lower() == 'direct':
             self.worker = DirectMMAcquisition(self)
         else:
             raise RuntimeError('Acquisition Mode in Actuator call not known!')
@@ -99,16 +110,27 @@ class MMAcquisition(QThread):
         self.actuator.stop_acq_signal.connect(self.stop_acq)
         self.actuator.new_interval.connect(self.change_interval)
 
+        num_frames = 1000
+        intervals = [10000] # + [0 for i in range(num_frames-1)]
+        custom_intervals = self.bridge.construct_java_object('java.util.ArrayList')
+        [custom_intervals.add(i) for i in intervals]
         settings = self.studio.acquisitions().get_acquisition_settings()
-        settings_builder = settings.copy_builder().interval_ms(100_000_000)
+        settings_builder = settings.copy_builder().custom_intervals_ms(custom_intervals)
+        settings_builder.use_custom_intervals(False).num_frames(100)
         if settings.num_frames() < 2:
-            settings = settings_builder.num_frames(1_000)
+            settings = settings_builder.num_frames(num_frames)
+        self.settings_builder = settings_builder
         self.settings = settings_builder.build()
         self.datastore = self.studio.acquisitions().run_acquisition_with_settings(self.settings, False)
+        self.acquisition_engine = self.studio.get_acquisition_engine2010()
+        self.pos_list_manager = self.studio.get_position_list_manager()
+
+        # self.acquisition_engine.set_pause(True)
         # self.studio.acquisitions().set_pause(True)
-        self.pipeline = self.studio.data().copy_application_pipeline(self.datastore, False)
+        # self.pipeline = self.studio.data().copy_application_pipeline(self.datastore, False)
         self.image = self.studio.acquisitions().snap().get(0)
         self.coords_builder = self.image.get_coords().copy_builder()
+        self.acquisition_manager = self.studio.acquisitions()
         self.stop = False
         self.core.snap_image()
 
@@ -140,11 +162,13 @@ class TimerMMAcquisition(MMAcquisition):
     @pyqtSlot()
     def start_acq(self):
         print('START')
-        self.timer = QTimer()
+        self.timer = QTimer(self)
         self.timers.append(self.timer)
+        self.timer.setTimerType(QtCore.Qt.PreciseTimer)
         self.timer.timeout.connect(self.acquire)
         self.timer.setInterval(self.actuator.interval * 1_000)
-        self.frame = 1
+        self.frame = 0
+        self.t0 = time.perf_counter()
         self.timer.start()
 
     @pyqtSlot()
@@ -157,14 +181,40 @@ class TimerMMAcquisition(MMAcquisition):
 
     @pyqtSlot(float)
     def change_interval(self, new_interval: float):
-        self.timer.setInterval(new_interval*1_000)
+        new_interval = new_interval*1_000
+        min_interval = sum([self.settings.channels().get(i).exposure() for i in range(self.actuator.channels)])
+        adjusted_interval = max([new_interval, min_interval])
+        print('INTERVAL ', adjusted_interval)
+        self.timer.setInterval(new_interval)
+        # intervals = [new_interval for i in range(10)]
+
+        # custom_intervals = self.bridge.construct_java_object('java.util.ArrayList')
+        # [custom_intervals.add(i) for i in intervals]
+        # new_settings = self.settings_builder.custom_intervals_ms(custom_intervals).build()
+        # self.acquisition_engine.set_sequence_settings(new_settings)
 
     def acquire(self):
-            for channel in range(self.actuator.channels):
-                new_coords = self.coords_builder.time_point(self.frame).channel(channel).build()
-                self.pipeline.insert_image(self.image.copy_at_coords(new_coords))
-                time.sleep(self.settings.channels().get(0).exposure()/1000)
-            self.frame += 1
+        # for channel in range(self.actuator.channels):
+            # image = self.acquisition_manager.snap().get(0)
+        settings = self.settings_builder.use_custom_intervals(False).interval_ms(1000).num_frames(1).build()
+        pos_list = self.pos_list_manager.get_position_list()
+        autofocus = self.studio.get_autofocus_manager().get_autofocus_method()
+        # xy_stage =
+        stage_position = self.bridge.construct_java_object('org.micromanager.MultiStagePosition',
+                                                           args=[self.core.get_xy_stage_device(), 0, 0,
+                                                                 self.core.get_focus_device(),0])
+        pos_list.add_position(stage_position)
+        print(pos_list.get_number_of_positions())
+        self.acquisition_engine.run(settings, False, pos_list, autofocus)
+        # self.acquisition_engine.settings_changed()
+        # self.acquisition_engine
+        # self.acquisition_engine.set_pause(False)
+        winsound.Beep(500, 150)
+            # new_coords = self.coords_builder.time_point(self.frame).channel(channel).build()
+            # self.pipeline.insert_image(image.copy_at_coords(new_coords))
+        # print('frames timer ', time.perf_counter()-self.t0)
+        # self.acquisition_engine.set_pause(True)
+        self.frame += 1
 
 
 class DirectMMAcquisition(MMAcquisition):
