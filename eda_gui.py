@@ -101,7 +101,6 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
 
 
 class EDAParameterForm(QtWidgets.QWidget):
-
     new_parameters = QtCore.pyqtSignal(object)
 
     def __init__(self):
@@ -147,13 +146,15 @@ class EDAParameterForm(QtWidgets.QWidget):
 def main():
     from image_analysers import KerasAnalyser
     from interpreters import BinaryFrameRateInterpreter
-    from actuators import DAQActuator, MMActuator, MMActuatorGUI
+    from actuators.micro_manager import MMActuator, MMActuatorGUI
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
 
+    param_form = EDAParameterForm()
+
     actuator = MMActuator()
-    actuator_gui = MMActuatorGUI(actuator)
+    actuator_gui = MMActuatorGUI(actuator, param_form)
     image_analyser = KerasAnalyser(actuator)
     interpreter = BinaryFrameRateInterpreter(actuator_gui.param_form)
 
