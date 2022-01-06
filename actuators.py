@@ -28,8 +28,8 @@ class MMActuator(QObject):
     """ Once an acquisition is started from the """
 
     start_acq_signal = pyqtSignal()
-    new_interval = pyqtSignal(float)
     stop_acq_signal = pyqtSignal()
+    new_interval = pyqtSignal(float)
 
     def __init__(self, event_thread: EventThread = None, acquisition_mode: str = 'timer'):
         super().__init__()
@@ -40,50 +40,41 @@ class MMActuator(QObject):
         else:
             self.event_thread = event_thread
 
-        self.bridge = self.event_thread.bridge
-        self.core = self.bridge.get_core()
-        self.studio = self.bridge.get_studio()
+        self.studio = self.event_thread.bridge.get_studio()
         self.acquisition_mode = acquisition_mode
         self.interval = 5
-        self.channels = 2
-        # Do this so the thread does not go out of scope
-        self.threads = []
-        self.worker = None
-        self.thread = None
+        self.acquisition = None
 
 
     @pyqtSlot(float)
     def call_action(self, interval):
         print('=== New interval: ', interval)
-        self.interval = interval
         self.new_interval.emit(interval)
 
 
     def start_acq(self):
         if self.acquisition_mode.lower() == 'timer':
-            self.worker = TimerMMAcquisition(self)
+            self.acquisition = TimerMMAcquisition(self)
         elif self.acquisition_mode.lower() == 'timer':
-            self.worker = DirectMMAcquisition(self)
+            self.acquisition = DirectMMAcquisition(self)
         else:
             raise RuntimeError('Acquisition Mode in Actuator call not known!')
-        self.thread = QThread(parent=self)
-        self.thread.setObjectName('Acquisition')
-        self.worker.moveToThread(self.thread)
-        self.worker.new_image.connect(self.new_image)
-        self.worker.acquisition_ended.connect(self.reset_thread)
-        # self.worker.start_acq_signal.connect(self.start_acq)
-        self.thread.start()
+        # self.thread = QThread(parent=self)
+        # self.thread.setObjectName('Acquisition')
+        self.acquisition.new_image.connect(self.new_image)
+        self.acquisition.acquisition_ended.connect(self.reset_thread)
+        self.acquisition.start()
         self.start_acq_signal.emit()
 
-
     def reset_thread(self):
-        self.thread.quit()
+        self.acquisition.quit()
         time.sleep(0.5)
-        self.thread = None
-        self.worker = None
 
     def stop_acq(self):
         self.stop_acq_signal.emit()
+        self.acquisition.exit()
+        self.acquisition.deleteLater()
+        self.acquisition = None
 
     def new_image(self, image):
         self.event_thread.new_image_event.emit(image)
@@ -94,23 +85,21 @@ class MMAcquisition(QThread):
     acquisition_ended = pyqtSignal()
 
     def __init__(self, actuator: MMActuator):
+        super().__init__(parent=actuator)
         self.fast_react = True
-        self.interval = None
-
-        super().__init__()
 
         self.studio = actuator.studio
-        self.core = actuator.core
-        self.bridge = actuator.event_thread.bridge
         self.actuator = actuator
 
         self.actuator.start_acq_signal.connect(self.start_acq)
         self.actuator.stop_acq_signal.connect(self.stop_acq)
         self.actuator.new_interval.connect(self.change_interval)
 
-        settings = self.studio.acquisitions().get_acquisition_settings()
-        self.settings_builder = settings.copy_builder().interval_ms(0)
-        self.settings = self.settings_builder.build()
+        self.settings = self.studio.acquisitions().get_acquisition_settings()
+        self.settings = self.settings.copy_builder().interval_ms(0).build()
+        self.channels = self.get_channel_information()
+        self.channel_switch_time = 133  # ms
+        self.num_channels = len(self.channels)
 
         self.acquisitions = self.studio.acquisitions()
         self.acq_eng = self.studio.get_acquisition_engine()
@@ -118,7 +107,16 @@ class MMAcquisition(QThread):
         self.acquisitions.set_pause(True)
 
         self.stop = False
-        self.core.snap_image()
+
+    def get_channel_information(self):
+        channels = []
+        all_channels = self.settings.channels()
+        for channel_ind in range(all_channels.size()):
+            channel = all_channels.get(channel_ind)
+            if not channel.use_channel():
+                continue
+            channels.append(channel.exposure())
+        return channels
 
     def stop_acq(self, stop: bool = True):
         self.stop = stop
@@ -131,7 +129,7 @@ class MMAcquisition(QThread):
         pass
 
     @pyqtSlot(float)
-    def change_interval(self, new_interval: float):\
+    def change_interval(self, new_interval: float):
         pass
 
 
@@ -141,15 +139,12 @@ class TimerMMAcquisition(MMAcquisition):
 
     def __init__(self, actuator: MMActuator):
         super().__init__(actuator)
-        self.frame = None
-        self.timers = []
-
+        self.timer = None
 
     @pyqtSlot()
     def start_acq(self):
         print('START')
         self.timer = QTimer()
-        self.timers.append(self.timer)
         self.timer.timeout.connect(self.acquire)
         self.timer.setInterval(self.actuator.interval * 1_000)
         self.timer.start()
@@ -158,6 +153,7 @@ class TimerMMAcquisition(MMAcquisition):
     def stop_acq(self):
         print('STOP')
         self.timer.stop()
+        self.timer = None
         self.studio.get_acquisition_engine().shutdown()
         self.acquisition_ended.emit()
         self.datastore.freeze()
@@ -165,31 +161,38 @@ class TimerMMAcquisition(MMAcquisition):
     @pyqtSlot(float)
     def change_interval(self, new_interval: float):
         print("INTERVAL SET ###### ", new_interval)
-        self.timer.setInterval(new_interval*1_000)
-        self.interval = new_interval*1_000
-        self.acquisitions.set_pause(True)
-        time.sleep(0.2)
-        missing_images = self.datastore.get_num_images() % self.actuator.channels
-        print('Missing ', missing_images)
-        if self.interval > 0:
-            while missing_images > 0:
-                print('Trying to get 1 additional image')
-                self.acq_eng.set_pause(False)
-                time.sleep(self.settings.channels().get(0).exposure()/1000 * (missing_images))
-                self.acq_eng.set_pause(True)
-                time.sleep(0.2)
-                missing_images = self.datastore.get_num_images() % self.actuator.channels
-
-            self.acq_eng.set_pause(True)
-
-
-    def acquire(self):
-        if self.interval == 0:
+        if new_interval == 0:
+            self.timer.stop()
             self.acq_eng.set_pause(False)
             return
+        self.acquisitions.set_pause(True)
+
+        self.check_missing_image()
+
+        self.timer.setInterval(new_interval*1_000)
+        if not self.timer.isActive():
+            self.timer.start()
+
+    def acquire(self):
+        print("              ACQUIRE ", time.perf_counter())
         self.acq_eng.set_pause(False)
-        time.sleep(self.settings.channels().get(0).exposure()/1000 * (self.actuator.channels))
+        time.sleep(sum(self.channels)/1000 + self.channel_switch_time/1000 * (self.num_channels - 1))
+        self.check_missing_image()
+
+    def check_missing_image(self):
         self.acq_eng.set_pause(True)
+        time.sleep(0.2)
+        missing_images = self.datastore.get_num_images() % self.num_channels
+        tries = 0
+        while missing_images > 0 and tries < 3:
+            print('Trying to get 1 additional image')
+            # print('Extra time: ', sum(self.channels[-missing_images:])/1000 + self.channel_switch_time/1000 * (missing_images - 1))
+            self.acq_eng.set_pause(False)
+            time.sleep(sum(self.channels[-missing_images:])/1000 + self.channel_switch_time/1000 * (missing_images - 0.5))
+            self.acq_eng.set_pause(True)
+            time.sleep(0.2)
+            missing_images = self.datastore.get_num_images() % self.num_channels
+            tries =+ tries
 
 
 

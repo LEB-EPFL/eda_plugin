@@ -36,7 +36,8 @@ class KerasAnalyser(QObject):
         self.actuator = actuator
 
         self.threadpool = QThreadPool(parent=self)
-        # Load and initialize model so first predict is fast
+        self.threadpool.setMaxThreadCount(5)
+        # Load and initialize model so first predict is fast(er)
         self.model_path = "//lebnas1.epfl.ch/microsc125/Watchdog/Model/model_Dora.h5"
         self.model = keras.models.load_model(self.model_path, compile=True)
         self.channels = self.model.layers[0].input_shape[0][3]
@@ -125,25 +126,25 @@ class KerasAnalyser(QObject):
 class FrameCounterThread(QThread):
     def __init__(self, parent, event_thread):
         super().__init__(parent=parent)
-        self.frame_counter = FrameCounter(event_thread)
+        self.frame_counter = self.FrameCounter(event_thread)
         # After the following call the slots will be executed in the thread
         self.frame_counter.moveToThread(self)
 
 
-class FrameCounter(QObject):
-    def __init__(self, event_thread:EventThread):
-        super().__init__()
-        self.loop = QEventLoop(self)
-        self.event_thread = event_thread
-        self.event_thread.new_image_event.connect(self.increase_frame_counter)
-        self.frame_counter = 0
+    class FrameCounter(QObject):
+        def __init__(self, event_thread:EventThread):
+            super().__init__()
+            self.loop = QEventLoop(self)
+            self.event_thread = event_thread
+            self.event_thread.new_image_event.connect(self.increase_frame_counter)
+            self.frame_counter = 0
 
-    @pyqtSlot(PyImage)
-    def increase_frame_counter(self, evt):
-        self.frame_counter = evt.timepoint
+        @pyqtSlot(PyImage)
+        def increase_frame_counter(self, evt):
+            self.frame_counter = evt.timepoint
 
-    def start(self):
-        self.loop.exec()
+        def start(self):
+            self.loop.exec()
 
 
 class ImageAnalyser(QRunnable):
@@ -161,16 +162,18 @@ class ImageAnalyser(QRunnable):
     def run(self):
         network_input, positions = self.prepare_images(self.local_images)
         network_output = self.model.predict_on_batch(network_input)
-        network_output = self.post_process_output(network_output, positions)
 
-        if self.timepoint ==  0:
-            self.signals.new_output_shape.emit(network_output.shape)
-        self.signals.new_network_image.emit(network_output)
+        # The simple maximum decision parameter can be calculated without stiching
         decision_parameter = self.extract_decision_parameter(network_output)
         # This should be evt.time once we can set the metadata on the image
         elapsed_time = round(time.time() * 1000) - self.start_time
         self.signals.new_decision_parameter.emit(decision_parameter, elapsed_time)
 
+        # Also construct the image so it can be displayed
+        network_output = self.post_process_output(network_output, positions)
+        if self.timepoint ==  0:
+            self.signals.new_output_shape.emit(network_output.shape)
+        self.signals.new_network_image.emit(network_output)
 
     def extract_decision_parameter(self, network_output: np.ndarray) -> Number:
         return float(np.max(network_output))

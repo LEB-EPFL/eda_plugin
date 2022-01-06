@@ -42,6 +42,7 @@ class BinaryFrameRateInterpreter(QObject):
     def define_imaging_speed(self, new_value: float):
         # Only change interval if necessary
         old_interval = self.interval
+
         if self.interval == self.params.fast_interval:
             if all((new_value < self.params.lower_threshold,
                    self.num_fast_frames >= self.min_fast_frames)):
@@ -49,6 +50,7 @@ class BinaryFrameRateInterpreter(QObject):
         elif self.interval == self.params.slow_interval:
             if new_value > self.params.upper_threshold:
                 self.interval = self.params.fast_interval
+
         # Increase the number of fast_frames if we are in fast mode, else reset
         if self.interval == self.params.fast_interval:
             self.num_fast_frames += 1

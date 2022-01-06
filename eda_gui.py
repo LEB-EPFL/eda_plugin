@@ -32,6 +32,7 @@ class EDAMainGUI(QtWidgets.QWidget):
         self.analyzer.new_output_shape.connect(self.plot.reset_plot)
         self.analyzer.new_network_image.connect(self.viewer.set_qimage)
         self.analyzer.new_decision_parameter.connect(self.plot.add_datapoint)
+
         self.analyzer.new_decision_parameter.connect(self.interpreter.calculate_interpretation)
         self.interpreter.new_interpretation.connect(self.actuator.call_action)
         self.interpreter.new_parameters.connect(self.plot.set_thr_lines)
@@ -71,8 +72,9 @@ class EDAPlot(pg.PlotWidget):
         self.enableAutoRange()
 
     def reset_plot(self):
-        self.x_data = []
-        self.y_data = []
+        self.x_data = [self.x_data[-1]]
+        self.y_data = [self.y_data[-1]]
+        self.refresh_plot()
 
     QtCore.pyqtSlot(ParameterSet)
     def set_thr_lines(self, params: ParameterSet):
