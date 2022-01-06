@@ -1,9 +1,9 @@
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from data_structures import ParameterSet
-
+import time
 from protocols import ParameterForm
-
+from event_bus import EventBus
 
 class BinaryFrameRateInterpreter(QObject):
     """ Take the output calcualted by an ImageAnalyser and
@@ -12,7 +12,7 @@ class BinaryFrameRateInterpreter(QObject):
     new_interpretation = pyqtSignal(float)
     new_parameters = pyqtSignal(ParameterSet)
 
-    def __init__(self, param_form: ParameterForm):
+    def __init__(self, param_form: ParameterForm, event_bus:EventBus):
         super().__init__()
         self.param_form = param_form
         self.param_form.new_parameters.connect(self.update_parameters)
@@ -24,6 +24,10 @@ class BinaryFrameRateInterpreter(QObject):
                                    upper_threshold=100)
         self.num_fast_frames = 0
         self.min_fast_frames = 4
+
+        # Connect event bus
+        self.new_interpretation.connect(event_bus.new_interpretation)
+
 
     @pyqtSlot(object)
     def update_parameters(self, params: ParameterSet):
@@ -59,3 +63,4 @@ class BinaryFrameRateInterpreter(QObject):
 
         if not self.interval == old_interval:
             self.new_interpretation.emit(self.interval)
+        print("DECISION              ", time.perf_counter())

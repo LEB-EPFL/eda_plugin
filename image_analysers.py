@@ -1,20 +1,17 @@
 
 from PyQt5 import QtWidgets
-from PyQt5 import QtCore
 from PyQt5.QtCore import QEventLoop, QObject, QRunnable, QThread, QThreadPool, pyqtSignal, pyqtSlot
-import threading
-from typing import Protocol
 import numpy as np
 import sys
+from event_bus import EventBus
 from isimgui.data_structures import PyImage
 from eda_original.SmartMicro.NNfeeder import prepareNNImages
 from eda_original.SmartMicro.ImageTiles import stitchImage
-from isimgui.EventThread import EventThread
 from tensorflow import keras
 from numbers import Number
 import time
 
-from protocols import Actuator
+
 
 
 class KerasAnalyser(QObject):
@@ -26,14 +23,13 @@ class KerasAnalyser(QObject):
     new_network_image = pyqtSignal(np.ndarray)
     new_decision_parameter = pyqtSignal(float, int)
 
-    def __init__(self, actuator: Actuator = None):
+    def __init__(self, event_bus: EventBus):
         super().__init__()
         self.name = "KerasAnalyser"
         self.shape = None
         self.time = None
         self.images = None
         self.start_time = None
-        self.actuator = actuator
 
         self.threadpool = QThreadPool(parent=self)
         self.threadpool.setMaxThreadCount(5)
@@ -42,20 +38,15 @@ class KerasAnalyser(QObject):
         self.model = keras.models.load_model(self.model_path, compile=True)
         self.channels = self.model.layers[0].input_shape[0][3]
 
-        if actuator is None:
-            self.event_thread = EventThread()
-            self.event_thread.start(daemon=True)
-        else:
-            self.event_thread = actuator.event_thread
 
         self.init_model()
-        self.event_thread.new_image_event.connect(self.start_analysis)
-        self.event_thread.acquisition_started_event.connect(self.start)
-        self.event_thread.acquisition_ended_event.connect(self.stop)
         print('Image Analyser Running')
-        self.frame_counter = None
-        self.frame_counter_active = False
+        self.frame_counter = FrameCounterThread(self, event_bus)
 
+        # Connect incoming events
+        event_bus.acquisition_started_event.connect(self.frame_counter.start)
+        event_bus.acquisition_ended_event.connect(self.frame_counter.exit)
+        event_bus.new_image_event.connect(self.start_analysis)
 
     @pyqtSlot(object)
     def start_analysis(self, evt: PyImage):
@@ -110,33 +101,29 @@ class KerasAnalyser(QObject):
         self.model(np.random.randint(
             10, size=[1, size, size, self.channels]))
 
-    def start(self):
-        if not self.frame_counter_active:
-            self.frame_counter = FrameCounterThread(self, self.event_thread)
-            self.frame_counter.setObjectName('FrameCounterThread')
-            self.frame_counter.start()
-            self.frame_counter_active = True
-
-    def stop(self):
-        self.frame_counter.frame_counter.loop.exit()
-        self.frame_counter.exit()
-        self.frame_counter_active = False
-
 
 class FrameCounterThread(QThread):
-    def __init__(self, parent, event_thread):
+    def __init__(self, parent, event_bus):
         super().__init__(parent=parent)
-        self.frame_counter = self.FrameCounter(event_thread)
+        self.frame_counter = self.FrameCounter(event_bus)
         # After the following call the slots will be executed in the thread
         self.frame_counter.moveToThread(self)
 
+    def start(self):
+        if not self.isRunning():
+            super().start()
+        self.frame_counter.start()
+
+    def exit(self):
+        self.frame_counter.stop()
+        super().exit()
+
 
     class FrameCounter(QObject):
-        def __init__(self, event_thread:EventThread):
+        def __init__(self, event_bus:EventBus):
             super().__init__()
             self.loop = QEventLoop(self)
-            self.event_thread = event_thread
-            self.event_thread.new_image_event.connect(self.increase_frame_counter)
+            event_bus.new_image_event.connect(self.increase_frame_counter)
             self.frame_counter = 0
 
         @pyqtSlot(PyImage)
@@ -144,7 +131,11 @@ class FrameCounterThread(QThread):
             self.frame_counter = evt.timepoint
 
         def start(self):
-            self.loop.exec()
+            if not self.loop.isRunning():
+                self.loop.exec()
+
+        def stop(self):
+            self.loop.exit()
 
 
 class ImageAnalyser(QRunnable):

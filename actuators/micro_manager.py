@@ -1,78 +1,19 @@
 import threading
 import time
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
-from PyQt5 import QtWidgets
-from isimgui.EventThread import EventThread
+from PyQt5 import QtWidgets, QtGui
 from eda_plugin.protocols import ParameterForm
-
-
-class MMActuator(QObject):
-    """ Once an acquisition is started from the """
-    start_acq_signal = pyqtSignal()
-    stop_acq_signal = pyqtSignal()
-    new_interval = pyqtSignal(float)
-
-    def __init__(self, event_thread: EventThread = None, acquisition_mode: str = 'timer'):
-        super().__init__()
-
-        if event_thread is None:
-            self.event_thread = EventThread()
-            self.event_thread.start(daemon=True)
-        else:
-            self.event_thread = event_thread
-
-        self.studio = self.event_thread.bridge.get_studio()
-        self.acquisition_mode = acquisition_mode
-        self.interval = 5
-        self.acquisition = None
-
-
-    @pyqtSlot(float)
-    def call_action(self, interval):
-        print('=== New interval: ', interval)
-        self.new_interval.emit(interval)
-
-
-    def start_acq(self):
-        if self.acquisition_mode.lower() == 'timer':
-            self.acquisition = TimerMMAcquisition(self)
-        elif self.acquisition_mode.lower() == 'timer':
-            self.acquisition = DirectMMAcquisition(self)
-        else:
-            raise RuntimeWarning('Unknown acquisition mode!')
-        self.acquisition.new_image.connect(self.new_image)
-        self.acquisition.acquisition_ended.connect(self.reset_thread)
-        self.acquisition.start()
-        self.start_acq_signal.emit()
-
-    def reset_thread(self):
-        self.acquisition.quit()
-        time.sleep(0.5)
-
-    def stop_acq(self):
-        self.stop_acq_signal.emit()
-        self.acquisition.exit()
-        self.acquisition.deleteLater()
-        self.acquisition = None
-
-    def new_image(self, image):
-        self.event_thread.new_image_event.emit(image)
+from event_bus import EventBus
 
 
 class MMAcquisition(QThread):
-    new_image = pyqtSignal(object)
     acquisition_ended = pyqtSignal()
 
-    def __init__(self, actuator: MMActuator):
-        super().__init__(parent=actuator)
-        self.studio = actuator.studio
-        self.actuator = actuator
-
-        self.actuator.start_acq_signal.connect(self.start_acq)
-        self.actuator.stop_acq_signal.connect(self.stop_acq)
-        self.actuator.new_interval.connect(self.change_interval)
-
+    def __init__(self, studio):
+        super().__init__()
+        self.studio = studio
         self.settings = self.studio.acquisitions().get_acquisition_settings()
+        #TODO: Set interval to fast interval so it can be used when running freely
         self.settings = self.settings.copy_builder().interval_ms(0).build()
         self.channels = self.get_channel_information()
         self.channel_switch_time = 133  # ms
@@ -85,6 +26,14 @@ class MMAcquisition(QThread):
 
         self.stop = False
 
+    def start(self):
+        super().start()
+        self.start_acq()
+
+    def start_acq(self):
+        """To be implemented by the subclass"""
+        pass
+
     def get_channel_information(self):
         channels = []
         all_channels = self.settings.channels()
@@ -95,55 +44,40 @@ class MMAcquisition(QThread):
             channels.append(channel.exposure())
         return channels
 
-    def stop_acq(self, stop: bool = True):
-        self.stop = stop
-
-    @pyqtSlot()
-    def start_acq(self):
-        self.acquire()
-
-    def acquire(self):
-        pass
-
-    @pyqtSlot(float)
-    def change_interval(self, new_interval: float):
-        pass
-
 
 class TimerMMAcquisition(MMAcquisition):
     """ An Acquisition using a timer to trigger a frame acquisition should be more stable
     for consistent framerate compared to a waiting approach"""
 
-    def __init__(self, actuator: MMActuator):
-        super().__init__(actuator)
-        self.timer = None
-
-    @pyqtSlot()
-    def start_acq(self):
-        print('START')
+    def __init__(self, studio, start_interval: float = 5.):
+        super().__init__(studio)
         self.timer = QTimer()
         self.timer.timeout.connect(self.acquire)
-        self.timer.setInterval(self.actuator.interval * 1_000)
+        self.start_interval = start_interval
+
+    def start_acq(self):
+        self.timer.setInterval(self.start_interval * 1_000)
         self.timer.start()
+        print('START')
 
     @pyqtSlot()
     def stop_acq(self):
         print('STOP')
         self.timer.stop()
-        self.timer = None
-        self.studio.get_acquisition_engine().shutdown()
+        self.acq_eng.shutdown()
         self.acquisition_ended.emit()
         self.datastore.freeze()
 
     @pyqtSlot(float)
     def change_interval(self, new_interval: float):
+        #TODO use fast_interval instead of 0
         if new_interval == 0:
             self.timer.stop()
             self.acq_eng.set_pause(False)
             return
 
         self.acq_eng.set_pause(True)
-        self.check_missing_image()
+        self.check_missing_channels()
         self.timer.setInterval(new_interval*1_000)
         if not self.timer.isActive():
             self.timer.start()
@@ -153,15 +87,14 @@ class TimerMMAcquisition(MMAcquisition):
         self.acq_eng.set_pause(False)
         time.sleep(sum(self.channels)/1000 + self.channel_switch_time/1000 * (self.num_channels - 1))
         self.acq_eng.set_pause(True)
-        self.check_missing_image()
+        self.check_missing_channels()
 
-    def check_missing_image(self):
+    def check_missing_channels(self):
         time.sleep(0.2)
         missing_images = self.datastore.get_num_images() % self.num_channels
         tries = 0
         while missing_images > 0 and tries < 3:
             print('Trying to get 1 additional image')
-            # print('Extra time: ', sum(self.channels[-missing_images:])/1000 + self.channel_switch_time/1000 * (missing_images - 1))
             self.acq_eng.set_pause(False)
             time.sleep(sum(self.channels[-missing_images:])/1000 + self.channel_switch_time/1000 * (missing_images - 0.5))
             self.acq_eng.set_pause(True)
@@ -173,8 +106,8 @@ class TimerMMAcquisition(MMAcquisition):
 class DirectMMAcquisition(MMAcquisition):
     # TODO also stop the acquisition if the acquisition is stopped from micro-manager
 
-    def __init__(self, actuator: MMActuator):
-        super().__init__(actuator)
+    def __init__(self):
+        super().__init__()
         self.fast_react = True
         self.sleeper = threading.Event()
 
@@ -202,6 +135,50 @@ class DirectMMAcquisition(MMAcquisition):
         self.studio.get_acquisition_engine().shutdown()
         self.acquisition_ended.emit()
         self.datastore.freeze()
+
+
+class MMActuator(QObject):
+    """ Once an acquisition is started from the """
+    stop_acq_signal = pyqtSignal()
+    new_interval = pyqtSignal(float)
+
+    def __init__(self,
+                 event_bus: EventBus = None,
+                 acquisition_mode: MMAcquisition = TimerMMAcquisition):
+        super().__init__()
+
+        self.studio = event_bus.studio
+        self.acquisition_mode = acquisition_mode
+        self.interval = 5
+        self.acquisition = None
+
+        # Connect incoming events
+        event_bus.new_interpretation.connect(self.call_action)
+
+
+    @pyqtSlot(float)
+    def call_action(self, interval):
+        print('=== New interval: ', interval)
+        self.new_interval.emit(interval)
+
+    def start_acq(self):
+        self.acquisition = self.acquisition_mode(self.studio)
+
+        self.acquisition.acquisition_ended.connect(self.reset_thread)
+        self.stop_acq_signal.connect(self.acquisition.stop_acq)
+        self.new_interval.connect(self.acquisition.change_interval)
+
+        self.acquisition.start()
+
+    def reset_thread(self):
+        self.acquisition.quit()
+        time.sleep(0.5)
+
+    def stop_acq(self):
+        self.stop_acq_signal.emit()
+        self.acquisition.exit()
+        self.acquisition.deleteLater()
+        self.acquisition = None
 
 
 class MMActuatorGUI(QtWidgets.QWidget):
@@ -237,3 +214,8 @@ class MMActuatorGUI(QtWidgets.QWidget):
         self.actuator.stop_acq()
         self.start_button.setDisabled(False)
         self.stop_button.setDisabled(True)
+
+    def closeEvent(self, event):
+        app = QtGui.QApplication.instance()
+        app.closeAllWindows()
+        event.accept()

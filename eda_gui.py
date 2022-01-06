@@ -6,6 +6,7 @@ from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
 from qimage2ndarray import gray2qimage
 from data_structures import ParameterSet
 from protocols import ImageAnalyser, Interpreter, Actuator
+from event_bus import EventBus
 
 # Adjust for different screen sizes
 QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
@@ -13,19 +14,21 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.P
 
 class EDAMainGUI(QtWidgets.QWidget):
 
-    def __init__(self, analyzer: ImageAnalyser, interpreter: Interpreter, actuator: Actuator):
+    def __init__(self, analyzer: ImageAnalyser, interpreter: Interpreter, actuator_gui: QtWidgets.QWidget):
         super().__init__()
         self.setWindowTitle(analyzer.name)
         self.analyzer = analyzer
         self.interpreter = interpreter
-        self.actuator = actuator
         self.viewer = NetworkImageViewer()
         self.plot = EDAPlot()
 
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().addWidget(self.viewer)
-        self.layout().addWidget(self.plot)
+        self.setLayout(QtWidgets.QGridLayout())
+        self.layout().addWidget(self.viewer, 0, 0)
+        self.layout().addWidget(self.plot,1, 0)
         self.setStyleSheet("background-color:black;")
+
+        self.actuator_gui = actuator_gui
+        self.actuator_gui.show()
 
         # Establish communication between the different parts
         self.analyzer.new_output_shape.connect(self.viewer.reset_scene_rect)
@@ -34,9 +37,13 @@ class EDAMainGUI(QtWidgets.QWidget):
         self.analyzer.new_decision_parameter.connect(self.plot.add_datapoint)
 
         self.analyzer.new_decision_parameter.connect(self.interpreter.calculate_interpretation)
-        self.interpreter.new_interpretation.connect(self.actuator.call_action)
+        # self.interpreter.new_interpretation.connect(self.actuator.call_action)
         self.interpreter.new_parameters.connect(self.plot.set_thr_lines)
 
+    def closeEvent(self, event):
+        app = QtGui.QApplication.instance()
+        app.closeAllWindows()
+        event.accept()
 
 class EDAPlot(pg.PlotWidget):
     def __init__(self, *args, **kwargs):
@@ -152,15 +159,14 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
 
     param_form = EDAParameterForm()
-
-    actuator = MMActuator()
+    event_bus = EventBus()
+    actuator = MMActuator(event_bus=event_bus)
     actuator_gui = MMActuatorGUI(actuator, param_form)
-    image_analyser = KerasAnalyser(actuator)
-    interpreter = BinaryFrameRateInterpreter(actuator_gui.param_form)
+    image_analyser = KerasAnalyser(event_bus)
+    interpreter = BinaryFrameRateInterpreter(actuator_gui.param_form, event_bus)
 
-    gui = EDAMainGUI(image_analyser, interpreter, actuator)
+    gui = EDAMainGUI(image_analyser, interpreter,actuator_gui)
     gui.show()
-    actuator_gui.show()
     sys.exit(app.exec_())
 
 
