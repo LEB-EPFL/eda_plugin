@@ -10,9 +10,11 @@ from utility.qt_classes import QWidgetRestore
 class MMAcquisition(QThread):
     acquisition_ended = pyqtSignal()
 
-    def __init__(self, studio):
+    def __init__(self, event_bus: EventBus):
         super().__init__()
-        self.studio = studio
+        self.studio = event_bus.studio
+        event_bus.acquisition_started_event.connect(self.pause_acquisition)
+
         self.settings = self.studio.acquisitions().get_acquisition_settings()
         #TODO: Set interval to fast interval so it can be used when running freely
         self.settings = self.settings.copy_builder().interval_ms(0).build()
@@ -22,8 +24,9 @@ class MMAcquisition(QThread):
 
         self.acquisitions = self.studio.acquisitions()
         self.acq_eng = self.studio.get_acquisition_engine()
+        self.acq_eng.set_pause(True)
         self.datastore = self.acquisitions.run_acquisition_with_settings(self.settings, False)
-        self.acquisitions.set_pause(True)
+        self.pause_acquisition()
 
         self.stop = False
 
@@ -45,6 +48,13 @@ class MMAcquisition(QThread):
             channels.append(channel.exposure())
         return channels
 
+    def pause_acquisition(self):
+        self.acq_eng.set_pause(True)
+        self.acquisitions.set_pause(True)
+        # while not self.acq_eng.is_paused():
+        #     self.acq_eng.set_pause(True)
+        #     self.acquisitions.set_pause(True)
+        #     time.sleep(0.05)
 
 class TimerMMAcquisition(MMAcquisition):
     """ An Acquisition using a timer to trigger a frame acquisition should be more stable
@@ -65,6 +75,7 @@ class TimerMMAcquisition(MMAcquisition):
     def stop_acq(self):
         print('STOP')
         self.timer.stop()
+        self.acq_eng.set_pause(True)
         self.acq_eng.shutdown()
         self.acquisition_ended.emit()
         self.datastore.freeze()
@@ -184,8 +195,9 @@ class MMActuator(QObject):
 
         self.gui = MMActuatorGUI(self) if gui else None
 
+        self.event_bus = event_bus
         # Connect incoming events
-        event_bus.new_interpretation.connect(self.call_action)
+        self.event_bus.new_interpretation.connect(self.call_action)
 
 
     @pyqtSlot(float)
@@ -194,7 +206,7 @@ class MMActuator(QObject):
         self.new_interval.emit(interval)
 
     def start_acq(self):
-        self.acquisition = self.acquisition_mode(self.studio)
+        self.acquisition = self.acquisition_mode(self.event_bus)
 
         self.acquisition.acquisition_ended.connect(self.reset_thread)
         self.stop_acq_signal.connect(self.acquisition.stop_acq)

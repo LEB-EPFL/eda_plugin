@@ -83,12 +83,14 @@ class BinaryFrameRateInterpreter(QObject):
         self.new_parameters.emit(self.params)
 
     @pyqtSlot(object)
-    def update_parameters(self, params: ParameterSet):
+    def update_parameters(self, new_params: ParameterSet):
         if self.interval == self.params.slow_interval:
-            self.interval = params.slow_interval
+            self.interval = new_params.slow_interval
+        elif self.interval == self.params.fast_interval:
+            self.interval = new_params.fast_interval
         else:
-            self.interval = params.fast_interval
-        self.params = params
+            self.interval = new_params.slow_interval
+        self.params = new_params
         self.new_interpretation.emit(self.interval)
         self.new_parameters.emit(self.params)
 

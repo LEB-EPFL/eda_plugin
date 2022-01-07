@@ -130,6 +130,7 @@ class FrameCounterThread(QThread):
             self.frame_counter = evt.timepoint
 
         def start(self):
+            self.frame_counter = 0
             if not self.loop.isRunning():
                 self.loop.exec()
 
