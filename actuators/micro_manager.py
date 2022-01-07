@@ -4,6 +4,7 @@ from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets, QtGui
 from eda_plugin.protocols import ParameterForm
 from event_bus import EventBus
+from utility.qt_classes import QWidgetRestore
 
 
 class MMAcquisition(QThread):
@@ -16,7 +17,7 @@ class MMAcquisition(QThread):
         #TODO: Set interval to fast interval so it can be used when running freely
         self.settings = self.settings.copy_builder().interval_ms(0).build()
         self.channels = self.get_channel_information()
-        self.channel_switch_time = 133  # ms
+        self.channel_switch_time = 100  # ms
         self.num_channels = len(self.channels)
 
         self.acquisitions = self.studio.acquisitions()
@@ -137,6 +138,34 @@ class DirectMMAcquisition(MMAcquisition):
         self.datastore.freeze()
 
 
+class PycroAcquisition(MMAcquisition):
+    """ This tries to use the inbuilt Acquisition function in pycromanager. Unfortunately, these
+    acquisitions don't start with the default Micro-Manager interface and the acquisition also
+    doesn't seem to be saved in a perfect format, so that Micro-Manager would detect the correct
+    parameters to show the channels upon loading for example. The Acquisitions also don't emit any
+    of the standard Micro-Manager events. Stashed for now because of this"""
+    new_image = pyqtSignal(object)
+    acquisition_ended = pyqtSignal()
+    def __init__(self):
+        super().__init__()
+        self.acquisition = pycromanager.Acquisition(directory='C:/Users/stepp/Desktop/eda_save', name='acquisition_name')
+        self.events = pycromanager.multi_d_acquisition_events(
+                                    num_time_points=100, time_interval_s=0.5,
+                                    channel_group='Channel', channels=['DAPI', 'FITC'],
+                                    order='ct')
+        self.sleeper = threading.Event()  # Might actually not be needed here
+
+    def start_acq(self):
+        self.acquire()
+
+    def acquire(self):
+        self.acquisition.acquire(self.events)
+
+    def send_image(self):
+
+        self.new_image.emit()
+
+
 class MMActuator(QObject):
     """ Once an acquisition is started from the """
     stop_acq_signal = pyqtSignal()
@@ -144,13 +173,16 @@ class MMActuator(QObject):
 
     def __init__(self,
                  event_bus: EventBus = None,
-                 acquisition_mode: MMAcquisition = TimerMMAcquisition):
+                 acquisition_mode: MMAcquisition = TimerMMAcquisition,
+                 gui: bool = True):
         super().__init__()
 
         self.studio = event_bus.studio
         self.acquisition_mode = acquisition_mode
         self.interval = 5
         self.acquisition = None
+
+        self.gui = MMActuatorGUI(self) if gui else None
 
         # Connect incoming events
         event_bus.new_interpretation.connect(self.call_action)
@@ -181,13 +213,11 @@ class MMActuator(QObject):
         self.acquisition = None
 
 
-class MMActuatorGUI(QtWidgets.QWidget):
+class MMActuatorGUI(QWidgetRestore):
     """Specific GUI for the MMActuator, because this needs a Start and Stop
     Button for now."""
 
-    start_acq_signal = pyqtSignal()
-
-    def __init__(self, actuator: MMActuator, parameter_form: ParameterForm):
+    def __init__(self, actuator: MMActuator):
         super().__init__()
         self.actuator = actuator
         self.start_button = QtWidgets.QPushButton('Start')
@@ -196,12 +226,9 @@ class MMActuatorGUI(QtWidgets.QWidget):
         self.stop_button.clicked.connect(self.stop_acq)
         self.stop_button.setDisabled(True)
 
-        grid = QtWidgets.QGridLayout(self)
-        grid.addWidget(self.start_button, 0, 1)
-        grid.addWidget(self.stop_button, 1, 1)
-
-        self.param_form = parameter_form
-        grid.addWidget(self.param_form, 0, 0, 2, 1)
+        grid = QtWidgets.QVBoxLayout(self)
+        grid.addWidget(self.start_button)
+        grid.addWidget(self.stop_button)
 
         self.setWindowTitle('EDA Actuator Plugin')
 
@@ -214,8 +241,3 @@ class MMActuatorGUI(QtWidgets.QWidget):
         self.actuator.stop_acq()
         self.start_button.setDisabled(False)
         self.stop_button.setDisabled(True)
-
-    def closeEvent(self, event):
-        app = QtGui.QApplication.instance()
-        app.closeAllWindows()
-        event.accept()

@@ -1,15 +1,26 @@
-from PyQt5.QtCore import QEventLoop, QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from data_structures import ParameterSet
 
 from isimgui.EventThread import EventThread
 from isimgui.data_structures import PyImage
-
+import numpy as np
 
 class EventBus(QObject):
 
+    # Interpreter Events
     new_interpretation = pyqtSignal(float)
+    new_parameters = pyqtSignal(ParameterSet)
+
+    #Events from micro-manager via EventThread
     acquisition_started_event = pyqtSignal(object)
     acquisition_ended_event = pyqtSignal(object)
     new_image_event = pyqtSignal(PyImage)
+
+    #Analyser Events
+    new_decision_parameter = pyqtSignal(float, float, int)
+    new_output_shape = pyqtSignal(tuple)
+    new_network_image = pyqtSignal(np.ndarray)
+
 
     def __init__(self):
         super().__init__()
