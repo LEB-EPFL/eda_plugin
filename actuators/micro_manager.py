@@ -1,8 +1,8 @@
 import threading
 import time
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
-from PyQt5 import QtWidgets, QtGui
-from eda_plugin.protocols import ParameterForm
+from PyQt5 import QtWidgets
+import qdarkstyle
 from event_bus import EventBus
 from utility.qt_classes import QWidgetRestore
 
@@ -24,7 +24,7 @@ class MMAcquisition(QThread):
 
         self.acquisitions = self.studio.acquisitions()
         self.acq_eng = self.studio.get_acquisition_engine()
-        self.acq_eng.set_pause(True)
+        # self.acq_eng.set_pause(True)
         self.datastore = self.acquisitions.run_acquisition_with_settings(self.settings, False)
         self.pause_acquisition()
 
@@ -51,10 +51,7 @@ class MMAcquisition(QThread):
     def pause_acquisition(self):
         self.acq_eng.set_pause(True)
         self.acquisitions.set_pause(True)
-        # while not self.acq_eng.is_paused():
-        #     self.acq_eng.set_pause(True)
-        #     self.acquisitions.set_pause(True)
-        #     time.sleep(0.05)
+
 
 class TimerMMAcquisition(MMAcquisition):
     """ An Acquisition using a timer to trigger a frame acquisition should be more stable
@@ -241,7 +238,7 @@ class MMActuatorGUI(QWidgetRestore):
         grid = QtWidgets.QVBoxLayout(self)
         grid.addWidget(self.start_button)
         grid.addWidget(self.stop_button)
-
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
         self.setWindowTitle('EDA Actuator Plugin')
 
     def start_acq(self):

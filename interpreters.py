@@ -1,6 +1,7 @@
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets
+import qdarkstyle
 from data_structures import ParameterSet
 import time
 from event_bus import EventBus
@@ -8,8 +9,8 @@ from utility.qt_classes import QWidgetRestore
 
 DEFAULT_VALUES = ParameterSet(slow_interval=5,
                               fast_interval=0,
-                              lower_threshold=75,
-                              upper_threshold=110)
+                              lower_threshold=0.5,
+                              upper_threshold=0.95)
 
 
 class BinaryFrameRateParameterForm(QWidgetRestore):
@@ -44,13 +45,14 @@ class BinaryFrameRateParameterForm(QWidgetRestore):
         param_layout.addRow('Lower Threshold', self.lower_threshold_input)
         param_layout.addRow('Upper Threshold', self.upper_threshold_input)
 
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
         self.param_set = DEFAULT_VALUES
 
     def update_parameters(self):
         self.param_set.slow_interval = float(str(self.slow_interval_input.text()))
         self.param_set.fast_interval = float(str(self.fast_interval_input.text()))
-        self.param_set.lower_threshold = int(str(self.lower_threshold_input.text()))
-        self.param_set.upper_threshold = int(str(self.upper_threshold_input.text()))
+        self.param_set.lower_threshold = float(str(self.lower_threshold_input.text()))
+        self.param_set.upper_threshold = float(str(self.upper_threshold_input.text()))
 
         self.new_parameters.emit(self.param_set)
 

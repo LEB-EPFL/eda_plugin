@@ -10,6 +10,9 @@ from eda_original.SmartMicro.ImageTiles import stitchImage
 from tensorflow import keras
 from numbers import Number
 import time
+import qdarkstyle
+
+from utility.qt_classes import QWidgetRestore
 
 
 class KerasAnalyser(QObject):
@@ -31,12 +34,11 @@ class KerasAnalyser(QObject):
 
         self.threadpool = QThreadPool(parent=self)
         self.threadpool.setMaxThreadCount(5)
-        # Load and initialize model so first predict is fast(er)
-        self.model_path = "//lebnas1.epfl.ch/microsc125/Watchdog/Model/model_Dora.h5"
-        self.model = keras.models.load_model(self.model_path, compile=True)
-        self.channels = self.model.layers[0].input_shape[0][3]
 
-        self.init_model()
+        self.gui = KerasSettingsGUI()
+        self.gui.new_settings.connect(self.new_settings)
+        self.new_settings(self.gui.keras_settings)
+
         self.frame_counter = FrameCounterThread(self, event_bus)
 
         # Emitted events
@@ -44,8 +46,8 @@ class KerasAnalyser(QObject):
         self.new_network_image.connect(event_bus.new_network_image)
 
         # Connect incoming events
-        event_bus.acquisition_started_event.connect(self.frame_counter.start)
         event_bus.acquisition_started_event.connect(self.reset_time)
+        event_bus.acquisition_started_event.connect(self.frame_counter.start)
         event_bus.acquisition_ended_event.connect(self.frame_counter.exit)
         event_bus.new_image_event.connect(self.start_analysis)
         print('Image Analyser Running')
@@ -53,15 +55,17 @@ class KerasAnalyser(QObject):
     @pyqtSlot(PyImage)
     def start_analysis(self, evt: PyImage):
         # Skip the timepoint if a newer timepoint is already there. Analysis is lagging behind.
-        if evt.timepoint < self.frame_counter.frame_counter.frame_counter:
+        if evt.timepoint < self.frame_counter.counter.count:
             print('SKIPPED ', evt.timepoint)
             return
+
         ready = self.gather_images(evt, )
         if not ready:
             return
         print('All channels acquired ', int(evt.timepoint))
+
         local_images = self.images.copy()
-        worker = KerasAnalyserWorker(self.model, local_images, evt.timepoint, self.start_time)
+        worker = self.worker(self.model, local_images, evt.timepoint, self.start_time)
         # # Connect the signals to push through
         worker.signals.new_decision_parameter.connect(self.new_decision_parameter)
         worker.signals.new_network_image.connect(self.new_network_image)
@@ -90,6 +94,7 @@ class KerasAnalyser(QObject):
         print(self.shape)
 
     def reset_time(self):
+        print('TIME RESET')
         self.start_time = round(time.time() * 1000)
 
     def init_model(self):
@@ -101,20 +106,28 @@ class KerasAnalyser(QObject):
         self.model(np.random.randint(
             10, size=[1, size, size, self.channels]))
 
+    def new_settings(self, new_settings):
+        # Load and initialize model so first predict is fast(er)
+        self.model_path = new_settings['model']
+        self.model = keras.models.load_model(self.model_path, compile=True)
+        self.channels = self.model.layers[0].input_shape[0][3]
+        self.worker = new_settings['worker']
+        self.init_model()
 
 class FrameCounterThread(QThread):
     def __init__(self, parent, event_bus):
         super().__init__(parent=parent)
-        self.frame_counter = self.FrameCounter(event_bus)
-        self.frame_counter.moveToThread(self)
+        self.counter = self.FrameCounter(event_bus)
+        self.counter.moveToThread(self)
 
     def start(self):
+        print("FRAME COUNTER STARTED")
         if not self.isRunning():
             super().start()
-        self.frame_counter.start()
+        self.counter.start()
 
     def exit(self):
-        self.frame_counter.stop()
+        self.counter.stop()
         super().exit()
 
 
@@ -123,14 +136,14 @@ class FrameCounterThread(QThread):
             super().__init__()
             self.loop = QEventLoop(self)
             event_bus.new_image_event.connect(self.increase_frame_counter)
-            self.frame_counter = 0
+            self.count = 0
 
         @pyqtSlot(PyImage)
         def increase_frame_counter(self, evt):
-            self.frame_counter = evt.timepoint
+            self.count = evt.timepoint
 
         def start(self):
-            self.frame_counter = 0
+            self.count = 0
             if not self.loop.isRunning():
                 self.loop.exec()
 
@@ -138,10 +151,10 @@ class FrameCounterThread(QThread):
             self.loop.exit()
 
 
-class KerasAnalyserWorker(QRunnable):
+class KerasWorker(QRunnable):
 
     def __init__(self, model, local_images: np.ndarray, timepoint: int, start_time: float):
-        super(KerasAnalyserWorker, self).__init__()
+        super().__init__()
         self.signals = self.Signals()
         self.model = model
         self.local_images = local_images
@@ -149,7 +162,6 @@ class KerasAnalyserWorker(QRunnable):
         self.start_time = start_time
         self.autoDelete = True
 
-    @pyqtSlot(int, np.ndarray)
     def run(self):
         network_input, positions = self.prepare_images(self.local_images)
         network_output = self.model.predict_on_batch(network_input)
@@ -169,19 +181,74 @@ class KerasAnalyserWorker(QRunnable):
     def extract_decision_parameter(self, network_output: np.ndarray) -> Number:
         return float(np.max(network_output))
 
+    def prepare_images(self, images: np.ndarray):
+        return images, []
+
+    def post_process_output(self, data: np.ndarray):
+        return data
+
+    class Signals(QObject):
+        new_output_shape = pyqtSignal(tuple)
+        new_network_image = pyqtSignal(np.ndarray)
+        new_decision_parameter = pyqtSignal(float, float, int)
+
+
+class KerasPrePostWorker(KerasWorker):
+
+    def __init__(self, model, local_images: np.ndarray, timepoint: int, start_time: float):
+        super().__init__(model, local_images, timepoint, start_time)
+
     def post_process_output(self, data: np.ndarray, positions) -> np.ndarray:
         if self.model.layers[0].input_shape[0][1] is None:
             return data[0, :, :, 0]
         else:
             return stitchImage(data, positions)
 
-    def prepare_images(self, images):
+    def prepare_images(self, images: np.ndarray):
         return prepareNNImages(images[0], images[1], self.model)
 
-    class Signals(QObject):
-        new_output_shape = pyqtSignal(tuple)
-        new_network_image = pyqtSignal(np.ndarray)
-        new_decision_parameter = pyqtSignal(float, float, int)
+
+
+class KerasSettingsGUI(QWidgetRestore):
+    new_settings = pyqtSignal(object)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("KerasSettings")
+
+        available_workers = [KerasWorker, KerasPrePostWorker]
+        self.keras_settings = {'available_workers': available_workers,
+                         'worker': available_workers[0],
+                         'model': "W:/Watchdog/Model/paramSweep7/f32_c05_b08.h5"}
+                        #  'model': "//lebnas1.epfl.ch/microsc125/Watchdog/Model/model_Dora.h5"}
+
+        self.worker = QtWidgets.QComboBox()
+        for worker in self.keras_settings['available_workers']:
+            self.worker.addItem(worker.__name__, worker)
+        self.worker.currentIndexChanged.connect(self.select_worker)
+
+        self.model_label = QtWidgets.QLabel("Model")
+        self.model = QtWidgets.QLineEdit(self.keras_settings['model'])
+        self.model_select = QtWidgets.QPushButton("Select")
+        self.model_select.clicked.connect(self.select_model)
+
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.worker)
+        self.layout().addWidget(self.model_label)
+        self.layout().addWidget(self.model)
+        self.layout().addWidget(self.model_select)
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
+
+
+    def select_model(self):
+        new_model = QtWidgets.QFileDialog().getOpenFileName()[0]
+        self.keras_settings['model'] = new_model
+        self.model.setText(new_model)
+        self.new_settings.emit(self.keras_settings)
+
+    def select_worker(self, index):
+        self.keras_settings['worker'] = self.worker.currentData()
+
 
 
 def main():

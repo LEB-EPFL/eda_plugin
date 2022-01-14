@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from data_structures import ParameterSet
 
-from isimgui.EventThread import EventThread
+from isimgui.event_thread import EventThread
 from isimgui.data_structures import PyImage
 import numpy as np
 

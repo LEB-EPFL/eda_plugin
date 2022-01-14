@@ -6,8 +6,9 @@ from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
 from qimage2ndarray import gray2qimage
 from data_structures import ParameterSet
 from event_bus import EventBus
+from image_analysers import KerasSettingsGUI
 from utility.qt_classes import QWidgetRestore
-
+import qdarkstyle
 
 # Adjust for different screen sizes
 QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
@@ -23,8 +24,9 @@ class EDAMainGUI(QWidgetRestore):
 
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().addWidget(self.viewer, 0, 0)
+
         self.layout().addWidget(self.plot,1, 0)
-        self.setStyleSheet("background-color:black;")
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
 
         # Establish communication between the different parts
         event_bus.acquisition_started_event.connect(self.plot.reset_plot)
@@ -116,6 +118,7 @@ def main():
     gui.show()
     actuator.gui.show()
     interpreter.gui.show()
+    analyser.gui.show()
     sys.exit(app.exec_())
 
 
