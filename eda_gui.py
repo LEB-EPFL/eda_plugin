@@ -4,7 +4,7 @@ import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
 from qimage2ndarray import gray2qimage
-from actuators.micro_manager import InjectedPycroAcquisition, PycroAcquisition, TimerMMAcquisition
+from actuators.micro_manager import PycroAcquisition, TimerMMAcquisition
 from data_structures import ParameterSet
 from event_bus import EventBus
 from utility.qt_classes import QWidgetRestore
@@ -129,6 +129,7 @@ def main():
     from image_analysers import KerasAnalyser
     from interpreters import BinaryFrameRateInterpreter
     from actuators.micro_manager import MMActuator
+    from examples.pycro import InjectedPycroAcquisition
     import sys
 
     app = QtWidgets.QApplication(sys.argv)

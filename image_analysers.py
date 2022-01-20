@@ -124,7 +124,6 @@ class KerasWorker(QRunnable):
         self.autoDelete = True
 
     def run(self):
-        time.sleep(3)
         network_input = self.prepare_images(self.local_images)
 
         network_output = self.model.predict_on_batch(network_input['pixels'])

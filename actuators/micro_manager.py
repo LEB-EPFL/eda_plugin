@@ -1,4 +1,5 @@
 import multiprocessing
+import queue
 import threading
 import time
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
@@ -160,18 +161,21 @@ class PycroAcquisition(MMAcquisition):
     new_image = pyqtSignal(PyImage)
     acquisition_started_event = pyqtSignal(object)
 
-    def __init__(self, studio, start_interval: float = 1.):
+    def __init__(self, studio, start_interval: float = 5., settings= None):
         super().__init__(studio)
-        self.events = pycromanager.multi_d_acquisition_events(
-                                    num_time_points=2, time_interval_s=start_interval,
-                                    channel_group='Channel', channels=['FITC', 'DAPI'],
-                                    order='tc')
-        self.channels = [{'config': 'FITC', 'group': 'Channel'},
-                         {'config': 'DAPI', 'group': 'Channel'}]
-        print(self.events)
-        self.interval = 5
-        self.stop_acq_condition = False
+        if settings is None:
+            settings = {'num_time_points': 2,
+                        'time_interval_s': start_interval,
+                        'channel_group': 'Channel',
+                        'channels': ['FITC', 'DAPI'],
+                        'order': 'tc'}
+        self.events = pycromanager.multi_d_acquisition_events(**settings)
+        self.channels = [self.events[i]['channel'] for i in range(len(settings['channels']))]
+        self.start_timepoints = settings['num_time_points']
 
+        self.interval = start_interval
+        self.stop_acq_condition = False
+        self.last_arrival_time = None
         self.new_image.connect(self.event_bus.new_image_event)
 
     def start_acq(self):
@@ -189,22 +193,25 @@ class PycroAcquisition(MMAcquisition):
         self.stop_acq_condition = True
         self.acquisition_ended.emit()
 
-    def post_hardware(self, event, _, event_queue:multiprocessing.Queue):
+    def post_hardware(self, event, _, event_queue:queue.Queue):
         # Check if acquisition was stopped
         if self.stop_acq_condition:
             event_queue.put(None)
             return None
-
         # Add another event with the interval that is set at the moment
-        if all([event['axes']['time'] > 0,
+        if all([event['axes']['time'] >= self.start_timepoints-1,
                event['channel'] == self.events[1]['channel']]):
             new_event = copy.deepcopy(event)
-            new_event['min_start_time'] = event["min_start_time"] + self.interval
+            if self.interval > 0:
+                new_event['min_start_time'] = event["min_start_time"] + self.interval
+            else:
+                new_event['min_start_time'] = self.last_arrival_time + self.interval
             new_event['axes']['time'] = event['axes']['time'] + 1
             for c in range(2):
                 new_event['channel'] = self.channels[c]
                 new_event['axes']['channel'] = c
                 event_queue.put(copy.deepcopy(new_event))
+            print(new_event)
         return event
 
     def receive_image(self, image, metadata):
@@ -214,39 +221,13 @@ class PycroAcquisition(MMAcquisition):
         py_image = PyImage(image, metadata['Axes']['time'], channel,
                            metadata['ElapsedTime-ms'])
         self.new_image.emit(py_image)
+        self.last_arrival_time = metadata['ElapsedTime-ms']/1000
         print('new image             ', time.perf_counter())
         return image, metadata
 
     def change_interval(self, new_interval):
         self.interval = new_interval
 
-
-class InjectedPycroAcquisition(PycroAcquisition):
-    def __init__(self, *args, **kwargs):
-        import tifffile
-        super().__init__(*args, **kwargs)
-        tif_file = "C:/Users/stepp/Documents/02_Raw/SmartMito/180420_120_comp.tif"
-        self.frame_time = 0.15 # s
-        self.tif = tifffile.imread(tif_file)
-        self.start_time = time.perf_counter()
-        self.timepoint = 0
-        print(self.tif.shape)
-
-    def receive_image(self, image, metadata):
-        #Replace the image by one from the tif
-        for idx, c in enumerate(self.channels):
-            if metadata['Channel'] == c['config']:
-                channel = idx
-
-        if channel == 0:
-            now = time.perf_counter()
-            elapsed = now-self.start_time
-            timepoint = round(elapsed/self.frame_time)
-            timepoint = np.max([timepoint, self.timepoint+1])
-            self.timepoint = np.mod(timepoint,self.tif.shape[0])
-
-        image = self.tif[self.timepoint, channel, :, :]
-        return super().receive_image(image, metadata)
 
 class MMActuator(QObject):
     """ Once an acquisition is started from the """
