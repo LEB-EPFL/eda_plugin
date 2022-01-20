@@ -9,8 +9,8 @@ from utility.qt_classes import QWidgetRestore
 
 DEFAULT_VALUES = ParameterSet(slow_interval=5,
                               fast_interval=0,
-                              lower_threshold=0.5,
-                              upper_threshold=0.95)
+                              lower_threshold=0.9,
+                              upper_threshold=0.97)
 
 
 class BinaryFrameRateParameterForm(QWidgetRestore):

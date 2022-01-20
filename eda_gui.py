@@ -4,11 +4,13 @@ import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
 from qimage2ndarray import gray2qimage
+from actuators.micro_manager import InjectedPycroAcquisition, PycroAcquisition, TimerMMAcquisition
 from data_structures import ParameterSet
 from event_bus import EventBus
-from image_analysers import KerasSettingsGUI
 from utility.qt_classes import QWidgetRestore
 import qdarkstyle
+
+import napari
 
 # Adjust for different screen sizes
 QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
@@ -16,26 +18,22 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.P
 
 class EDAMainGUI(QWidgetRestore):
 
-    def __init__(self, event_bus: EventBus):
+    def __init__(self, event_bus: EventBus, viewer:bool=False):
         super().__init__()
         self.setWindowTitle('MainGUI')
-        self.viewer = NetworkImageViewer()
         self.plot = EDAPlot()
 
-        self.setLayout(QtWidgets.QGridLayout())
-        self.layout().addWidget(self.viewer, 0, 0)
-
-        self.layout().addWidget(self.plot,1, 0)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        if viewer:
+            self.viewer = NetworkImageViewer()
+            self.layout().addWidget(self.viewer)
+            event_bus.new_network_image.connect(self.viewer.add_network_image)
+        self.layout().addWidget(self.plot)
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
-
         # Establish communication between the different parts
         event_bus.acquisition_started_event.connect(self.plot.reset_plot)
-        event_bus.new_network_image.connect(self.viewer.set_qimage)
         event_bus.new_decision_parameter.connect(self.plot.add_datapoint)
-
-        event_bus.new_output_shape.connect(self.viewer.reset_scene_rect)
         event_bus.new_parameters.connect(self.plot.set_thr_lines)
-
 
 
 class EDAPlot(pg.PlotWidget):
@@ -82,7 +80,6 @@ class EDAPlot(pg.PlotWidget):
         self.thrLine1.setPos(params.lower_threshold)
         self.thrLine2.setPos(params.upper_threshold)
 
-
 class NetworkImageViewer(QtWidgets.QGraphicsView):
     def __init__(self):
         super(NetworkImageViewer, self).__init__(QtWidgets.QGraphicsScene())
@@ -95,10 +92,37 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.fitInView(0, 0, *shape, mode=QtCore.Qt.KeepAspectRatio)
         self.setBackgroundBrush(QtGui.QColor('#222222'))
 
-    def set_qimage(self, image: np.ndarray):
-        image = gray2qimage(np.multiply(image, 6))
+    @QtCore.pyqtSlot(np.ndarray, tuple)
+    def add_network_image(self, image: np.ndarray, dims:tuple):
+        if dims[0] == 0:
+            self.reset_scene_rect(image.shape)
+        image = gray2qimage(image, normalize=True)
         self.image.setPixmap(QtGui.QPixmap.fromImage(image))
         self.update()
+
+
+class NapariImageViewer(QtWidgets.QWidget):
+    """ Simple implementation showing the output of the neural network.
+    This could be extended to also show the images received from micro-manager or the preprocessed
+    versions of those.
+    Calling this can lead to the other Qt images being very scaled down."""
+    def __init__(self):
+        super().__init__()
+        self.viewer = napari.Viewer()
+        self.layer = None
+        self.timepoints = 300
+
+    @QtCore.pyqtSlot(np.ndarray, tuple)
+    def add_network_image(self, image, dims:tuple):
+        if dims[0] == 0 or self.layer is None:
+            self.data = np.ndarray([self.timepoints, *image.shape])
+            self.data[0, :, :] = image
+            self.layer = self.viewer.add_image(self.data)
+        else:
+            self.data[dims[0] :, :] = image
+            self.layer.data = self.data
+            self.viewer.dims.set_point(0,dims[0])
+
 
 
 def main():
@@ -110,8 +134,12 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
 
     event_bus = EventBus()
-    gui = EDAMainGUI(event_bus)
-    actuator = MMActuator(event_bus)
+
+
+
+    gui = EDAMainGUI(event_bus, viewer=True)
+    # actuator = MMActuator(event_bus, TimerMMAcquisition)
+    actuator = MMActuator(event_bus, InjectedPycroAcquisition)
     analyser = KerasAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
@@ -119,6 +147,10 @@ def main():
     actuator.gui.show()
     interpreter.gui.show()
     analyser.gui.show()
+
+    # viewer = NapariImageViewer()
+    # event_bus.new_network_image.connect(viewer.add_network_image)
+
     sys.exit(app.exec_())
 
 
