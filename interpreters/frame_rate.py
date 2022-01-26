@@ -1,16 +1,18 @@
-
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets
 import qdarkstyle
-from data_structures import ParameterSet
+from utility.data_structures import ParameterSet
 import time
-from event_bus import EventBus
+from utility.event_bus import EventBus
 from utility.qt_classes import QWidgetRestore
+import logging
 
-DEFAULT_VALUES = ParameterSet(slow_interval=5,
-                              fast_interval=0,
-                              lower_threshold=0.9,
-                              upper_threshold=0.97)
+log = logging.getLogger("EDA")
+
+
+DEFAULT_VALUES = ParameterSet(
+    slow_interval=5, fast_interval=0, lower_threshold=0.9, upper_threshold=0.97
+)
 
 
 class BinaryFrameRateParameterForm(QWidgetRestore):
@@ -40,12 +42,12 @@ class BinaryFrameRateParameterForm(QWidgetRestore):
         self.upper_threshold_input.editingFinished.connect(self.update_parameters)
 
         param_layout = QtWidgets.QFormLayout(self)
-        param_layout.addRow('Slow Interval [s]', self.slow_interval_input)
-        param_layout.addRow('Fast Interval [s]', self.fast_interval_input)
-        param_layout.addRow('Lower Threshold', self.lower_threshold_input)
-        param_layout.addRow('Upper Threshold', self.upper_threshold_input)
+        param_layout.addRow("Slow Interval [s]", self.slow_interval_input)
+        param_layout.addRow("Fast Interval [s]", self.fast_interval_input)
+        param_layout.addRow("Lower Threshold", self.lower_threshold_input)
+        param_layout.addRow("Upper Threshold", self.upper_threshold_input)
 
-        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
         self.param_set = DEFAULT_VALUES
 
     def update_parameters(self):
@@ -58,13 +60,13 @@ class BinaryFrameRateParameterForm(QWidgetRestore):
 
 
 class BinaryFrameRateInterpreter(QObject):
-    """ Take the output calcualted by an ImageAnalyser and
+    """Take the output calcualted by an ImageAnalyser and
     Decide which imaging speed to use next."""
 
     new_interpretation = pyqtSignal(float)
     new_parameters = pyqtSignal(ParameterSet)
 
-    def __init__(self, event_bus:EventBus, gui: bool = True):
+    def __init__(self, event_bus: EventBus, gui: bool = True):
         super().__init__()
         self.gui = BinaryFrameRateParameterForm() if gui else None
         self.gui.show()
@@ -99,15 +101,19 @@ class BinaryFrameRateInterpreter(QObject):
     @pyqtSlot(float, float, int)
     def calculate_interpretation(self, new_value: float, _, timepoint: int):
         self.define_imaging_speed(new_value)
-        print("DECISION              ", time.perf_counter(), timepoint)
+        log.info(f"timepoint {timepoint} decision: {new_value}")
 
     def define_imaging_speed(self, new_value: float):
         # Only change interval if necessary
         old_interval = self.interval
 
         if self.interval == self.params.fast_interval:
-            if all((new_value < self.params.lower_threshold,
-                   self.num_fast_frames >= self.min_fast_frames)):
+            if all(
+                (
+                    new_value < self.params.lower_threshold,
+                    self.num_fast_frames >= self.min_fast_frames,
+                )
+            ):
                 self.interval = self.params.slow_interval
         elif self.interval == self.params.slow_interval:
             if new_value > self.params.upper_threshold:

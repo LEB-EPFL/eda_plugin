@@ -4,23 +4,27 @@ import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
 from qimage2ndarray import gray2qimage
-from actuators.micro_manager import PycroAcquisition, TimerMMAcquisition
-from data_structures import ParameterSet
-from event_bus import EventBus
+
+from utility.data_structures import ParameterSet
+from utility.event_bus import EventBus
 from utility.qt_classes import QWidgetRestore
 import qdarkstyle
 
 import napari
+import logging
+
+log = logging.getLogger("EDA")
 
 # Adjust for different screen sizes
-QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+QtWidgets.QApplication.setAttribute(
+    QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+)
 
 
 class EDAMainGUI(QWidgetRestore):
-
-    def __init__(self, event_bus: EventBus, viewer:bool=False):
+    def __init__(self, event_bus: EventBus, viewer: bool = False):
         super().__init__()
-        self.setWindowTitle('MainGUI')
+        self.setWindowTitle("MainGUI")
         self.plot = EDAPlot()
 
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -29,7 +33,7 @@ class EDAMainGUI(QWidgetRestore):
             self.layout().addWidget(self.viewer)
             event_bus.new_network_image.connect(self.viewer.add_network_image)
         self.layout().addWidget(self.plot)
-        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
         # Establish communication between the different parts
         event_bus.acquisition_started_event.connect(self.plot.reset_plot)
         event_bus.new_decision_parameter.connect(self.plot.add_datapoint)
@@ -40,15 +44,13 @@ class EDAPlot(pg.PlotWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.output_line = PlotCurveItem([], pen='w')
-        self.output_scatter = pg.ScatterPlotItem([], symbol='o', pen=None)
+        self.output_line = PlotCurveItem([], pen="w")
+        self.output_scatter = pg.ScatterPlotItem([], symbol="o", pen=None)
 
         self.thresholds = [80, 100]
-        pen = pg.mkPen(color='#FF0000', style=QtCore.Qt.DashLine)
-        self.thrLine1 = pg.InfiniteLine(
-            pos=80, angle=0, pen=pen)
-        self.thrLine2 = pg.InfiniteLine(
-            pos=100, angle=0, pen=pen)
+        pen = pg.mkPen(color="#FF0000", style=QtCore.Qt.DashLine)
+        self.thrLine1 = pg.InfiniteLine(pos=80, angle=0, pen=pen)
+        self.thrLine2 = pg.InfiniteLine(pos=100, angle=0, pen=pen)
         self.addItem(self.thrLine1)
         self.addItem(self.thrLine2)
         self.addItem(self.output_line)
@@ -76,9 +78,11 @@ class EDAPlot(pg.PlotWidget):
         self.refresh_plot()
 
     QtCore.pyqtSlot(ParameterSet)
+
     def set_thr_lines(self, params: ParameterSet):
         self.thrLine1.setPos(params.lower_threshold)
         self.thrLine2.setPos(params.upper_threshold)
+
 
 class NetworkImageViewer(QtWidgets.QGraphicsView):
     def __init__(self):
@@ -90,10 +94,10 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
     def reset_scene_rect(self, shape: Tuple):
         self.setSceneRect(0, 0, *shape)
         self.fitInView(0, 0, *shape, mode=QtCore.Qt.KeepAspectRatio)
-        self.setBackgroundBrush(QtGui.QColor('#222222'))
+        self.setBackgroundBrush(QtGui.QColor("#222222"))
 
     @QtCore.pyqtSlot(np.ndarray, tuple)
-    def add_network_image(self, image: np.ndarray, dims:tuple):
+    def add_network_image(self, image: np.ndarray, dims: tuple):
         if dims[0] == 0:
             self.reset_scene_rect(image.shape)
         image = gray2qimage(image, normalize=True)
@@ -102,10 +106,11 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
 
 
 class NapariImageViewer(QtWidgets.QWidget):
-    """ Simple implementation showing the output of the neural network.
+    """Simple implementation showing the output of the neural network.
     This could be extended to also show the images received from micro-manager or the preprocessed
     versions of those.
     Calling this can lead to the other Qt images being very scaled down."""
+
     def __init__(self):
         super().__init__()
         self.viewer = napari.Viewer()
@@ -113,7 +118,7 @@ class NapariImageViewer(QtWidgets.QWidget):
         self.timepoints = 300
 
     @QtCore.pyqtSlot(np.ndarray, tuple)
-    def add_network_image(self, image, dims:tuple):
+    def add_network_image(self, image, dims: tuple):
         if dims[0] == 0 or self.layer is None:
             self.data = np.ndarray([self.timepoints, *image.shape])
             self.data[0, :, :] = image
@@ -121,22 +126,31 @@ class NapariImageViewer(QtWidgets.QWidget):
         else:
             self.data[dims[0] :, :] = image
             self.layer.data = self.data
-            self.viewer.dims.set_point(0,dims[0])
-
+            self.viewer.dims.set_point(0, dims[0])
 
 
 def main():
-    from image_analysers import KerasAnalyser
-    from interpreters import BinaryFrameRateInterpreter
+    from analysers.keras import KerasAnalyser
+    from interpreters.frame_rate import BinaryFrameRateInterpreter
     from actuators.micro_manager import MMActuator
+    from actuators.micro_manager import PycroAcquisition, TimerMMAcquisition
     from examples.pycro import InjectedPycroAcquisition
     import sys
+    import logging
+
+    logger = logging.getLogger("EDA")
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
     app = QtWidgets.QApplication(sys.argv)
 
     event_bus = EventBus()
-
-
 
     gui = EDAMainGUI(event_bus, viewer=True)
     # actuator = MMActuator(event_bus, TimerMMAcquisition)

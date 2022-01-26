@@ -2,12 +2,13 @@ from typing import Protocol
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 import numpy as np
 
-from data_structures import ParameterSet
+from utility.data_structures import ParameterSet
 
 
 class ImageAnalyser(Protocol):
-    """ An Image analyser that puts out the events below when it has analysed a new
+    """An Image analyser that puts out the events below when it has analysed a new
     image. This Protocol has to be implemented by the analysers."""
+
     new_network_image = pyqtSignal(np.ndarray)
     new_output_shape = pyqtSignal(tuple)
     new_decision_parameter = pyqtSignal(float, int)
@@ -18,7 +19,8 @@ class ImageAnalyser(Protocol):
 
 
 class Interpreter(Protocol):
-    """ Interprets the output given from an ImageAnalyser """
+    """Interprets the output given from an ImageAnalyser"""
+
     new_interpretation = pyqtSignal(float)
     new_parameters = pyqtSignal(float)
 
@@ -36,7 +38,8 @@ class Interpreter(Protocol):
 
 
 class Actuator(Protocol):
-    """ Calls some action on the microscope depending on the output from a Interpreter """
+    """Calls some action on the microscope depending on the output from a Interpreter"""
+
     new_action = pyqtSignal(object)
 
     def call_action(self, parameters):
@@ -44,7 +47,7 @@ class Actuator(Protocol):
 
 
 class ParameterForm(Protocol):
-    """ Gives one common form for general EDA parameters used by many EDA implementations. """
+    """Gives one common form for general EDA parameters used by many EDA implementations."""
 
     new_parameters = pyqtSignal(object)
 
