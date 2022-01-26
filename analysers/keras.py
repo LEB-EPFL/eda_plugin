@@ -1,3 +1,9 @@
+import logging
+import time
+import numpy as np
+import importlib
+import inspect
+
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import (
     QObject,
@@ -6,19 +12,16 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-import numpy as np
-from utility.event_bus import EventBus
-from isimgui.data_structures import PyImage
-from eda_original.SmartMicro.NNfeeder import prepareNNImages
-from eda_original.SmartMicro.ImageTiles import stitchImage
+import qdarkstyle
 
 from tensorflow import keras
 from numbers import Number
-import time
-import qdarkstyle
-from skimage import exposure, filters, transform
+
 from utility.qt_classes import QWidgetRestore
-import logging
+from utility.event_bus import EventBus
+from utility import settings
+from isimgui.data_structures import PyImage
+
 
 log = logging.getLogger("EDA")
 
@@ -41,7 +44,7 @@ class KerasAnalyser(QObject):
         self.start_time = None
 
         # We will use a threadpool, this allows us to skip ahead if no thread is available
-        # If acquisition is faster then analysis
+        # if acquisition is faster than analysis
         self.threadpool = QThreadPool(parent=self)
         self.threadpool.setMaxThreadCount(5)
 
@@ -75,12 +78,12 @@ class KerasAnalyser(QObject):
         log.info(f"timepoint {evt.timepoint} -> {worker.__class__.__name__}: {started}")
 
     def gather_images(self, py_image: PyImage) -> bool:
-        """If there is more than one channel gather all the channels for one timepoint and return
-        if all channels are there or not."""
+        """Gather the amount of images needed by the current model."""
+        # TODO: Also make this work for z-slices
         try:
             self.images[:, :, py_image.channel] = py_image.raw_image
         except (ValueError, TypeError):
-            self.reset_shape(py_image)
+            self._reset_shape(py_image)
             self.images[:, :, py_image.channel] = py_image.raw_image
 
         self.time = py_image.timepoint
@@ -89,7 +92,7 @@ class KerasAnalyser(QObject):
         else:
             return True
 
-    def reset_shape(self, image: PyImage):
+    def _reset_shape(self, image: PyImage):
         self.shape = image.raw_image.shape
         self.images = np.ndarray([*self.shape, self.channels])
 
@@ -97,21 +100,21 @@ class KerasAnalyser(QObject):
         log.debug(f"start_time reset in {self.__class__.__name__}")
         self.start_time = round(time.time() * 1000)
 
-    def init_model(self):
-        log.info("New model will be initialised")
-        if self.model.layers[0].input_shape[0][1] is None:
-            size = 512
-        else:
-            size = self.model.layers[0].input_shape[0][1]
-        self.model(np.random.randint(10, size=[1, size, size, self.channels]))
-
     def new_settings(self, new_settings):
         # Load and initialize model so first predict is fast(er)
         self.model_path = new_settings["model"]
         self.model = keras.models.load_model(self.model_path, compile=True)
         self.channels = self.model.layers[0].input_shape[0][3]
         self.worker = new_settings["worker"]
-        self.init_model()
+        self._init_model()
+
+    def _init_model(self):
+        if self.model.layers[0].input_shape[0][1] is None:
+            size = 512
+        else:
+            size = self.model.layers[0].input_shape[0][1]
+        self.model(np.random.randint(10, size=[1, size, size, self.channels]))
+        log.info("New model initialised")
 
 
 class KerasWorker(QRunnable):
@@ -119,7 +122,7 @@ class KerasWorker(QRunnable):
         self, model, local_images: np.ndarray, timepoint: int, start_time: float
     ):
         super().__init__()
-        self.signals = self.Signals()
+        self.signals = self._Signals()
         self.model = model
         self.local_images = local_images
         self.timepoint = timepoint
@@ -150,83 +153,39 @@ class KerasWorker(QRunnable):
     def post_process_output(self, data: np.ndarray, network_input):
         return data
 
-    class Signals(QObject):
+    class _Signals(QObject):
         new_output_shape = pyqtSignal(tuple)
         new_network_image = pyqtSignal(np.ndarray, tuple)
         new_decision_parameter = pyqtSignal(float, float, int)
-
-
-class KerasRescaleWorker(KerasWorker):
-    def __init__(
-        self, model, local_images: np.ndarray, timepoint: int, start_time: float
-    ):
-        super().__init__(model, local_images, timepoint, start_time)
-
-    def prepare_images(self, images: np.ndarray):
-        sig = 121.5 / 81
-        out_range = (0, 1)
-        # resize_param = 56/81
-        # new_images = np.ndarray([round(images.shape[0]*resize_param),
-        #                          round(images.shape[1]*resize_param),
-        #                          images.shape[2]])
-        for idx in range(images.shape[-1]):
-            image = images[:, :, idx]
-            # resc_image = transform.rescale(image, resize_param)
-            image = filters.gaussian(image, sig)
-            if idx == 1:
-                image = image - filters.gaussian(images[:, :, idx], sig * 5)
-            in_range = (
-                (image.min(), image.max()) if idx == 1 else (image.mean(), image.max())
-            )
-            image = exposure.rescale_intensity(image, in_range, out_range=out_range)
-            images[:, :, idx] = image
-        data = {"pixels": np.expand_dims(images, 0)}
-        return data
-
-    def post_process_output(self, data: np.ndarray, positions):
-        # Strip off the dimensions that come from the network
-        return data[0, :, :, 0]
-
-
-class KerasTilingWorker(KerasWorker):
-    def __init__(
-        self, model, local_images: np.ndarray, timepoint: int, start_time: float
-    ):
-        super().__init__(model, local_images, timepoint, start_time)
-
-    def post_process_output(self, network_output: np.ndarray, input_data) -> np.ndarray:
-        return stitchImage(network_output, input_data["positions"])
-
-    def prepare_images(self, images: np.ndarray):
-        tiles, positions = prepareNNImages(images[:, :, 0], images[:, :, 1], self.model)
-        data = {"pixels": tiles, "positions": positions}
-        return data
 
 
 class KerasSettingsGUI(QWidgetRestore):
     new_settings = pyqtSignal(object)
 
     def __init__(self):
+        """Set up GUI for the keras analyser.
+
+        Get the default settings from the settings file and set up the GUI
+        """
+        from examples.analysers.keras import KerasRescaleWorker, KerasTilingWorker
+
         super().__init__()
         self.setWindowTitle("KerasSettings")
 
-        available_workers = [KerasRescaleWorker, KerasTilingWorker]
-        self.keras_settings = {
-            "available_workers": available_workers,
-            "worker": available_workers[0],
-            "model": "W:/Watchdog/Model/paramSweep6/f32_c09_b08.h5",
-        }
-        # 'model': "//lebnas1.epfl.ch/microsc125/Watchdog/Model/model_Dora.h5"}
+        default_settings = settings.get_settings(self)
+        available_workers = self._get_available_workers(default_settings)
+        self.keras_settings = settings.get_settings(self)
 
         self.worker = QtWidgets.QComboBox()
-        for worker in self.keras_settings["available_workers"]:
-            self.worker.addItem(worker.__name__, worker)
-        self.worker.currentIndexChanged.connect(self.select_worker)
+        for worker in available_workers:
+            self.worker.addItem(worker[1].__name__, worker[1])
+        self.keras_settings["worker"] = available_workers[0][1]
+        self.worker.currentIndexChanged.connect(self._select_worker)
 
         self.model_label = QtWidgets.QLabel("Model")
         self.model = QtWidgets.QLineEdit(self.keras_settings["model"])
         self.model_select = QtWidgets.QPushButton("Select")
-        self.model_select.clicked.connect(self.select_model)
+        self.model_select.clicked.connect(self._select_model)
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().addWidget(self.worker)
@@ -235,17 +194,34 @@ class KerasSettingsGUI(QWidgetRestore):
         self.layout().addWidget(self.model_select)
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
 
-    def select_model(self):
+    def _get_available_workers(self, settings):
+        modules = settings["worker_modules"]
+        available_workers = []
+        for module in modules:
+            module = importlib.import_module(module)
+            workers = inspect.getmembers(
+                module,
+                lambda member: inspect.isclass(member)
+                and member.__module__ == module.__name__,
+            )
+            # for worker in workers:
+            #     importlib.import_module(worker[1])
+            available_workers = available_workers + workers
+        return available_workers
+
+    def _select_model(self):
         new_model = QtWidgets.QFileDialog().getOpenFileName()[0]
         self.keras_settings["model"] = new_model
         self.model.setText(new_model)
         self.new_settings.emit(self.keras_settings)
 
-    def select_worker(self, index):
+    def _select_worker(self, index):
         self.keras_settings["worker"] = self.worker.currentData()
+        self.new_settings.emit(self.keras_settings)
 
 
 def main():
+    """Nothing here yet."""
     pass
 
 

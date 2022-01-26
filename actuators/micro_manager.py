@@ -1,4 +1,3 @@
-import queue
 import threading
 import time
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
@@ -6,13 +5,11 @@ from PyQt5 import QtWidgets
 import qdarkstyle
 from utility.event_bus import EventBus
 from utility.qt_classes import QWidgetRestore
-import pycromanager
-import copy
-from isimgui.data_structures import PyImage
+from utility import settings
 
 import logging
 
-log = logging.getLogger("eda")
+log = logging.getLogger("EDA")
 
 
 class MMAcquisition(QThread):
@@ -26,7 +23,8 @@ class MMAcquisition(QThread):
         # TODO: Set interval to fast interval so it can be used when running freely
         self.settings = self.settings.copy_builder().interval_ms(0).build()
         self.channels = self.get_channel_information()
-        self.channel_switch_time = 100  # ms
+        default_settings = settings.get_settings(self)
+        self.channel_switch_time = default_settings["channel_switch_time_ms"]
         self.num_channels = len(self.channels)
 
         self.acquisitions = self.studio.acquisitions()
@@ -54,6 +52,7 @@ class MMAcquisition(QThread):
 
 
 class TimerMMAcquisition(MMAcquisition):
+
     """An Acquisition using a timer to trigger a frame acquisition should be more stable
     for consistent framerate compared to a waiting approach"""
 
@@ -159,92 +158,6 @@ class DirectMMAcquisition(MMAcquisition):
         self.datastore.freeze()
 
 
-class PycroAcquisition(MMAcquisition):
-    """This tries to use the inbuilt Acquisition function in pycromanager. Unfortunately, these
-    acquisitions don't start with the default Micro-Manager interface and the acquisition also
-    doesn't seem to be saved in a perfect format, so that Micro-Manager would detect the correct
-    parameters to show the channels upon loading for example. The Acquisitions also don't emit any
-    of the standard Micro-Manager events. Stashed for now because of this"""
-
-    new_image = pyqtSignal(PyImage)
-    acquisition_started_event = pyqtSignal(object)
-
-    def __init__(self, studio, start_interval: float = 5.0, settings=None):
-        super().__init__(studio)
-        if settings is None:
-            settings = {
-                "num_time_points": 2,
-                "time_interval_s": start_interval,
-                "channel_group": "Channel",
-                "channels": ["FITC", "DAPI"],
-                "order": "tc",
-            }
-        self.events = pycromanager.multi_d_acquisition_events(**settings)
-        self.channels = [
-            self.events[i]["channel"] for i in range(len(settings["channels"]))
-        ]
-        self.start_timepoints = settings["num_time_points"]
-
-        self.interval = start_interval
-        self.stop_acq_condition = False
-        self.last_arrival_time = None
-        self.new_image.connect(self.event_bus.new_image_event)
-
-    def start_acq(self):
-        self.acquisition = pycromanager.Acquisition(
-            directory="C:/Users/stepp/Desktop/eda_save",
-            name="acquisition_name",
-            # magellan_acq_index=0,
-            post_hardware_hook_fn=self.post_hardware,
-            image_process_fn=self.receive_image,
-            show_display=True,
-        )
-        self.acquisition.acquire(self.events)
-
-    def stop_acq(self):
-        self.stop_acq_condition = True
-        self.acquisition_ended.emit()
-
-    def post_hardware(self, event, _, event_queue: queue.Queue):
-        # Check if acquisition was stopped
-        if self.stop_acq_condition:
-            event_queue.put(None)
-            return None
-        # Add another event with the interval that is set at the moment
-        if all(
-            [
-                event["axes"]["time"] >= self.start_timepoints - 1,
-                event["channel"] == self.events[1]["channel"],
-            ]
-        ):
-            new_event = copy.deepcopy(event)
-            if self.interval > 0:
-                new_event["min_start_time"] = event["min_start_time"] + self.interval
-            else:
-                new_event["min_start_time"] = self.last_arrival_time + self.interval
-            new_event["axes"]["time"] = event["axes"]["time"] + 1
-            for c in range(2):
-                new_event["channel"] = self.channels[c]
-                new_event["axes"]["channel"] = c
-                event_queue.put(copy.deepcopy(new_event))
-        return event
-
-    def receive_image(self, image, metadata):
-        for idx, c in enumerate(self.channels):
-            if metadata["Channel"] == c["config"]:
-                channel = idx
-        py_image = PyImage(
-            image, metadata["Axes"]["time"], channel, metadata["ElapsedTime-ms"]
-        )
-        self.new_image.emit(py_image)
-        self.last_arrival_time = metadata["ElapsedTime-ms"] / 1000
-        log.debug(f"timepoint {py_image.timepoint} - new image")
-        return image, metadata
-
-    def change_interval(self, new_interval):
-        self.interval = new_interval
-
-
 class MMActuator(QObject):
     """Once an acquisition is started from the"""
 
@@ -260,6 +173,7 @@ class MMActuator(QObject):
     ):
         super().__init__()
 
+        self.event_bus = event_bus
         self.studio = event_bus.studio
         self.acquisition_mode = acquisition_mode
         self.interval = 5
@@ -267,7 +181,6 @@ class MMActuator(QObject):
 
         self.gui = MMActuatorGUI(self) if gui else None
 
-        self.event_bus = event_bus
         self.event_bus.new_interpretation.connect(self.call_action)
         self.start_acq_signal.connect(self.event_bus.acquisition_started_event)
 
@@ -292,23 +205,30 @@ class MMActuator(QObject):
         time.sleep(0.5)
 
     def stop_acq(self):
-        self.stop_acq_signal.emit()
-        self.acquisition.exit()
-        self.acquisition.deleteLater()
-        self.acquisition = None
+        log.info(f"Stop acquisition {self.acquisition.__class__} in MMActuator")
+        if self.acquisition is not None:
+            self.stop_acq_signal.emit()
+            self.acquisition.exit()
+            self.acquisition.deleteLater()
+            self.acquisition = None
 
 
 class MMActuatorGUI(QWidgetRestore):
-    """Specific GUI for the MMActuator, because this needs a Start and Stop
-    Button for now."""
+    """
+    GUI for the MMActuator providing a Start and Stop button.
+
+    The actuator could also be implemented to start/stop with an acquisition in MicroManager using
+    the AcquisitionStarted/Ended events.
+    """
 
     def __init__(self, actuator: MMActuator):
+        """Pyqt GUI as a widget that could also be added to a bigger MainWindow."""
         super().__init__()
         self.actuator = actuator
         self.start_button = QtWidgets.QPushButton("Start")
-        self.start_button.clicked.connect(self.start_acq)
+        self.start_button.clicked.connect(self._start_acq)
         self.stop_button = QtWidgets.QPushButton("Stop")
-        self.stop_button.clicked.connect(self.stop_acq)
+        self.stop_button.clicked.connect(self._stop_acq)
         self.stop_button.setDisabled(True)
 
         grid = QtWidgets.QVBoxLayout(self)
@@ -317,12 +237,14 @@ class MMActuatorGUI(QWidgetRestore):
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
         self.setWindowTitle("EDA Actuator Plugin")
 
-    def start_acq(self):
+        self.actuator.event_bus.acquisition_ended_event.connect(self._stop_acq)
+
+    def _start_acq(self):
         self.start_button.setDisabled(True)
         self.stop_button.setDisabled(False)
         self.actuator.start_acq()
 
-    def stop_acq(self):
+    def _stop_acq(self):
         self.actuator.stop_acq()
         self.start_button.setDisabled(False)
         self.stop_button.setDisabled(True)

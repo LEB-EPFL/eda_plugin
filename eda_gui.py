@@ -133,28 +133,20 @@ def main():
     from analysers.keras import KerasAnalyser
     from interpreters.frame_rate import BinaryFrameRateInterpreter
     from actuators.micro_manager import MMActuator
-    from actuators.micro_manager import PycroAcquisition, TimerMMAcquisition
-    from examples.pycro import InjectedPycroAcquisition
+    from actuators.micro_manager import TimerMMAcquisition
+    from examples.actuators.pycro import InjectedPycroAcquisition
     import sys
-    import logging
+    import utility.settings
 
-    logger = logging.getLogger("EDA")
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    utility.settings.setup_logging()
 
     app = QtWidgets.QApplication(sys.argv)
 
     event_bus = EventBus()
 
     gui = EDAMainGUI(event_bus, viewer=True)
-    # actuator = MMActuator(event_bus, TimerMMAcquisition)
-    actuator = MMActuator(event_bus, InjectedPycroAcquisition)
+    actuator = MMActuator(event_bus, TimerMMAcquisition)
+    # actuator = MMActuator(event_bus, InjectedPycroAcquisition)
     analyser = KerasAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
