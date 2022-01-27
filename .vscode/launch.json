@@ -5,11 +5,18 @@
     "version": "0.2.0",
     "configurations": [
 
+
         {
             "name": "Python: Module",
             "type": "python",
             "request": "launch",
             "module": "eda_gui"
+        },
+        {
+            "name": "Main",
+            "type": "python",
+            "request": "launch",
+            "module": "main"
         }
     ]
 }

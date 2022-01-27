@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+from analysers.image import ImageAnalyser
 
 from analysers.keras import KerasAnalyser
 from interpreters.frame_rate import BinaryFrameRateInterpreter
@@ -9,9 +10,6 @@ from eda_gui import EDAMainGUI
 import sys
 from utility.event_bus import EventBus
 import utility.settings
-
-
-
 
 
 def main_isim():
@@ -33,20 +31,19 @@ def main_test():
     gui = EDAMainGUI(event_bus, viewer=True)
     actuator = MMActuator(event_bus, TimerMMAcquisition)
     # actuator = MMActuator(event_bus, InjectedPycroAcquisition)
-    analyser = KerasAnalyser(event_bus)
+    # analyser = KerasAnalyser(event_bus)
+    analyser = ImageAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
     gui.show()
     actuator.gui.show()
     interpreter.gui.show()
-    analyser.gui.show()
+    # analyser.gui.show()
 
     # viewer = NapariImageViewer()
     # event_bus.new_network_image.connect(viewer.add_network_image)
 
     sys.exit(app.exec_())
-
-
 
 
 if __name__ == "__main__":

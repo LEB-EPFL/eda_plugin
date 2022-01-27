@@ -3,6 +3,7 @@
 import json
 import logging
 
+
 def get_settings(calling_class=None):
     """Get the settings from the settings.json file and extract a module if defined."""
     with open("settings.json", "r") as j:
@@ -10,10 +11,11 @@ def get_settings(calling_class=None):
     if calling_class is None:
         return contents
     else:
-        trace = calling_class.__class__.__module__.split('.')
+        trace = calling_class.__module__.split(".")
         for module in trace:
             contents = contents[module]
         return contents
+
 
 def setup_logging():
     logger = logging.getLogger("EDA")

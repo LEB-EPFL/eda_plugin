@@ -11,11 +11,9 @@ from skimage import exposure, filters, transform
 class KerasRescaleWorker(KerasWorker):
     """A KerasWorker with background subtraction and intensity normalization before inference."""
 
-    def __init__(
-        self, model, local_images: np.ndarray, timepoint: int, start_time: float
-    ):
+    def __init__(self, *args, **kwargs):
         """Call the init function of KerasWorker with the settings supplied on call."""
-        super().__init__(model, local_images, timepoint, start_time)
+        super().__init__(*args, **kwargs)
 
     def prepare_images(self, images: np.ndarray):
         """Subtract background and normalize image intensity."""
@@ -48,11 +46,9 @@ class KerasTilingWorker(KerasWorker):
     Add Stitching to the postprocessing.
     """
 
-    def __init__(
-        self, model, local_images: np.ndarray, timepoint: int, start_time: float
-    ):
+    def __init__(self, *args, **kwargs):
         """Call the init function of KerasWorker with the settings supplied."""
-        super().__init__(model, local_images, timepoint, start_time)
+        super().__init__(*args, **kwargs)
 
     def post_process_output(self, network_output: np.ndarray, input_data) -> np.ndarray:
         """Stitch the images recevied from the network to an array with the same size as input."""
