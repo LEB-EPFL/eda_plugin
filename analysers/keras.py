@@ -16,89 +16,32 @@ import qdarkstyle
 
 from tensorflow import keras
 from numbers import Number
+from analysers.image import ImageAnalyser
 
 from utility.qt_classes import QWidgetRestore
 from utility.event_bus import EventBus
 from utility import settings
 from isimgui.data_structures import PyImage
-
+from analysers.image import ImageAnalyser
 
 log = logging.getLogger("EDA")
 
 
-class KerasAnalyser(QObject):
+class KerasAnalyser(ImageAnalyser):
     """Analyze the last image using the neural network and image the output
     This has to implement the ImageAnalyser Protocol to be able to be used in the
     EDAMainGUI."""
 
-    new_output_shape = pyqtSignal(tuple)
-    new_network_image = pyqtSignal(np.ndarray, tuple)
-    new_decision_parameter = pyqtSignal(float, float, int)
-
     def __init__(self, event_bus: EventBus):
         super().__init__()
         self.name = "KerasAnalyser"
-        self.shape = None
-        self.time = None
-        self.images = None
-        self.start_time = None
-
-        # We will use a threadpool, this allows us to skip ahead if no thread is available
-        # if acquisition is faster than analysis
-        self.threadpool = QThreadPool(parent=self)
-        self.threadpool.setMaxThreadCount(5)
 
         self.gui = KerasSettingsGUI()
         self.gui.new_settings.connect(self.new_settings)
         self.new_settings(self.gui.keras_settings)
 
-        # Emitted events
-        self.new_decision_parameter.connect(event_bus.new_decision_parameter)
-        self.new_network_image.connect(event_bus.new_network_image)
-
-        # Connect incoming events
-        event_bus.acquisition_started_event.connect(self.reset_time)
-        event_bus.new_image_event.connect(self.start_analysis)
-
-    @pyqtSlot(PyImage)
-    def start_analysis(self, evt: PyImage):
-        ready = self.gather_images(
-            evt,
-        )
-        if not ready:
-            return
-
-        local_images = self.images.copy()
-        worker = self.worker(self.model, local_images, evt.timepoint, self.start_time)
-        # Connect the signals to push through
-        worker.signals.new_decision_parameter.connect(self.new_decision_parameter)
-        worker.signals.new_network_image.connect(self.new_network_image)
-        worker.signals.new_output_shape.connect(self.new_output_shape)
-        started = self.threadpool.tryStart(worker)
-        log.info(f"timepoint {evt.timepoint} -> {worker.__class__.__name__}: {started}")
-
-    def gather_images(self, py_image: PyImage) -> bool:
-        """Gather the amount of images needed by the current model."""
-        # TODO: Also make this work for z-slices
-        try:
-            self.images[:, :, py_image.channel] = py_image.raw_image
-        except (ValueError, TypeError):
-            self._reset_shape(py_image)
-            self.images[:, :, py_image.channel] = py_image.raw_image
-
-        self.time = py_image.timepoint
-        if py_image.channel < self.channels - 1:
-            return False
-        else:
-            return True
-
-    def _reset_shape(self, image: PyImage):
-        self.shape = image.raw_image.shape
-        self.images = np.ndarray([*self.shape, self.channels])
-
-    def reset_time(self):
-        log.debug(f"start_time reset in {self.__class__.__name__}")
-        self.start_time = round(time.time() * 1000)
+    def _get_worker_args(self, evt):
+        return [self.model, evt.timepoint, self.start_time]
 
     def new_settings(self, new_settings):
         # Load and initialize model so first predict is fast(er)
