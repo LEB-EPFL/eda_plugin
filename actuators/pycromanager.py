@@ -4,7 +4,7 @@ import queue
 import logging
 from PyQt5.QtCore import pyqtSignal
 
-from isimgui.data_structures import PyImage
+from utility.data_structures import PyImage
 from actuators.micro_manager import MMAcquisition
 
 

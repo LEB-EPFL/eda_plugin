@@ -1,4 +1,3 @@
-from email.policy import default
 import logging
 import numpy as np
 import time

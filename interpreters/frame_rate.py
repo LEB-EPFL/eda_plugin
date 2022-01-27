@@ -5,7 +5,6 @@ about which frame rate to use for further imaging. This information is sent on t
 modify furhter imaging.
 """
 
-import time
 import logging
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot

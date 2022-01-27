@@ -14,6 +14,6 @@ class QWidgetRestore(QtWidgets.QWidget):
         self.settings.setValue("size", self.size())
         self.settings.setValue("pos", self.pos())
         # Close all other windows too
-        app = QtGui.QApplication.instance()
+        app = QtWidgets.QApplication.instance()
         app.closeAllWindows()
         e.accept()

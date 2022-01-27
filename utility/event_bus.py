@@ -1,8 +1,8 @@
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal
 from utility.data_structures import ParameterSet
 
-from isimgui.event_threadQ import EventThread
-from isimgui.data_structures import PyImage
+from utility.event_thread import EventThread
+from utility.data_structures import PyImage
 import numpy as np
 
 
@@ -16,6 +16,8 @@ class EventBus(QObject):
     acquisition_started_event = pyqtSignal(object)
     acquisition_ended_event = pyqtSignal(object)
     new_image_event = pyqtSignal(PyImage)
+    # mda_settings_event = pyqtSignal(object)
+    configuration_settings_event = pyqtSignal(str, str, str)
 
     # Analyser Events
     new_decision_parameter = pyqtSignal(float, float, int)
@@ -35,3 +37,6 @@ class EventBus(QObject):
             self.acquisition_ended_event
         )
         self.event_thread.listener.new_image_event.connect(self.new_image_event)
+
+        # self.event_thread.listener.mda_settings_event.connect(self.mda_settings_event)
+        self.event_thread.listener.configuration_settings_event.connect(self.configuration_settings_event)
