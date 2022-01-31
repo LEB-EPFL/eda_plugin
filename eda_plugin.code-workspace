@@ -17,6 +17,7 @@
 		"python.terminal.activateEnvInCurrentTerminal": true,
 		"python.terminal.activateEnvironment": true,
 		"python.formatting.provider": "black",
+		"python.linting.pydocstyleEnabled": true
 		"[python]": {
 			"editor.wordBasedSuggestions": false,
 			"editor.formatOnSave": true
