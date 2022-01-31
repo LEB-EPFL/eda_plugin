@@ -12,13 +12,17 @@ log = logging.getLogger("EDA")
 
 
 class ImageAnalyser(QObject):
-    """Analyze the last image using the neural network and image the output
-    This has to implement the ImageAnalyser Protocol to be able to be used in the
-    EDAMainGUI."""
+    """Basic image analyser.
+
+    Receives and gathers the needed amount of images as set in settings.json. Once all are received
+    it tries to start a worker in a threadpool to analyse the image. The worker itself will pass the
+    value it calculated on to any expecting interpreters.
+    """
 
     new_decision_parameter = pyqtSignal(float, float, int)
 
     def __init__(self, event_bus: EventBus):
+        """Get settings from settings.json, set up the threadpool and connect signals."""
         super().__init__()
         self.name = "ImageAnalyser"
         self.shape = None
@@ -47,10 +51,8 @@ class ImageAnalyser(QObject):
 
     @pyqtSlot(PyImage)
     def start_analysis(self, evt: PyImage):
-
-        ready = self.gather_images(
-            evt,
-        )
+        """Image arrived, see if all images were gathered and if so, start analysis."""
+        ready = self.gather_images(evt)
         if not ready:
             return
 
@@ -68,6 +70,7 @@ class ImageAnalyser(QObject):
         log.info(f"timepoint {evt.timepoint} -> {worker.__class__.__name__}: {started}")
 
     def connect_worker_signals(self, worker: QRunnable):
+        """Connect worker signals in extra method, so that this can be overwritten independently."""
         worker.signals.new_decision_parameter.connect(self.new_decision_parameter)
 
     def gather_images(self, py_image: PyImage) -> bool:
@@ -98,7 +101,10 @@ class ImageAnalyser(QObject):
 
 
 class ImageAnalyserWorker(QRunnable):
+    """Worker to be executed in the threadpool of the ImageAnalyser."""
+
     def __init__(self, local_images: np.ndarray, timepoint: int, start_time: int):
+        """Initialise worker."""
         super().__init__()
         self.signals = self._Signals()
         self.local_images = local_images
@@ -107,7 +113,7 @@ class ImageAnalyserWorker(QRunnable):
         self.autoDelete = True
 
     def run(self):
-        # The simple maximum decision parameter can be calculated without stiching
+        """Get the maximum value of the passed images and return."""
         decision_parameter = self.extract_decision_parameter(self.local_images)
         elapsed_time = round(time.time() * 1000) - self.start_time
         self.signals.new_decision_parameter.emit(
@@ -115,6 +121,7 @@ class ImageAnalyserWorker(QRunnable):
         )
 
     def extract_decision_parameter(self, network_output: np.ndarray):
+        """Return the maximum of the ndarray."""
         return float(np.max(network_output))
 
     class _Signals(QObject):

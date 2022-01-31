@@ -1,3 +1,8 @@
+"""
+Actuators that are based purely on Micro-Manager and can be used directly with the demo config.
+"""
+
+from __future__ import annotations
 import threading
 import time
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
@@ -10,6 +15,64 @@ from utility import settings
 import logging
 
 log = logging.getLogger("EDA")
+
+
+class MMActuator(QObject):
+    """"""
+
+    stop_acq_signal = pyqtSignal()
+    start_acq_signal = pyqtSignal(object)
+    new_interval = pyqtSignal(float)
+
+    def __init__(
+        self,
+        event_bus: EventBus = None,
+        acquisition_mode: MMAcquisition = None,
+        gui: bool = True,
+    ):
+        super().__init__()
+
+        self.event_bus = event_bus
+        self.studio = event_bus.studio
+        self.interval = 5
+        self.acquisition = None
+        self.acquisition_mode = (
+            TimerMMAcquisition if acquisition_mode is None else acquisition_mode
+        )
+
+        self.gui = MMActuatorGUI(self) if gui else None
+
+        self.event_bus.new_interpretation.connect(self.call_action)
+        self.event_bus.acquisition_ended_event.connect(self.stop_acq)
+        self.start_acq_signal.connect(self.event_bus.acquisition_started_event)
+
+    @pyqtSlot(float)
+    def call_action(self, interval):
+        log.info(f"=== New interval: {interval} ===")
+        self.new_interval.emit(interval)
+
+    def start_acq(self):
+        self.acquisition = self.acquisition_mode(self.event_bus)
+
+        self.acquisition.acquisition_ended.connect(self.reset_thread)
+        self.stop_acq_signal.connect(self.acquisition.stop_acq)
+        self.new_interval.connect(self.acquisition.change_interval)
+
+        self.acquisition.start()
+        log.info("Start new acquisition")
+        self.start_acq_signal.emit(None)
+
+    def reset_thread(self):
+        self.acquisition.quit()
+        time.sleep(0.5)
+
+    def stop_acq(self):
+        log.info(f"Stop acquisition {self.acquisition.__class__} in MMActuator")
+        if self.acquisition is not None:
+            self.stop_acq_signal.emit()
+            self.acquisition.exit()
+            self.acquisition.deleteLater()
+            self.acquisition = None
 
 
 class MMAcquisition(QThread):
@@ -156,61 +219,6 @@ class DirectMMAcquisition(MMAcquisition):
         self.studio.get_acquisition_engine().shutdown()
         self.acquisition_ended.emit()
         self.datastore.freeze()
-
-
-class MMActuator(QObject):
-    """Once an acquisition is started from the"""
-
-    stop_acq_signal = pyqtSignal()
-    start_acq_signal = pyqtSignal(object)
-    new_interval = pyqtSignal(float)
-
-    def __init__(
-        self,
-        event_bus: EventBus = None,
-        acquisition_mode: MMAcquisition = TimerMMAcquisition,
-        gui: bool = True,
-    ):
-        super().__init__()
-
-        self.event_bus = event_bus
-        self.studio = event_bus.studio
-        self.acquisition_mode = acquisition_mode
-        self.interval = 5
-        self.acquisition = None
-
-        self.gui = MMActuatorGUI(self) if gui else None
-
-        self.event_bus.new_interpretation.connect(self.call_action)
-        self.start_acq_signal.connect(self.event_bus.acquisition_started_event)
-
-    @pyqtSlot(float)
-    def call_action(self, interval):
-        log.info(f"=== New interval: {interval} ===")
-        self.new_interval.emit(interval)
-
-    def start_acq(self):
-        self.acquisition = self.acquisition_mode(self.event_bus)
-
-        self.acquisition.acquisition_ended.connect(self.reset_thread)
-        self.stop_acq_signal.connect(self.acquisition.stop_acq)
-        self.new_interval.connect(self.acquisition.change_interval)
-
-        self.acquisition.start()
-        log.info("Start new acquisition")
-        self.start_acq_signal.emit(None)
-
-    def reset_thread(self):
-        self.acquisition.quit()
-        time.sleep(0.5)
-
-    def stop_acq(self):
-        log.info(f"Stop acquisition {self.acquisition.__class__} in MMActuator")
-        if self.acquisition is not None:
-            self.stop_acq_signal.emit()
-            self.acquisition.exit()
-            self.acquisition.deleteLater()
-            self.acquisition = None
 
 
 class MMActuatorGUI(QWidgetRestore):

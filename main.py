@@ -10,6 +10,7 @@ import utility.settings
 def main_isim():
     from actuators.daq import DAQActuator
     from analysers.image import ImageAnalyser
+
     utility.settings.setup_logging()
     app = QtWidgets.QApplication(sys.argv)
 
@@ -23,11 +24,13 @@ def main_isim():
     # actuator.gui.show()
     sys.exit(app.exec_())
 
+
 def main_test():
     from analysers.keras import KerasAnalyser
     from actuators.micro_manager import TimerMMAcquisition
     from examples.actuators.pycro import InjectedPycroAcquisition
     from actuators.micro_manager import MMActuator
+
     utility.settings.setup_logging()
 
     app = QtWidgets.QApplication(sys.argv)
@@ -51,4 +54,4 @@ def main_test():
 
 
 if __name__ == "__main__":
-    main_isim()
+    main_test()

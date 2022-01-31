@@ -1,4 +1,4 @@
-"""Utility for the settings file."""
+"""Utility for the settings file. And other module wide settings."""
 
 import json
 import logging
@@ -18,6 +18,7 @@ def get_settings(calling_class=None):
 
 
 def setup_logging():
+    """Set up the logging for the project."""
     logger = logging.getLogger("EDA")
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
