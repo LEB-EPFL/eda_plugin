@@ -3,8 +3,8 @@
 import numpy as np
 
 from analysers.keras import KerasWorker
-from eda_original.SmartMicro.NNfeeder import prepareNNImages
-from eda_original.SmartMicro.ImageTiles import stitchImage
+from utility.image_processing import prepareNNImages
+from utility.image_processing import stitchImage
 from skimage import exposure, filters, transform
 
 
@@ -24,6 +24,7 @@ class KerasRescaleWorker(KerasWorker):
             image = images[:, :, idx]
             # resc_image = transform.rescale(image, resize_param)
             image = filters.gaussian(image, sig)
+            # Do the background subtraction for the Drp1/FtsZ channel only
             if idx == 1:
                 image = image - filters.gaussian(images[:, :, idx], sig * 5)
             in_range = (
@@ -59,6 +60,3 @@ class KerasTilingWorker(KerasWorker):
         tiles, positions = prepareNNImages(images[:, :, 0], images[:, :, 1], self.model)
         data = {"pixels": tiles, "positions": positions}
         return data
-
-
-# TODO: Add the functions used here for pre/post processing directly to the module

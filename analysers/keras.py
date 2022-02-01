@@ -109,7 +109,6 @@ class KerasSettingsGUI(QWidgetRestore):
 
         Get the default settings from the settings file and set up the GUI
         """
-
         super().__init__()
         self.setWindowTitle("KerasSettings")
 
