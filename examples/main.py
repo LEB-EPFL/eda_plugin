@@ -28,7 +28,6 @@ def main_test():
     gui.show()
     actuator.gui.show()
     interpreter.gui.show()
-    analyser.gui.show()
 
     # This could also be used with a Napari Viewer:
     # viewer = NapariImageViewer()

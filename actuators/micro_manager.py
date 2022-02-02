@@ -122,7 +122,8 @@ class MMAcquisition(QThread):
         # TODO: Set interval to fast interval so it can be used when running freely
         self.settings = self.settings.copy_builder().interval_ms(0).build()
         self.channels = self.get_channel_information()
-        default_settings = settings.get_settings(self)
+
+        default_settings = settings.get_settings(__class__)
         self.channel_switch_time = default_settings["channel_switch_time_ms"]
         self.num_channels = len(self.channels)
 

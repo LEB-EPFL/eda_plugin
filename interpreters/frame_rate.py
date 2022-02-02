@@ -32,8 +32,8 @@ class BinaryFrameRateInterpreter(QObject):
         self.gui.show()
         self.gui.new_parameters.connect(self.update_parameters)
 
-        self.params = settings.get_settings(self)
-        self.interval = self.params['slow_interval']
+        self.params = ParameterSet(settings.get_settings(self))
+        self.interval = self.params.slow_interval
 
         self.num_fast_frames = 0
         self.min_fast_frames = 4

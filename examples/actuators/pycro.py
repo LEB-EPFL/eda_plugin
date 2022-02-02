@@ -45,6 +45,8 @@ class InjectedPycroAcquisition(PycroAcquisition):
             if metadata["Channel"] == c["config"]:
                 channel = idx
 
+        # log.debug(metadata)
+
         if channel == 0:
             now = time.perf_counter()
             elapsed = now - self.start_time

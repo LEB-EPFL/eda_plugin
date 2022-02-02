@@ -114,7 +114,11 @@ class PycroAcquisition(MMAcquisition):
             if metadata["Channel"] == c["config"]:
                 channel = idx
         py_image = PyImage(
-            image, metadata["Axes"]["time"], channel, metadata["ElapsedTime-ms"]
+            image,
+            metadata["Axes"]["time"],
+            channel,
+            metadata["SliceIndex"],
+            metadata["ElapsedTime-ms"],
         )
         self.new_image.emit(py_image)
         self.last_arrival_time = metadata["ElapsedTime-ms"] / 1000
