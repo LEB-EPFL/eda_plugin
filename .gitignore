@@ -4,3 +4,5 @@ __pycache__/
 *.code-workspace
 docs/
 .vscode/
+build/
+*.egg-info
