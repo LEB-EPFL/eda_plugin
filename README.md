@@ -28,4 +28,5 @@ decisions from an interpreter to the ongoing acquisition.
 2) Download this repository
 3) Install the required dependencies
 4) Run micro-manager with the zmq server ([pycromanager installation](https://github.com/micro-manager/pycro-manager/blob/master/README.md))
-5) Run 'python -m examples.main' from the home directory of the package.
+5) Run the PythonEventServer from Plugins -> Developer Tools -> Python Event Server
+6) Run 'python -m examples.main' from the home directory of the package.
