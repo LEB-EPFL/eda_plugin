@@ -2,7 +2,6 @@ __pycache__/
 *.pyc
 *.pylintrc
 *.code-workspace
-docs/
 .vscode/
 build/
 *.egg-info
