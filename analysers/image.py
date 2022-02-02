@@ -1,3 +1,10 @@
+"""Basic analyser implementation for images.
+
+This basic analyser is set up to receive images from the EventBus, analyse them using basic image
+analysis functions and send a decision parameter back to the EventBus to be handed on to an
+interpreter.
+"""
+
 import logging
 import numpy as np
 import time
@@ -125,4 +132,6 @@ class ImageAnalyserWorker(QRunnable):
         return float(np.max(network_output))
 
     class _Signals(QObject):
+        """Signals have to be separate because QRunnable can't have its own."""
+
         new_decision_parameter = pyqtSignal(float, float, int)

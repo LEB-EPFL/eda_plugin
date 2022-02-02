@@ -19,59 +19,6 @@ from utility import settings
 log = logging.getLogger("EDA")
 
 
-DEFAULT_VALUES = ParameterSet(
-    slow_interval=5, fast_interval=0, lower_threshold=0.9, upper_threshold=0.97
-)
-
-
-class BinaryFrameRateParameterForm(QWidgetRestore):
-    """GUI for input/update of the parameters used for a change between two frame rates."""
-
-    new_parameters = pyqtSignal(object)
-
-    def __init__(self):
-        """Set up the PyQt GUI with all the parameters needed for interpretation."""
-        super().__init__()
-
-        self.slow_interval_input = QtWidgets.QLineEdit()
-        self.fast_interval_input = QtWidgets.QLineEdit()
-        self.lower_threshold_input = QtWidgets.QLineEdit()
-        self.upper_threshold_input = QtWidgets.QLineEdit()
-
-        self.slow_interval_input.setMaximumWidth(50)
-        self.fast_interval_input.setMaximumWidth(50)
-        self.lower_threshold_input.setMaximumWidth(50)
-        self.upper_threshold_input.setMaximumWidth(50)
-
-        DEFAULT_VALUES = settings.get_settings(self)
-        self.slow_interval_input.setText(str(DEFAULT_VALUES["slow_interval"]))
-        self.fast_interval_input.setText(str(DEFAULT_VALUES["fast_interval"]))
-        self.lower_threshold_input.setText(str(DEFAULT_VALUES["lower_threshold"]))
-        self.upper_threshold_input.setText(str(DEFAULT_VALUES["upper_threshold"]))
-
-        self.slow_interval_input.editingFinished.connect(self._update_parameters)
-        self.fast_interval_input.editingFinished.connect(self._update_parameters)
-        self.lower_threshold_input.editingFinished.connect(self._update_parameters)
-        self.upper_threshold_input.editingFinished.connect(self._update_parameters)
-
-        param_layout = QtWidgets.QFormLayout(self)
-        param_layout.addRow("Slow Interval [s]", self.slow_interval_input)
-        param_layout.addRow("Fast Interval [s]", self.fast_interval_input)
-        param_layout.addRow("Lower Threshold", self.lower_threshold_input)
-        param_layout.addRow("Upper Threshold", self.upper_threshold_input)
-
-        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
-        self.param_set = ParameterSet(**DEFAULT_VALUES)
-
-    def _update_parameters(self):
-        self.param_set.slow_interval = float(str(self.slow_interval_input.text()))
-        self.param_set.fast_interval = float(str(self.fast_interval_input.text()))
-        self.param_set.lower_threshold = float(str(self.lower_threshold_input.text()))
-        self.param_set.upper_threshold = float(str(self.upper_threshold_input.text()))
-
-        self.new_parameters.emit(self.param_set)
-
-
 class BinaryFrameRateInterpreter(QObject):
     """Take the output calcualted by an ImageAnalyser and decide which imaging speed to use next."""
 
@@ -85,8 +32,8 @@ class BinaryFrameRateInterpreter(QObject):
         self.gui.show()
         self.gui.new_parameters.connect(self.update_parameters)
 
-        self.params = DEFAULT_VALUES
-        self.interval = DEFAULT_VALUES.slow_interval
+        self.params = settings.get_settings(self)
+        self.interval = self.params['slow_interval']
 
         self.num_fast_frames = 0
         self.min_fast_frames = 4
@@ -146,3 +93,51 @@ class BinaryFrameRateInterpreter(QObject):
             self.num_fast_frames += 1
         else:
             self.num_fast_frames = 0
+
+
+class BinaryFrameRateParameterForm(QWidgetRestore):
+    """GUI for input/update of the parameters used for a change between two frame rates."""
+
+    new_parameters = pyqtSignal(object)
+
+    def __init__(self):
+        """Set up the PyQt GUI with all the parameters needed for interpretation."""
+        super().__init__()
+
+        self.slow_interval_input = QtWidgets.QLineEdit()
+        self.fast_interval_input = QtWidgets.QLineEdit()
+        self.lower_threshold_input = QtWidgets.QLineEdit()
+        self.upper_threshold_input = QtWidgets.QLineEdit()
+
+        self.slow_interval_input.setMaximumWidth(50)
+        self.fast_interval_input.setMaximumWidth(50)
+        self.lower_threshold_input.setMaximumWidth(50)
+        self.upper_threshold_input.setMaximumWidth(50)
+
+        DEFAULT_VALUES = settings.get_settings(self)
+        self.slow_interval_input.setText(str(DEFAULT_VALUES["slow_interval"]))
+        self.fast_interval_input.setText(str(DEFAULT_VALUES["fast_interval"]))
+        self.lower_threshold_input.setText(str(DEFAULT_VALUES["lower_threshold"]))
+        self.upper_threshold_input.setText(str(DEFAULT_VALUES["upper_threshold"]))
+
+        self.slow_interval_input.editingFinished.connect(self._update_parameters)
+        self.fast_interval_input.editingFinished.connect(self._update_parameters)
+        self.lower_threshold_input.editingFinished.connect(self._update_parameters)
+        self.upper_threshold_input.editingFinished.connect(self._update_parameters)
+
+        param_layout = QtWidgets.QFormLayout(self)
+        param_layout.addRow("Slow Interval [s]", self.slow_interval_input)
+        param_layout.addRow("Fast Interval [s]", self.fast_interval_input)
+        param_layout.addRow("Lower Threshold", self.lower_threshold_input)
+        param_layout.addRow("Upper Threshold", self.upper_threshold_input)
+
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
+        self.param_set = ParameterSet(**DEFAULT_VALUES)
+
+    def _update_parameters(self):
+        self.param_set.slow_interval = float(str(self.slow_interval_input.text()))
+        self.param_set.fast_interval = float(str(self.fast_interval_input.text()))
+        self.param_set.lower_threshold = float(str(self.lower_threshold_input.text()))
+        self.param_set.upper_threshold = float(str(self.upper_threshold_input.text()))
+
+        self.new_parameters.emit(self.param_set)

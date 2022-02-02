@@ -122,8 +122,9 @@ def prepareNNImages(bact_img, ftsz_img, model, bacteria=False):
 
 
 def getTilePositionsV2(image, targetSize=128):
-    """Generate tuples with the positions of tiles to split up an image with
-    an overlap. Calculates the number of tiles in a way that allows for only
+    """Generate tuples with the positions of tiles to split up an image withan overlap.
+
+    Calculates the number of tiles in a way that allows for only
     full tiles to be needed.
 
     Args:

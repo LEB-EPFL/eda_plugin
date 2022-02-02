@@ -1,3 +1,5 @@
+"""Protocols to avoid direct inheritance."""
+
 from typing import Protocol
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 import numpy as np

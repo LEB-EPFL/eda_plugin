@@ -1,3 +1,13 @@
+"""Image analysers based on keras neuronal networks.
+
+Adaptations of analysers.image.ImageAnalyser for use with neural networks implemented in tensorflow
+and keras. The usage of a Threadpool for the workers is helpful here, because pre/postprocessing and
+the inference can take some time. This can slow down analysis, but as the threadpool only allows to
+start a worker if a thread is available, analysis will keep up with acquisiton by skipping frames if
+behind.
+"""
+
+
 import logging
 import time
 import numpy as np
@@ -20,31 +30,34 @@ log = logging.getLogger("EDA")
 
 
 class KerasAnalyser(ImageAnalyser):
-    """Analyze the last image using the neural network and image the output
-    This has to implement the ImageAnalyser Protocol to be able to be used in the
-    EDAMainGUI."""
+    """ImageAnalyser that can use a neural network for analysis of the acquired images.
+
+    Add signals to be sent out with information about the output of the network. These will be used
+    by the specific GUI to be displayed.
+    """
 
     new_network_image = pyqtSignal(np.ndarray)
     new_output_shape = pyqtSignal(tuple)
 
     def __init__(self, event_bus: EventBus):
+        """Load and connect the GUI. Initialise settings from the GUI."""
         super().__init__(event_bus=event_bus)
-        self.name = "KerasAnalyser"
-
         self.gui = KerasSettingsGUI()
         self.gui.new_settings.connect(self.new_settings)
         self.new_settings(self.gui.keras_settings)
 
     def connect_worker_signals(self, worker: QRunnable):
+        """Connect the additional worker signals."""
         worker.signals.new_network_image.connect(self.new_network_image)
         worker.signals.new_output_shape.connect(self.new_output_shape)
         return super().connect_worker_signals(worker)
 
     def _get_worker_args(self, evt):
+        """For the KerasWorker, the model is passed as an additional parameter to the worker."""
         return {"model": self.model}
 
     def new_settings(self, new_settings):
-        # Load and initialize model so first predict is fast(er)
+        """Load and initialize model so first predict is fast(er)."""
         self.model_path = new_settings["model"]
         self.model = keras.models.load_model(self.model_path, compile=True)
         self.channels = self.model.layers[0].input_shape[0][3]
@@ -61,7 +74,10 @@ class KerasAnalyser(ImageAnalyser):
 
 
 class KerasWorker(ImageAnalyserWorker):
+    """Implementation of the QRunnable ImageAnalyserWorker that inferes a neural network model."""
+
     def __init__(self, *args, model):
+        """QRunnable, so the signals are stored in a subclass."""
         super().__init__(*args)
         self.signals = self._Signals()
         self.model = model
@@ -72,6 +88,7 @@ class KerasWorker(ImageAnalyserWorker):
         Prepare the images, infer the model, calculate the decision parameter and construct the
         image that will be displayed in the GUI. Preparation and postprocessing are optional and
         can be implemented by subclasses as necessary for the specific model.
+        Specific implementations can be found in examples.analysers.keras
         """
         network_input = self.prepare_images(self.local_images)
         network_output = self.model.predict_on_batch(network_input["pixels"])

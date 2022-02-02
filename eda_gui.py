@@ -1,3 +1,5 @@
+"""QtWidgets that can be used as main GUI components for the EDA loop."""
+
 from typing import Tuple
 from PyQt5 import QtWidgets, QtCore, QtGui
 import pyqtgraph as pg
@@ -22,7 +24,10 @@ QtWidgets.QApplication.setAttribute(
 
 
 class EDAMainGUI(QWidgetRestore):
+    """Assemble different Widgets to have a main window for the GUI."""
+
     def __init__(self, event_bus: EventBus, viewer: bool = False):
+        """Set up GUI and establish communication with the EventBus."""
         super().__init__()
         self.setWindowTitle("MainGUI")
         self.plot = EDAPlot()
@@ -35,13 +40,19 @@ class EDAMainGUI(QWidgetRestore):
         self.layout().addWidget(self.plot)
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
         # Establish communication between the different parts
-        event_bus.acquisition_started_event.connect(self.plot.reset_plot)
+        event_bus.acquisition_started_event.connect(self.plot._reset_plot)
         event_bus.new_decision_parameter.connect(self.plot.add_datapoint)
-        event_bus.new_parameters.connect(self.plot.set_thr_lines)
+        event_bus.new_parameters.connect(self.plot._set_thr_lines)
 
 
 class EDAPlot(pg.PlotWidget):
+    """Displays output of an analyser over time and the decision parameters of the interpreter."""
+
     def __init__(self, *args, **kwargs):
+        """Initialise the main plot and the horizontal lines showing the thresholds.
+
+        The lines are used to show the current parameters of a BinaryFrameRateInterpreter.
+        """
         super().__init__(*args, **kwargs)
 
         self.output_line = PlotCurveItem([], pen="w")
@@ -63,43 +74,48 @@ class EDAPlot(pg.PlotWidget):
 
     @QtCore.pyqtSlot(float, float, int)
     def add_datapoint(self, y: float, x: float, _):
+        """Add a datapoint that is received from the analyser."""
         self.x_data.append(x)
         self.y_data.append(y)
-        self.refresh_plot()
+        self._refresh_plot()
 
-    def refresh_plot(self):
+    def _refresh_plot(self):
         self.output_line.setData(self.x_data, self.y_data)
         self.output_scatter.setData(self.x_data, self.y_data)
         self.enableAutoRange()
 
-    def reset_plot(self):
+    def _reset_plot(self):
         self.x_data = []
         self.y_data = []
-        self.refresh_plot()
+        self._refresh_plot()
 
     QtCore.pyqtSlot(ParameterSet)
 
-    def set_thr_lines(self, params: ParameterSet):
+    def _set_thr_lines(self, params: ParameterSet):
         self.thrLine1.setPos(params.lower_threshold)
         self.thrLine2.setPos(params.upper_threshold)
 
 
 class NetworkImageViewer(QtWidgets.QGraphicsView):
+    """Display a grayscale np.ndarray."""
+
     def __init__(self):
+        """Set up with the default image size and initialise with a dummy pixmap."""
         super(NetworkImageViewer, self).__init__(QtWidgets.QGraphicsScene())
         self.pixmap = QtGui.QPixmap(512, 512)
         self.setSceneRect(0, 0, 512, 512)
         self.image = self.scene().addPixmap(self.pixmap)
 
-    def reset_scene_rect(self, shape: Tuple):
+    def _reset_scene_rect(self, shape: Tuple):
         self.setSceneRect(0, 0, *shape)
         self.fitInView(0, 0, *shape, mode=QtCore.Qt.KeepAspectRatio)
         self.setBackgroundBrush(QtGui.QColor("#222222"))
 
     @QtCore.pyqtSlot(np.ndarray, tuple)
     def add_network_image(self, image: np.ndarray, dims: tuple):
+        """Translate the input image into a QImage and display in the scene."""
         if dims[0] == 0:
-            self.reset_scene_rect(image.shape)
+            self._reset_scene_rect(image.shape)
         image = gray2qimage(image, normalize=True)
         self.image.setPixmap(QtGui.QPixmap.fromImage(image))
         self.update()
@@ -107,11 +123,13 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
 
 class NapariImageViewer(QtWidgets.QWidget):
     """Simple implementation showing the output of the neural network.
+
     This could be extended to also show the images received from micro-manager or the preprocessed
-    versions of those.
-    Calling this can lead to the other Qt images being very scaled down."""
+    versions of those. Calling this can lead to the other Qt widgets being very scaled down.
+    """
 
     def __init__(self):
+        """Open a napari viewer."""
         super().__init__()
         self.viewer = napari.Viewer()
         self.layer = None
@@ -119,6 +137,7 @@ class NapariImageViewer(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(np.ndarray, tuple)
     def add_network_image(self, image, dims: tuple):
+        """Add the image received to the respective layer, or make a new layer."""
         if dims[0] == 0 or self.layer is None:
             self.data = np.ndarray([self.timepoints, *image.shape])
             self.data[0, :, :] = image
@@ -127,39 +146,3 @@ class NapariImageViewer(QtWidgets.QWidget):
             self.data[dims[0] :, :] = image
             self.layer.data = self.data
             self.viewer.dims.set_point(0, dims[0])
-
-
-def main():
-    from analysers.keras import KerasAnalyser
-    from interpreters.frame_rate import BinaryFrameRateInterpreter
-    from actuators.micro_manager import MMActuator
-    from actuators.micro_manager import TimerMMAcquisition
-    from examples.actuators.pycro import InjectedPycroAcquisition
-    import sys
-    import utility.settings
-
-    utility.settings.setup_logging()
-
-    app = QtWidgets.QApplication(sys.argv)
-
-    event_bus = EventBus()
-
-    gui = EDAMainGUI(event_bus, viewer=True)
-    actuator = MMActuator(event_bus, TimerMMAcquisition)
-    # actuator = MMActuator(event_bus, InjectedPycroAcquisition)
-    analyser = KerasAnalyser(event_bus)
-    interpreter = BinaryFrameRateInterpreter(event_bus)
-
-    gui.show()
-    actuator.gui.show()
-    interpreter.gui.show()
-    analyser.gui.show()
-
-    # viewer = NapariImageViewer()
-    # event_bus.new_network_image.connect(viewer.add_network_image)
-
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

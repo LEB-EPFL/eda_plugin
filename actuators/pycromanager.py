@@ -1,3 +1,13 @@
+"""Actuator based on the remote acquisition capabilities of Pycromanager and Micro-Magellan.
+
+This implementation uses the post_hardware_hook_fn and image_process_fn hooks in
+pycromanager.Acquisition to change the interval and receive images from Micro-Manager.
+
+See also:
+pycromanager (https://github.com/micro-manager/pycro-manager)
+Micro-Magellan (https://micro-manager.org/MicroMagellan)
+"""
+
 import pycromanager
 import copy
 import queue
@@ -12,16 +22,21 @@ log = logging.getLogger("EDA")
 
 
 class PycroAcquisition(MMAcquisition):
-    # """This tries to use the inbuilt Acquisition function in pycromanager. Unfortunately, these
-    # acquisitions don't start with the default Micro-Manager interface and the acquisition also
-    # doesn't seem to be saved in a perfect format, so that Micro-Manager would detect the correct
-    # parameters to show the channels upon loading for example. The Acquisitions also don't emit any
-    # of the standard Micro-Manager events. Stashed for now because of this"""
+    """MMAcquisition that can be used with actuators.micro_manager.MMActuator.
+
+    This implementation of a MMAcquisition uses the remote acquisition interplay between
+    pycromanager (https://github.com/micro-manager/pycro-manager) and Micro-Magellan
+    (https://micro-manager.org/MicroMagellan). An image_process_fn receives the images recorded and
+    sends them to the analyser. A post_hardware_hook gives the possibility to change a capture
+    event. This is used to add another image event with the interval that is currently requested by
+    the interpreter.
+    """
 
     new_image = pyqtSignal(PyImage)
     acquisition_started_event = pyqtSignal(object)
 
     def __init__(self, studio, start_interval: float = 5.0, settings=None):
+        """Set default settings, set up first acquisiton events connect signals."""
         super().__init__(studio)
         if settings is None:
             settings = {
@@ -43,6 +58,8 @@ class PycroAcquisition(MMAcquisition):
         self.new_image.connect(self.event_bus.new_image_event)
 
     def start_acq(self):
+        """Start acquisition."""
+        # TODO: The save_path should be possible to set from the outside
         self.acquisition = pycromanager.Acquisition(
             directory="C:/Users/stepp/Desktop/eda_save",
             name="acquisition_name",
@@ -54,10 +71,20 @@ class PycroAcquisition(MMAcquisition):
         self.acquisition.acquire(self.events)
 
     def stop_acq(self):
+        """Stop acquisition.
+
+        If there would still be many events in the acquisition queue, this would not be trivial.
+        Works here, as this implementation only generates the next event and can then pass None.
+        https://github.com/micro-manager/pycro-manager/issues/340
+        """
         self.stop_acq_condition = True
         self.acquisition_ended.emit()
 
     def post_hardware(self, event, _, event_queue: queue.Queue):
+        """Return the event, unless acquisition was stopped.
+
+        If acquisition continues running, add another event with the interval present in the moment.
+        """
         # Check if acquisition was stopped
         if self.stop_acq_condition:
             event_queue.put(None)
@@ -82,6 +109,7 @@ class PycroAcquisition(MMAcquisition):
         return event
 
     def receive_image(self, image, metadata):
+        """Extract relevant metadata, make utility.data_sctructures.PyImage and notify EventBus."""
         for idx, c in enumerate(self.channels):
             if metadata["Channel"] == c["config"]:
                 channel = idx
@@ -94,4 +122,5 @@ class PycroAcquisition(MMAcquisition):
         return image, metadata
 
     def change_interval(self, new_interval):
+        """Change the internal interval."""
         self.interval = new_interval

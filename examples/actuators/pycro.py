@@ -13,7 +13,7 @@ class InjectedPycroAcquisition(PycroAcquisition):
     """Acquisition based on pycromanager with image injection.
 
     This can be used with the DemoConfig of MicroManager. It injects an image from a tif-stack to
-    replace the iamge from the DemoCam. This allows to test the performance of the EDA loop and the
+    replace the image from the DemoCam. This allows to test the performance of the EDA loop and the
     model used without a sample or even a microscope.
     """
 
