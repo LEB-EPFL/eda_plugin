@@ -3,9 +3,9 @@
         "en"
     ],
     "spellright.documentTypes": [
-        "markdown",
         "latex",
         "plaintext",
-        "python"
+        "python",
+        "markdown"
     ]
 }
