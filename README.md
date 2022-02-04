@@ -5,6 +5,8 @@ acquisitions to react to specific biological events of interest.
 
 More information on the project it was first used on can be found in the [bioRxiv article](https://www.biorxiv.org/content/10.1101/2021.10.04.463102v1).
 
+See the [Documentation](https://event-driven-acquisition.readthedocs.io/en/latest/index.html) for more details.
+
 ## Components of EDA
 
 
@@ -52,8 +54,7 @@ Or construct your own EDA loop e.g.
 
     from eda_plugin.interpreters.frame_rate import BinaryFrameRateInterpreter
     from eda_plugin.analysers.image import ImageAnalyser
-    from eda_plugin.examples.actuators.pycro import InjectedPycroAcquisition
-    from eda_plugin.actuators.micro_manager import MMActuator
+    from eda_plugin.actuators.micro_manager import MMActuator, TimerMMAcquisition
 
     eda_plugin.utility.settings.setup_logging()
 
@@ -61,7 +62,7 @@ Or construct your own EDA loop e.g.
     event_bus = EventBus()
 
     gui = EDAMainGUI(event_bus, viewer=True)
-    actuator = MMActuator(event_bus, InjectedPycroAcquisition)
+    actuator = MMActuator(event_bus, TimerMMAcquisition)
     analyser = ImageAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
