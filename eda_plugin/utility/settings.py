@@ -2,11 +2,12 @@
 
 import json
 import logging
+import os
 
 
 def get_settings(calling_class=None):
     """Get the settings from the settings.json file and extract a module if defined."""
-    with open("settings.json", "r") as j:
+    with open(os.path.dirname(__file__) + "/../settings.json", "r") as j:
         contents = json.loads(j.read())
     if calling_class is None:
         return contents

@@ -3,19 +3,19 @@
 import sys
 from PyQt5 import QtWidgets
 
-from utility.event_bus import EventBus
+from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.eda_gui import EDAMainGUI
-from interpreters.frame_rate import BinaryFrameRateInterpreter
-import utility.settings
+from eda_plugin.interpreters.frame_rate import BinaryFrameRateInterpreter
+import eda_plugin.utility.settings
 
 
 def main_test():
     """EDA loop thay can be used to test without a microscope and without CUDA installation."""
-    from analysers.image import ImageAnalyser
+    from eda_plugin.analysers.image import ImageAnalyser
     from .actuators.pycro import InjectedPycroAcquisition
-    from actuators.micro_manager import MMActuator
+    from eda_plugin.actuators.micro_manager import MMActuator
 
-    utility.settings.setup_logging()
+    eda_plugin.utility.settings.setup_logging()
 
     app = QtWidgets.QApplication(sys.argv)
     event_bus = EventBus()
@@ -38,11 +38,11 @@ def main_test():
 
 def main_keras():
     """EDA loop using a neural network analyser that can be used for testing."""
-    from analysers.keras import KerasAnalyser
+    from eda_plugin.analysers.keras import KerasAnalyser
     from .actuators.pycro import InjectedPycroAcquisition
-    from actuators.micro_manager import MMActuator
+    from eda_plugin.actuators.micro_manager import MMActuator
 
-    utility.settings.setup_logging()
+    eda_plugin.utility.settings.setup_logging()
 
     app = QtWidgets.QApplication(sys.argv)
     event_bus = EventBus()

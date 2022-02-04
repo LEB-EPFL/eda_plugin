@@ -15,7 +15,7 @@ import zmq
 from pycromanager import Bridge
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
-from utility.data_structures import PyImage
+from .data_structures import PyImage
 
 log = logging.getLogger("EDA")
 SOCKET = "5556"

@@ -2,9 +2,9 @@
 
 import numpy as np
 
-from analysers.keras import KerasWorker
-from utility.image_processing import prepareNNImages
-from utility.image_processing import stitchImage
+from eda_plugin.analysers.keras import KerasWorker
+from eda_plugin.utility.image_processing import prepareNNImages
+from eda_plugin.utility.image_processing import stitchImage
 from skimage import exposure, filters, transform
 
 

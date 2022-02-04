@@ -14,8 +14,8 @@ import queue
 import logging
 from PyQt5.QtCore import pyqtSignal
 
-from utility.data_structures import PyImage
-from actuators.micro_manager import MMAcquisition
+from eda_plugin.utility.data_structures import PyImage
+from eda_plugin.actuators.micro_manager import MMAcquisition
 
 
 log = logging.getLogger("EDA")

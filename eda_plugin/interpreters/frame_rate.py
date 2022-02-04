@@ -11,10 +11,10 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets
 import qdarkstyle
 
-from utility.data_structures import ParameterSet
-from utility.event_bus import EventBus
-from utility.qt_classes import QWidgetRestore
-from utility import settings
+from eda_plugin.utility.data_structures import ParameterSet
+from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility.qt_classes import QWidgetRestore
+from eda_plugin.utility import settings
 
 log = logging.getLogger("EDA")
 

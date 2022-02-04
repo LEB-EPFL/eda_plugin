@@ -1,10 +1,11 @@
 """Example of using the PycroAcquisition class."""
 
-import time
-import numpy as np
-from actuators.pycromanager import PycroAcquisition
-import tifffile
 import logging
+import time
+
+import numpy as np
+import tifffile
+from eda_plugin.actuators.pycromanager import PycroAcquisition
 
 log = logging.getLogger("EDA")
 

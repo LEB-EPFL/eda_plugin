@@ -10,9 +10,9 @@ import numpy as np
 import time
 
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable
-from utility.event_bus import EventBus
-from utility.data_structures import PyImage
-from utility import settings
+from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility.data_structures import PyImage
+from eda_plugin.utility import settings
 
 
 log = logging.getLogger("EDA")

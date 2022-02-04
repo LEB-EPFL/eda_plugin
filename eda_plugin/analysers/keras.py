@@ -19,12 +19,12 @@ from PyQt5.QtCore import QObject, QRunnable, pyqtSignal
 import qdarkstyle
 
 from tensorflow import keras
-from analysers.image import ImageAnalyser, ImageAnalyserWorker
+from eda_plugin.analysers.image import ImageAnalyser, ImageAnalyserWorker
 
-from utility.qt_classes import QWidgetRestore
-from utility.event_bus import EventBus
-from utility import settings
-from analysers.image import ImageAnalyser
+from eda_plugin.utility.qt_classes import QWidgetRestore
+from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility import settings
+from eda_plugin.analysers.image import ImageAnalyser
 
 log = logging.getLogger("EDA")
 

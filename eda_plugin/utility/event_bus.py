@@ -5,10 +5,9 @@ PythonEventServer plugin provided.
 """
 
 from PyQt5.QtCore import QObject, pyqtSignal
-from utility.data_structures import ParameterSet
+from .data_structures import ParameterSet, PyImage
 
-from utility.event_thread import EventThread
-from utility.data_structures import PyImage
+from .event_thread import EventThread
 import numpy as np
 
 
