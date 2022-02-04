@@ -25,8 +25,41 @@ decisions from an interpreter to the ongoing acquisition.
 ## Installing Event-driven acquisition
 
 1) Install the latest version of [micro-manager2.0](https://micro-manager.org/wiki/Micro-Manager_Nightly_Builds)
-2) Download this repository
-3) Install the required dependencies
+2) `pip install eda_plugin`
+3) Install the Micro-Manager plugins:
+   1) `>>> import eda_plugin`
+   2) `>>> eda_plugin.install_mm_plugins()`
+   3) Choose the main Micro-Manager folder in the file dialog (e.g. C:\Program Files\Micro-Manager-2.0)
 4) Run micro-manager with the zmq server ([pycromanager installation](https://github.com/micro-manager/pycro-manager/blob/master/README.md))
 5) Run the PythonEventServer from Plugins -> Developer Tools -> Python Event Server
-6) Run 'python -m examples.main' from the home directory of the package.
+
+Now you can run one of the examples
+```python
+import eda_plugin
+eda_plugin.examples.main.main_test()
+# or if you have CUDA and tensorflow installed
+eda_plugin.examples.main.main_keras()
+```
+
+Or construct your own EDA loop e.g.
+```python
+    from eda_plugin.analysers.image import ImageAnalyser
+    from .actuators.pycro import InjectedPycroAcquisition
+    from eda_plugin.actuators.micro_manager import MMActuator
+
+    eda_plugin.utility.settings.setup_logging()
+
+    app = QtWidgets.QApplication(sys.argv)
+    event_bus = EventBus()
+
+    gui = EDAMainGUI(event_bus, viewer=True)
+    actuator = MMActuator(event_bus, InjectedPycroAcquisition)
+    analyser = ImageAnalyser(event_bus)
+    interpreter = BinaryFrameRateInterpreter(event_bus)
+
+    gui.show()
+    actuator.gui.show()
+    interpreter.gui.show()
+
+    sys.exit(app.exec_())
+```

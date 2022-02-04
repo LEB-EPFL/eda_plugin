@@ -1,15 +1,30 @@
 from setuptools import setup, find_packages
 
 packages = find_packages()
-print(packages)
+
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
 
 setup(
-    name="eda_plugin",
-    version="0.1",
-    # packages=["eda_plugin"],
+    name="eda_plugin-wl-stepp",
+    version="0.1.6",
+    description="Event-driven acquisition",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/wl-stepp/eda_plugin",
+    project_urls={
+        "Bug Tracker": "https://github.com/wl-stepp/eda_plugin/issues",
+    },
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+    ],
+    packages=packages,
     # package_data={"eda_plugin": ["actuators/*", "examples/*"]},
-    package_data={"": ["settings.json"]},
+    package_data={"": ["settings.json", "utility/*.jar"]},
     include_package_data=True,
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",
+    python_requires=">=3.8",
 )
