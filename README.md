@@ -43,8 +43,16 @@ eda_plugin.examples.main.main_keras()
 
 Or construct your own EDA loop e.g.
 ```python
+    import sys
+    from PyQt5 import QtWidgets
+
+    from eda_plugin.utility.event_bus import EventBus
+    import eda_plugin.utility.settings
+    from eda_plugin.eda_gui import EDAMainGUI
+
+    from eda_plugin.interpreters.frame_rate import BinaryFrameRateInterpreter
     from eda_plugin.analysers.image import ImageAnalyser
-    from .actuators.pycro import InjectedPycroAcquisition
+    from eda_plugin.examples.actuators.pycro import InjectedPycroAcquisition
     from eda_plugin.actuators.micro_manager import MMActuator
 
     eda_plugin.utility.settings.setup_logging()
