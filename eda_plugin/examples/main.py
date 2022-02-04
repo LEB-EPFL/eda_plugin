@@ -62,10 +62,10 @@ def main_keras():
 
 def main_isim():
     """EDA loop used on the iSIM."""
-    from actuators.daq import DAQActuator
-    from analysers.image import ImageAnalyser
+    from eda_plugin.actuators.daq import DAQActuator
+    from eda_plugin.analysers.image import ImageAnalyser
 
-    utility.settings.setup_logging()
+    eda_plugin.utility.settings.setup_logging()
     app = QtWidgets.QApplication(sys.argv)
 
     event_bus = EventBus()
@@ -80,4 +80,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    main_test()
+    main_isim()

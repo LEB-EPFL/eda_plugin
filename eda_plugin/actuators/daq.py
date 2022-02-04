@@ -13,7 +13,7 @@ import copy
 
 import nidaqmx
 import nidaqmx.stream_writers
-from utility.event_bus import EventBus
+from eda_plugin.utility.event_bus import EventBus
 
 # MMSettings imports
 from dataclasses import dataclass
