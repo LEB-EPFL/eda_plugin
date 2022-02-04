@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eda_plugin-wl-stepp",
-    version="0.1.6",
+    version="0.1.8",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -24,6 +24,13 @@ setup(
     # package_data={"eda_plugin": ["actuators/*", "examples/*"]},
     package_data={"": ["settings.json", "utility/*.jar"]},
     include_package_data=True,
+    install_requires=[
+        "pyqt5",
+        "pycromanager",
+        "pyqtgraph",
+        "qimage2ndarray",
+        "qdarkstyle",
+    ],
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",
     python_requires=">=3.8",

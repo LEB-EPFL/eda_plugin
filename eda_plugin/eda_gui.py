@@ -12,7 +12,7 @@ from .utility.event_bus import EventBus
 from .utility.qt_classes import QWidgetRestore
 import qdarkstyle
 
-import napari
+
 import logging
 
 log = logging.getLogger("EDA")
@@ -130,6 +130,8 @@ class NapariImageViewer(QtWidgets.QWidget):
 
     def __init__(self):
         """Open a napari viewer."""
+        import napari
+
         super().__init__()
         self.viewer = napari.Viewer()
         self.layer = None
