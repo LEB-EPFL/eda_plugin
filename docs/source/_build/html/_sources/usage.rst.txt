@@ -20,8 +20,10 @@ Installation
 >>> eda_plugin.install_mm_plugins()
 # Choose the main Micro-Manager folder in the file dialog (e.g. C:\Program Files\Micro-Manager-2.0)
 
-4) Run micro-manager with the zmq server (`pycromanager installation<https://github.com/micro-manager/pycro-manager/blob/master/README.md>`_`)
+4) Run micro-manager with the zmq server (`pycromanager installation <https://github.com/micro-manager/pycro-manager/blob/master/README.md>`_)
 5) Run the PythonEventServer from Plugins -> Developer Tools -> Python Event Server
+
+
 
 Running the test environment
 ----------------------------
@@ -34,8 +36,6 @@ Run the test environment from the examples:
 
 
 .. TODO: Delete this!
-Creating recipes
-----------------
 
 To retrieve a list of random ingredients,
 you can use the ``lumache.get_random_ingredients()`` function:

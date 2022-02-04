@@ -20,8 +20,10 @@ Installation
 >>> eda_plugin.install_mm_plugins()
 # Choose the main Micro-Manager folder in the file dialog (e.g. C:\Program Files\Micro-Manager-2.0)
 
-4) Run micro-manager with the zmq server (`pycromanager installation<https://github.com/micro-manager/pycro-manager/blob/master/README.md>`_`)
+4) Run micro-manager with the zmq server (`pycromanager installation <https://github.com/micro-manager/pycro-manager/blob/master/README.md>`_)
 5) Run the PythonEventServer from Plugins -> Developer Tools -> Python Event Server
+
+
 
 Running the test environment
 ----------------------------
