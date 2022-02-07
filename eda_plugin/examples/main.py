@@ -85,6 +85,29 @@ def keras():
     sys.exit(app.exec_())
 
 
+def pyro_keras():
+    """EDA loop thay can be used to test without a microscope and without CUDA installation."""
+    from eda_plugin.analysers.keras import KerasAnalyser
+    from .actuators.pycro import InjectedPycroAcquisition
+    from eda_plugin.actuators.micro_manager import MMActuator
+
+    eda_plugin.utility.settings.setup_logging()
+
+    app = QtWidgets.QApplication(sys.argv)
+    event_bus = EventBus()
+
+    gui = EDAMainGUI(event_bus, viewer=True)
+    actuator = MMActuator(event_bus, InjectedPycroAcquisition)
+    analyser = KerasAnalyser(event_bus)
+    interpreter = BinaryFrameRateInterpreter(event_bus)
+
+    gui.show()
+    actuator.gui.show()
+    interpreter.gui.show()
+
+    sys.exit(app.exec_())
+
+
 def main_isim():
     """EDA loop used on the iSIM."""
     from actuators.daq import DAQActuator
