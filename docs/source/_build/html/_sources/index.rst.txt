@@ -2,6 +2,7 @@ Welcome to event driven acquisition!
 ===================================
 
 .. note::
+
    This documentation is a work in progress.
 
 **Event-driven-acquisition** (EDA) is a Python library is a Python library for advanced microscope
@@ -24,3 +25,5 @@ Contents
 
    usage
    api
+   custom_loop
+   custom_components
