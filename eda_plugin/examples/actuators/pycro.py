@@ -3,6 +3,7 @@
 import logging
 import time
 
+from PyQt5.QtWidgets import QFileDialog
 import numpy as np
 import tifffile
 from eda_plugin.actuators.pycromanager import PycroAcquisition
@@ -29,8 +30,12 @@ class InjectedPycroAcquisition(PycroAcquisition):
         }
         super().__init__(*args, settings=my_settings, **kwargs)
         tif_file = "C:/Users/stepp/Documents/02_Raw/SmartMito/180420_120_comp.tif"
+        try:
+            self.tif = tifffile.imread(tif_file)
+        except FileNotFoundError:
+            tif_file = QFileDialog.getOpenFileName(caption="Choose TIF file")
+            self.tif = tifffile.imread(tif_file)
         self.frame_time = 0.15  # s
-        self.tif = tifffile.imread(tif_file)
         self.start_time = time.perf_counter()
         self.timepoint = 0
         log.info(f"{tif_file} loaded with shape {self.tif.shape}")
