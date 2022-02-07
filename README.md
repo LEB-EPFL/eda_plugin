@@ -38,9 +38,9 @@ decisions from an interpreter to the ongoing acquisition.
 Now you can run one of the examples
 ```python
 import eda_plugin
-eda_plugin.examples.main.main_test()
+eda_plugin.examples.basic()
 # or if you have CUDA and tensorflow installed
-eda_plugin.examples.main.main_keras()
+eda_plugin.examples.pyro()
 ```
 
 Or construct your own EDA loop e.g.

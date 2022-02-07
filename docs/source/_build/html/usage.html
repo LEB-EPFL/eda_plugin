@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; event-driven-acquisition 0.1 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Usage &mdash; event-driven-acquisition 0.1 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -48,6 +45,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_loop.html">Custom Loop Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Creating Custom components</a></li>
 </ul>
 
         </div>
@@ -74,10 +72,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
-<section id="installation">
-<span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li><p>Install using pip:</p></li>
 </ol>
@@ -97,9 +95,9 @@
 <li><p>Run micro-manager with the zmq server (Tools -&gt; Options -&gt; Run server on port 4827) (<a class="reference external" href="https://github.com/micro-manager/pycro-manager/blob/master/README.md">pycromanager installation</a>)</p></li>
 <li><p>Run the PythonEventServer from Plugins -&gt; Developer Tools -&gt; Python Event Server</p></li>
 </ol>
-</section>
-<section id="running-the-test-environment">
-<h2>Running the test environment<a class="headerlink" href="#running-the-test-environment" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="running-the-test-environment">
+<h2>Running the test environment<a class="headerlink" href="#running-the-test-environment" title="Permalink to this headline">¶</a></h2>
 <p>Run the test environment from the examples:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">eda_plugin</span> <span class="k">as</span> <span class="nn">eda</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">basic</span><span class="p">()</span>
@@ -124,8 +122,8 @@ network for image analysis</p>
 </pre></div>
 </div>
 <p>For more advanced things, have a look at <a class="reference internal" href="custom_loop.html"><span class="doc">Custom Loop Compilation</span></a></p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
