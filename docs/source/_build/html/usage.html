@@ -47,6 +47,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_loop.html">Custom Loop Compilation</a></li>
 </ul>
 
         </div>
@@ -93,7 +94,7 @@
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li><p>Run micro-manager with the zmq server (<a class="reference external" href="https://github.com/micro-manager/pycro-manager/blob/master/README.md">pycromanager installation</a>)</p></li>
+<li><p>Run micro-manager with the zmq server (Tools -&gt; Options -&gt; Run server on port 4827) (<a class="reference external" href="https://github.com/micro-manager/pycro-manager/blob/master/README.md">pycromanager installation</a>)</p></li>
 <li><p>Run the PythonEventServer from Plugins -&gt; Developer Tools -&gt; Python Event Server</p></li>
 </ol>
 </section>
@@ -101,20 +102,28 @@
 <h2>Running the test environment<a class="headerlink" href="#running-the-test-environment" title="Permalink to this headline"></a></h2>
 <p>Run the test environment from the examples:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">eda_plugin</span> <span class="k">as</span> <span class="nn">eda</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">main_test</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">basic</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>To retrieve a list of random ingredients,
-you can use the <code class="docutils literal notranslate"><span class="pre">lumache.get_random_ingredients()</span></code> function:</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">kind</span></code> parameter should be either <code class="docutils literal notranslate"><span class="pre">&quot;meat&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;fish&quot;</span></code>,
-or <code class="docutils literal notranslate"><span class="pre">&quot;veggies&quot;</span></code>. Otherwise, <code class="xref py py-func docutils literal notranslate"><span class="pre">lumache.get_random_ingredients()</span></code>
-will raise an exception.</p>
-<p>For example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">lumache</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">lumache</span><span class="o">.</span><span class="n">get_random_ingredients</span><span class="p">()</span>
-<span class="go">[&#39;shells&#39;, &#39;gorgonzola&#39;, &#39;parsley&#39;]</span>
+<p>For this version you can use the ImageInjector Plugin that was copied above to test EDA on a
+dataset of your choice. (Plugins -&gt; On-the-fly image processing -&gt; ImageInjector)</p>
+<p>An example dataset can be found at (TODO insert link) of mitochondria and Drp1. For this dataset,
+Micro-Manager should be set to 2 channels and no Z slices.</p>
+<p>If you are used to Micro-Magellan acquisitions, then the implementation using pycromanagers
+<code class="docutils literal notranslate"><span class="pre">Acquisition</span></code> class to start a remote Micro-Magellan acquisition might be interesting for you:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>Here, an TODO: link image_process_fn is used to replace the image from the DemoCamera with an
+image of your choice.</p>
+<p>If you have CUDA, cuDNN and tensorflow installed you can run the analyser that uses the neural
+network for image analysis</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">keras</span><span class="p">()</span>
+<span class="go"># or</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro_keras</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For more advanced things, have a look at <a class="reference internal" href="custom_loop.html"><span class="doc">Custom Loop Compilation</span></a></p>
 </section>
 </section>
 
