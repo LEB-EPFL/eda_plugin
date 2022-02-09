@@ -41,10 +41,11 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-the-test-environment">Running the test environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#creating-recipes">Creating recipes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_loop.html">Custom Loop Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Creating Custom components</a></li>
 </ul>
 
         </div>
@@ -75,36 +76,52 @@
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installation">
 <span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>Install using pip:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.venv)</span> <span class="gp">$ </span>pip install event-driven-acquisition
+<ol class="arabic simple">
+<li><p>Install using pip:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.venv)</span> <span class="gp">$ </span>pip install eda_plugin
 </pre></div>
 </div>
-<p>Add the PythonEventServer.jar to the mmplugins folder in the Micro-Manager2.0 folder that you are
-going to use.</p>
+<ol class="arabic simple" start="2">
+<li><p>Install the latest release of <a class="reference external" href="https://micro-manager.org/wiki/Micro-Manager_Nightly_Builds">micro-manager2.0</a></p></li>
+<li><p>Install the Micro-Manager plugins:</p></li>
+</ol>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">eda_plugin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">install_mm_plugins</span><span class="p">()</span>
+<span class="go"># Choose the main Micro-Manager folder in the file dialog (e.g. C:\Program Files\Micro-Manager-2.0)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Run micro-manager with the zmq server (Tools -&gt; Options -&gt; Run server on port 4827) (<a class="reference external" href="https://github.com/micro-manager/pycro-manager/blob/master/README.md">pycromanager installation</a>)</p></li>
+<li><p>Run the PythonEventServer from Plugins -&gt; Developer Tools -&gt; Python Event Server</p></li>
+</ol>
 </div>
 <div class="section" id="running-the-test-environment">
 <h2>Running the test environment<a class="headerlink" href="#running-the-test-environment" title="Permalink to this headline">¶</a></h2>
-<p>Open Micro-Manager and run the PythonEventServer at Plugins -&gt; Developer Tools -&gt; Python Event
-Server.
-Run the test environment from the examples:</p>
+<p>Run the test environment from the examples:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">eda_plugin</span> <span class="k">as</span> <span class="nn">eda</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">main_test</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">basic</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="creating-recipes">
-<h2>Creating recipes<a class="headerlink" href="#creating-recipes" title="Permalink to this headline">¶</a></h2>
-<p>To retrieve a list of random ingredients,
-you can use the <code class="docutils literal notranslate"><span class="pre">lumache.get_random_ingredients()</span></code> function:</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">kind</span></code> parameter should be either <code class="docutils literal notranslate"><span class="pre">&quot;meat&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;fish&quot;</span></code>,
-or <code class="docutils literal notranslate"><span class="pre">&quot;veggies&quot;</span></code>. Otherwise, <code class="xref py py-func docutils literal notranslate"><span class="pre">lumache.get_random_ingredients()</span></code>
-will raise an exception.</p>
-<p>For example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">lumache</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">lumache</span><span class="o">.</span><span class="n">get_random_ingredients</span><span class="p">()</span>
-<span class="go">[&#39;shells&#39;, &#39;gorgonzola&#39;, &#39;parsley&#39;]</span>
+<p>For this version you can use the ImageInjector Plugin that was copied above to test EDA on a
+dataset of your choice. (Plugins -&gt; On-the-fly image processing -&gt; ImageInjector)</p>
+<p>An example dataset can be found at (TODO insert link) of mitochondria and Drp1. For this dataset,
+Micro-Manager should be set to 2 channels and no Z slices.</p>
+<p>If you are used to Micro-Magellan acquisitions, then the implementation using pycromanagers
+<code class="docutils literal notranslate"><span class="pre">Acquisition</span></code> class to start a remote Micro-Magellan acquisition might be interesting for you:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>Here, an TODO: link image_process_fn is used to replace the image from the DemoCamera with an
+image of your choice.</p>
+<p>If you have CUDA, cuDNN and tensorflow installed you can run the analyser that uses the neural
+network for image analysis</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">keras</span><span class="p">()</span>
+<span class="go"># or</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro_keras</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For more advanced things, have a look at <a class="reference internal" href="custom_loop.html"><span class="doc">Custom Loop Compilation</span></a></p>
 </div>
 </div>
 

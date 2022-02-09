@@ -9,7 +9,36 @@ from eda_plugin.interpreters.frame_rate import BinaryFrameRateInterpreter
 import eda_plugin.utility.settings
 
 
-def main_test():
+def basic():
+    """EDA loop thay can be used to test without a microscope and without CUDA installation."""
+    from eda_plugin.analysers.image import ImageAnalyser
+
+    # from .actuators.pycro import InjectedPycroAcquisition
+    from eda_plugin.actuators.micro_manager import MMActuator, TimerMMAcquisition
+
+    eda_plugin.utility.settings.setup_logging()
+
+    app = QtWidgets.QApplication(sys.argv)
+    event_bus = EventBus()
+
+    gui = EDAMainGUI(event_bus, viewer=True)
+    # actuator = MMActuator(event_bus, InjectedPycroAcquisition)
+    actuator = MMActuator(event_bus, TimerMMAcquisition)
+    analyser = ImageAnalyser(event_bus)
+    interpreter = BinaryFrameRateInterpreter(event_bus)
+
+    gui.show()
+    actuator.gui.show()
+    interpreter.gui.show()
+
+    # This could also be used with a Napari Viewer:
+    # viewer = NapariImageViewer()
+    # event_bus.new_network_image.connect(viewer.add_network_image)
+
+    sys.exit(app.exec_())
+
+
+def pyro():
     """EDA loop thay can be used to test without a microscope and without CUDA installation."""
     from eda_plugin.analysers.image import ImageAnalyser
     from .actuators.pycro import InjectedPycroAcquisition
@@ -29,14 +58,10 @@ def main_test():
     actuator.gui.show()
     interpreter.gui.show()
 
-    # This could also be used with a Napari Viewer:
-    # viewer = NapariImageViewer()
-    # event_bus.new_network_image.connect(viewer.add_network_image)
-
     sys.exit(app.exec_())
 
 
-def main_keras():
+def keras():
     """EDA loop using a neural network analyser that can be used for testing."""
     from eda_plugin.analysers.keras import KerasAnalyser
     from .actuators.pycro import InjectedPycroAcquisition
@@ -56,6 +81,29 @@ def main_keras():
     actuator.gui.show()
     interpreter.gui.show()
     analyser.gui.show()
+
+    sys.exit(app.exec_())
+
+
+def pyro_keras():
+    """EDA loop thay can be used to test without a microscope and without CUDA installation."""
+    from eda_plugin.analysers.keras import KerasAnalyser
+    from .actuators.pycro import InjectedPycroAcquisition
+    from eda_plugin.actuators.micro_manager import MMActuator
+
+    eda_plugin.utility.settings.setup_logging()
+
+    app = QtWidgets.QApplication(sys.argv)
+    event_bus = EventBus()
+
+    gui = EDAMainGUI(event_bus, viewer=True)
+    actuator = MMActuator(event_bus, InjectedPycroAcquisition)
+    analyser = KerasAnalyser(event_bus)
+    interpreter = BinaryFrameRateInterpreter(event_bus)
+
+    gui.show()
+    actuator.gui.show()
+    interpreter.gui.show()
 
     sys.exit(app.exec_())
 
@@ -80,4 +128,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    main_isim()
+    basic()
