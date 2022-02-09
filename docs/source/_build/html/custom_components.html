@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Creating Custom components &mdash; event-driven-acquisition 0.1 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Creating Custom components &mdash; event-driven-acquisition 0.1 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -75,11 +72,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="creating-custom-components">
-<h1>Creating Custom components<a class="headerlink" href="#creating-custom-components" title="Permalink to this headline"></a></h1>
+  <div class="section" id="creating-custom-components">
+<h1>Creating Custom components<a class="headerlink" href="#creating-custom-components" title="Permalink to this headline">¶</a></h1>
 <p>You may want to adapt one of the components to your needs, here are some hints on how to do this.</p>
-<section id="actuators">
-<h2>Actuators<a class="headerlink" href="#actuators" title="Permalink to this headline"></a></h2>
+<div class="section" id="actuators">
+<h2>Actuators<a class="headerlink" href="#actuators" title="Permalink to this headline">¶</a></h2>
 <p>Actators are seperated into the main class for basic parameters and control and Acquisition classes
 responsible for a started acquisition. The actuator should at least be able to receive a signal from
 an interpreter, here normally implemented in the pyqtSlot <code class="docutils literal notranslate"><span class="pre">call_action</span></code>. Depending on the
@@ -122,9 +119,9 @@ with the modified image.</p>
 <p>Additionally to the actuators that are based on Micro-Manager controlling the microscope, we also
 implemented an actuator for our NI DAQ driven microscope <code class="docutils literal notranslate"><span class="pre">actuators.daq.DAQActuator</span></code>. This can be
 a starting point for a very different implementation of an actuator.</p>
-</section>
-<section id="analysers">
-<h2>Analysers<a class="headerlink" href="#analysers" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="analysers">
+<h2>Analysers<a class="headerlink" href="#analysers" title="Permalink to this headline">¶</a></h2>
 <p>Analysers are seperated into a main QObject (e.g. <code class="docutils literal notranslate"><span class="pre">analysers.image.ImageAnalyser</span></code>) for the main settings and the interaction with the other
 EDA components. They also start a QThreadpool, these threads are used to start asynchronous analysis
 of the recorded images in a QRunnable (e.g. <code class="docutils literal notranslate"><span class="pre">analysers.image.ImageAnalyserWorker</span></code>). The
@@ -138,14 +135,14 @@ the interpreter.</p>
 To accomodate workers with potentially different inputs and signals, the functions <code class="docutils literal notranslate"><span class="pre">_get_worker_args</span></code>
 and <code class="docutils literal notranslate"><span class="pre">connect_worker_signals</span></code> can be overwritten seperately without having to rewrite the whole
 worker delivery logic.</p>
-</section>
-<section id="interpreters">
-<h2>Interpreters<a class="headerlink" href="#interpreters" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="interpreters">
+<h2>Interpreters<a class="headerlink" href="#interpreters" title="Permalink to this headline">¶</a></h2>
 <p>Interpreter implementations are responsible to translate the results of analysers to a specific
 action for the actuator. They therefore have to receive the information from the analyser and send
 the request for some action to the actuator.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

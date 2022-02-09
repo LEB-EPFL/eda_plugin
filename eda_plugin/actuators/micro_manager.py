@@ -230,6 +230,7 @@ class TimerMMAcquisition(MMAcquisition):
         It could be helpful to increase channel_switch_time automatically if this happens often for
         acquisiton.
         """
+        # TODO: Increase the channel_wait_time if a channel is missing.
         time.sleep(0.2)
         missing_images = self.datastore.get_num_images() % self.num_channels
         tries = 0

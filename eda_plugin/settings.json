@@ -2,7 +2,7 @@
     "eda_plugin": {
         "actuators": {
             "micro_manager":{
-                "channel_switch_time_ms" : 100
+                "channel_switch_time_ms" : 50
             }
         },
         "analysers": {

@@ -7,3 +7,6 @@ API
    :toctree: generated
 
    actuators
+   analysers
+   interpreters
+   utility

@@ -34,7 +34,8 @@ class InjectedPycroAcquisition(PycroAcquisition):
             self.tif = tifffile.imread(tif_file)
         except FileNotFoundError:
             tif_file = QFileDialog.getOpenFileName(caption="Choose TIF file")
-            self.tif = tifffile.imread(tif_file)
+            print(tif_file)
+            self.tif = tifffile.imread(tif_file[0])
         self.frame_time = 0.15  # s
         self.start_time = time.perf_counter()
         self.timepoint = 0
