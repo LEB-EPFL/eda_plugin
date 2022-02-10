@@ -5,7 +5,7 @@ You may want to adapt one of the components to your needs, here are some hints o
 
 Actuators
 ---------
-Actators are seperated into the main class for basic parameters and control and Acquisition classes
+Actuators are seperated into the main class for basic parameters and control and Acquisition classes
 responsible for a started acquisition. The actuator should at least be able to receive a signal from
 an interpreter, here normally implemented in the pyqtSlot ``call_action``. Depending on the
 implementation of image recording, it might also be responsible to hand new images over to the
