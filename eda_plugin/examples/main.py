@@ -110,8 +110,8 @@ def pyro_keras():
 
 def main_isim():
     """EDA loop used on the iSIM."""
-    from actuators.daq import DAQActuator
-    from analysers.image import ImageAnalyser
+    from eda_plugin.actuators.daq import DAQActuator
+    from eda_plugin.analysers.image import ImageAnalyser
 
     eda_plugin.utility.settings.setup_logging()
     app = QtWidgets.QApplication(sys.argv)
