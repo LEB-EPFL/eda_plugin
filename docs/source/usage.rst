@@ -52,4 +52,10 @@ network for image analysis
 # or
 >>> eda.examples.main.pyro_keras()
 
+These guides can help for tensorflow installation:
+
+- `Tensorflow install <https://www.tensorflow.org/install>`_
+- `Compatibility <https://www.tensorflow.org/install/source_windows#tested_build_configurations>`_
+- `Towardsdatascience blog post <https://towardsdatascience.com/setting-up-tensorflow-gpu-with-cuda-and-anaconda-onwindows-2ee9c39b5c44>`_
+
 For more advanced things, have a look at :doc:`custom_loop`

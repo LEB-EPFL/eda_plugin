@@ -120,7 +120,7 @@ class ImageAnalyserWorker(QRunnable):
         self.autoDelete = True
 
     def run(self):
-        """Get the maximum value of the passed images and return."""
+        """Get the first pixel value of the passed images and return."""
         decision_parameter = self.extract_decision_parameter(self.local_images)
         elapsed_time = round(time.time() * 1000) - self.start_time
         self.signals.new_decision_parameter.emit(
@@ -128,8 +128,8 @@ class ImageAnalyserWorker(QRunnable):
         )
 
     def extract_decision_parameter(self, network_output: np.ndarray):
-        """Return the maximum of the ndarray."""
-        return float(np.max(network_output))
+        """Return the first value of the ndarray."""
+        return float(network_output.flatten()[0])
 
     class _Signals(QObject):
         """Signals have to be separate because QRunnable can't have its own."""

@@ -10,7 +10,7 @@ import eda_plugin.utility.settings
 
 
 def basic():
-    """EDA loop thay can be used to test without a microscope and without CUDA installation."""
+    """EDA loop that can be used to test without a microscope and without CUDA installation."""
     from eda_plugin.analysers.image import ImageAnalyser
 
     # from .actuators.pycro import InjectedPycroAcquisition

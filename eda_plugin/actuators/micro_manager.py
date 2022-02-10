@@ -91,8 +91,8 @@ class MMActuator(QObject):
         time.sleep(0.5)
 
     def _stop_acq(self):
-        log.info(f"Stop acquisition {self.acquisition.__class__} in MMActuator")
         if self.acquisition is not None:
+            log.info(f"Stop acquisition {self.acquisition.__class__} in MMActuator")
             self.stop_acq_signal.emit()
             self.acquisition.exit()
             self.acquisition.deleteLater()
