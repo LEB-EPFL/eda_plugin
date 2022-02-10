@@ -1,23 +1,29 @@
-eda\_plugin.analysers
-=====================
+eda\_plugin.analysers package
+=============================
+
+Submodules
+----------
+
+eda\_plugin.analysers.image module
+----------------------------------
+
+.. automodule:: eda_plugin.analysers.image
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+eda\_plugin.analysers.keras module
+----------------------------------
+
+.. automodule:: eda_plugin.analysers.keras
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
 
 .. automodule:: eda_plugin.analysers
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

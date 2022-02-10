@@ -1,23 +1,21 @@
-eda\_plugin.interpreters
-========================
+eda\_plugin.interpreters package
+================================
+
+Submodules
+----------
+
+eda\_plugin.interpreters.frame\_rate module
+-------------------------------------------
+
+.. automodule:: eda_plugin.interpreters.frame_rate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
 
 .. automodule:: eda_plugin.interpreters
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

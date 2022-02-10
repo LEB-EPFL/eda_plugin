@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eda_original.SmartMicro package &mdash; event-driven-acquisition 0.1 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> event-driven-acquisition
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_loop.html">Custom Loop Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Creating Custom components</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">event-driven-acquisition</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>eda_original.SmartMicro package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/eda_original.SmartMicro.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="eda-original-smartmicro-package">
+<h1>eda_original.SmartMicro package<a class="headerlink" href="#eda-original-smartmicro-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eda_original.SmartMicro.Tests.html">eda_original.SmartMicro.Tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eda_original.SmartMicro.Tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eda_original.SmartMicro.Tests.html#eda-original-smartmicro-tests-test-nngui-module">eda_original.SmartMicro.Tests.test_NNGui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eda_original.SmartMicro.Tests.html#module-eda_original.SmartMicro.Tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="eda-original-smartmicro-atssim-module">
+<h2>eda_original.SmartMicro.ATSSim module<a class="headerlink" href="#eda-original-smartmicro-atssim-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eda_original.SmartMicro.BinOutput">
+<span id="eda-original-smartmicro-binoutput-module"></span><h2>eda_original.SmartMicro.BinOutput module<a class="headerlink" href="#module-eda_original.SmartMicro.BinOutput" title="Permalink to this headline">¶</a></h2>
+<p>Created on Wed Oct 28 15:57:53 2020</p>
+<p>&#64;author: stepp</p>
+<p>Application to write a value to a file in a remote location as fast as possible</p>
+<dl class="py function">
+<dt id="eda_original.SmartMicro.BinOutput.main">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.BinOutput.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.BinOutput.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this to test a direct binary alternating value to the specified file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_original.SmartMicro.BinOutput.writeBin">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.BinOutput.</span></code><code class="sig-name descname"><span class="pre">writeBin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printTime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'//lebnas1.epfl.ch/microsc125/Watchdog/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'binary_output.dat'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.BinOutput.writeBin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a integer to a binary file that can be read by readBinNetwork.m from Matlab</p>
+</dd></dl>
+
+</div>
+<div class="section" id="eda-original-smartmicro-framenumwrite-module">
+<h2>eda_original.SmartMicro.FrameNumwrite module<a class="headerlink" href="#eda-original-smartmicro-framenumwrite-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eda_original.SmartMicro.ImageTiles">
+<span id="eda-original-smartmicro-imagetiles-module"></span><h2>eda_original.SmartMicro.ImageTiles module<a class="headerlink" href="#module-eda_original.SmartMicro.ImageTiles" title="Permalink to this headline">¶</a></h2>
+<p>This is a script to test out image slicing using he image_slicer module
+in Python. Attention, the newest version of Pillow was downgraded when
+installing image_slicer using pip</p>
+<dl class="py function">
+<dt id="eda_original.SmartMicro.ImageTiles.calculatePixel">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.ImageTiles.</span></code><code class="sig-name descname"><span class="pre">calculatePixel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posMN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.ImageTiles.calculatePixel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the corresponding pixel start end x/y values to the tile defined by row/column in posMN.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>posMN ([type]): tile as in row/column
+overlap ([type]): overlap between tiles as defined by getTilePositions
+targetSize ([type]): Size of the tiles
+shape ([type]): shape of the tiled image</p>
+</dd>
+<dt>Returns:</dt><dd><p>[type]: tuple of start/end x/y pixels of the tile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_original.SmartMicro.ImageTiles.getTilePositions">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.ImageTiles.</span></code><code class="sig-name descname"><span class="pre">getTilePositions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.ImageTiles.getTilePositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate tuples with the positions of tiles to split up an image with
+an overlap. Calculates the number of tiles in a way that allows for only
+full tiles to be needed.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filePath (PIL image): Image.open of a tiff file. Should be square and
+ideally from the geometric series (128, 256, 512, 1024, etc)
+targetSize (int, optional): target square size. Defaults to 128.</p>
+</dd>
+<dt>Returns:</dt><dd><p>[type]: dict with
+‘posMN’: tiles in row/column
+‘px’: tiles in pixels
+‘overlap’: overlap used between two tiles
+‘numberTiles’: number of tiles
+‘stitch’: number of pixels that will be discarded when stitching</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_original.SmartMicro.ImageTiles.getTilePositionsV2">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.ImageTiles.</span></code><code class="sig-name descname"><span class="pre">getTilePositionsV2</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.ImageTiles.getTilePositionsV2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate tuples with the positions of tiles to split up an image with
+an overlap. Calculates the number of tiles in a way that allows for only
+full tiles to be needed.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filePath (PIL image): Image.open of a tiff file. Should be square and
+ideally from the geometric series (128, 256, 512, 1024, etc)
+targetSize (int, optional): target square size. Defaults to 128.</p>
+</dd>
+<dt>Returns:</dt><dd><p>[type]: [description]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_original.SmartMicro.ImageTiles.main">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.ImageTiles.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.ImageTiles.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main method testing the tiling mechanism</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_original.SmartMicro.ImageTiles.stitchImage">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.ImageTiles.</span></code><code class="sig-name descname"><span class="pre">stitchImage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.ImageTiles.stitchImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>stitch an image back together that has been tiled by NNfeeder.prepareNNImages</p>
+</dd></dl>
+
+</div>
+<div class="section" id="eda-original-smartmicro-mito2drp1-module">
+<h2>eda_original.SmartMicro.Mito2Drp1 module<a class="headerlink" href="#eda-original-smartmicro-mito2drp1-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="eda-original-smartmicro-modelevaluation-module">
+<h2>eda_original.SmartMicro.ModelEvaluation module<a class="headerlink" href="#eda-original-smartmicro-modelevaluation-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="eda-original-smartmicro-nngui-module">
+<h2>eda_original.SmartMicro.NNGui module<a class="headerlink" href="#eda-original-smartmicro-nngui-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eda_original.SmartMicro.NNfeeder">
+<span id="eda-original-smartmicro-nnfeeder-module"></span><h2>eda_original.SmartMicro.NNfeeder module<a class="headerlink" href="#module-eda_original.SmartMicro.NNfeeder" title="Permalink to this headline">¶</a></h2>
+<p>Module for outsourcing the preprocessing of raw data to prepare for neural network.
+Rescale to 81 nm/px, background subtraction and contrast enhancement.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>[type]: [description]</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt id="eda_original.SmartMicro.NNfeeder.prepareNNImages">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.NNfeeder.</span></code><code class="sig-name descname"><span class="pre">prepareNNImages</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bact_img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftsz_img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bacteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.NNfeeder.prepareNNImages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess raw iSIM images before running them throught the neural network.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bact_img ([type]): full frame of the mito data as numpy array
+ftsz_img ([type]): full frame of the drp data as numpy array
+nnImageSize ([type]): image size that is needed for the neural network. Default is 128</p>
+</dd>
+<dt>Returns:</dt><dd><p>[type]: Returns a 3D numpy array that contains the data for the neural network and the
+positions dict generated by getTilePositions for tiling.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="eda-original-smartmicro-nnio-module">
+<h2>eda_original.SmartMicro.NNio module<a class="headerlink" href="#eda-original-smartmicro-nnio-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="eda-original-smartmicro-networkwatchdog-module">
+<h2>eda_original.SmartMicro.NetworkWatchdog module<a class="headerlink" href="#eda-original-smartmicro-networkwatchdog-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eda_original.SmartMicro.QtImageViewerMerge">
+<span id="eda-original-smartmicro-qtimageviewermerge-module"></span><h2>eda_original.SmartMicro.QtImageViewerMerge module<a class="headerlink" href="#module-eda_original.SmartMicro.QtImageViewerMerge" title="Permalink to this headline">¶</a></h2>
+<p>Implements a merge viewer for different channels in the same ViewBox. Used in NNGui and
+NetworkWatchdog.</p>
+<blockquote>
+<div><p>self.viewerProc = QtImageViewerMerge()
+self.imageItemDrpProc = self.viewerProc.addImage()
+self.imageItemMitoProc = self.viewerProc.addImage()
+self.viewerProc.setLUT(self.imageItemDrpProc, ‘reds’)
+self.viewerProc.setLUT(self.imageItemMitoProc, ‘grey’)</p>
+<dl>
+<dt>A custom LUT can be added in LUTItemSimple by adding to the dict.</dt><dd><dl>
+<dt>self.customGradients = pg.OrderedDict([(‘reds’, {‘ticks’: [(0.0, (0, 0, 0, 255)),</dt><dd><blockquote>
+<div><p>(1.0, (255, 0, 0, 255))],</p>
+</div></blockquote>
+<p>‘mode’: ‘hsv’})])</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>This is a more ‘leight weight’ approach to what pg.ImageViewer implements with the
+HistogramLutItem and many things are copied from there.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>[type]: [description]</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.CrossItem">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.QtImageViewerMerge.</span></code><code class="sig-name descname"><span class="pre">CrossItem</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#CCCCCC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.CrossItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyqtgraph.graphicsItems.GraphicsObject.GraphicsObject</span></code></p>
+<p>A cross that can be added to a pg.ViewBox to point</p>
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.CrossItem.boundingRect">
+<code class="sig-name descname"><span class="pre">boundingRect</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.CrossItem.boundingRect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bounding rectangule of the cross as QRectF</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.CrossItem.generatePicture">
+<code class="sig-name descname"><span class="pre">generatePicture</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.CrossItem.generatePicture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the cross. The size should at some point be set depending on the Range of
+the ViewBox for example to ensure always the same apparent size.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.CrossItem.paint">
+<code class="sig-name descname"><span class="pre">paint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">painter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.CrossItem.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>I think this is used by the ViewBox when displaying the cross</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.CrossItem.rect">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">rect</span></code><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.CrossItem.rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>original rectangle give at initialization</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.CrossItem.setPosition">
+<code class="sig-name descname"><span class="pre">setPosition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.CrossItem.setPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the Position of the cross after translating to a QPointF</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.GradientEditorWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.QtImageViewerMerge.</span></code><code class="sig-name descname"><span class="pre">GradientEditorWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.GradientEditorWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyqtgraph.widgets.GraphicsView.GraphicsView</span></code></p>
+<p>Get GradientEditorItem into a Widget that can be added to GridBoxLayouts</p>
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.GradientEditorWidget.sizeHint">
+<code class="sig-name descname"><span class="pre">sizeHint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.GradientEditorWidget.sizeHint" title="Permalink to this definition">¶</a></dt>
+<dd><p>size hint to what this widget would like to be</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.QtImageViewerMerge.</span></code><code class="sig-name descname"><span class="pre">LUTItemSimple</span></code><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<p>Simple bar that is colored like the underlying LUT. A right click opens the context
+Menu. Custom LUTs can be added to self.customGradients dict. Based on pg.HistogramLutItem, but
+much less computation intensive for QtImageViewerMerge.</p>
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.customLutClicked">
+<code class="sig-name descname"><span class="pre">customLutClicked</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.customLutClicked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pass the click on a custom LUT to self.gradient with the gradient instead of name</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.getLookupTable">
+<code class="sig-name descname"><span class="pre">getLookupTable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numColors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.getLookupTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a lookup table from the color gradient defined by this
+HistogramLUTItem.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.gradientChange">
+<code class="sig-name descname"><span class="pre">gradientChange</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.gradientChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit if the gradient changed and delete the ticks</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.gradientChanged">
+<code class="sig-name descname"><span class="pre">gradientChanged</span></code><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.gradientChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.hideTicks">
+<code class="sig-name descname"><span class="pre">hideTicks</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.hideTicks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hide the ticks that are normally next to the LUT to adjust the LUT ‘live’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.levelChanged">
+<code class="sig-name descname"><span class="pre">levelChanged</span></code><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.levelChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.loadPresetLUT">
+<code class="sig-name descname"><span class="pre">loadPresetLUT</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.loadPresetLUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fork to restoreState/loadPreset of self.gradient by passing the right variables</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.regionChanged">
+<code class="sig-name descname"><span class="pre">regionChanged</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.regionChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit if the saturation slider has changes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.regionChanging">
+<code class="sig-name descname"><span class="pre">regionChanging</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.regionChanging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit id the saturation slider is moving</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.setCustomGradients">
+<code class="sig-name descname"><span class="pre">setCustomGradients</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.LUTItemSimple.setCustomGradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>add the custom gradients defined in __init__ to the context menu</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.QtImageViewerMerge.</span></code><code class="sig-name descname"><span class="pre">QtImageViewerMerge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxRange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code></p>
+<p>Main widget of this module that can be used to display two or more channels in a merge view,
+or just one channel to use the LUT capabilities that are built in. Leight weight and fast for
+GUIs with many instances of this or ones that have to be as fast as possible.</p>
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.addImage">
+<code class="sig-name descname"><span class="pre">addImage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.addImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an image item/channel on top of the other images that are already present. Do not
+init the alpha channel if its the first imageItem. Leave empty if no image is given</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.addMenu">
+<code class="sig-name descname"><span class="pre">addMenu</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.addMenu" title="Permalink to this definition">¶</a></dt>
+<dd><p>” Add a menu to the channel for LUT and opacity regulations</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.adjustLevel">
+<code class="sig-name descname"><span class="pre">adjustLevel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.adjustLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>React to a change in the saturation slider region and setLevels accordingly</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.adjustOpacity">
+<code class="sig-name descname"><span class="pre">adjustOpacity</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.adjustOpacity" title="Permalink to this definition">¶</a></dt>
+<dd><p>React to the opacity slider and set the new value to the channels imageItem
+values will also get the value of the slider directly in values[0]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.cropImagetoBox">
+<code class="sig-name descname"><span class="pre">cropImagetoBox</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Rect</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.cropImagetoBox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crops image to the QRectF provided</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.frameChanged">
+<code class="sig-name descname"><span class="pre">frameChanged</span></code><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.frameChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.rangeChanged">
+<code class="sig-name descname"><span class="pre">rangeChanged</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.rangeChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crop the image so only the part that is visible is actually added to the ViewBox</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.resetRanges">
+<code class="sig-name descname"><span class="pre">resetRanges</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.resetRanges" title="Permalink to this definition">¶</a></dt>
+<dd><p>reset Ranges when a new stack is loaded in by some GUI</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.resetZoom">
+<code class="sig-name descname"><span class="pre">resetZoom</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.resetZoom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.resizedEmitter">
+<code class="sig-name descname"><span class="pre">resizedEmitter</span></code><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.resizedEmitter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.resizedEvent">
+<code class="sig-name descname"><span class="pre">resizedEvent</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.resizedEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit that you have been resized</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.setImage">
+<code class="sig-name descname"><span class="pre">setImage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.setImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>set a new image img to the channel defined in pos and update the saturation Sliders</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.setLUT">
+<code class="sig-name descname"><span class="pre">setLUT</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hot'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.setLUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the lookuptable from the outside without using the popup context menu</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.showMenu">
+<code class="sig-name descname"><span class="pre">showMenu</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.showMenu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show menu when the button is pressed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.updateImage">
+<code class="sig-name descname"><span class="pre">updateImage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.QtImageViewerMerge.updateImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set new LUT to the channel ImageItem</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_original.SmartMicro.QtImageViewerMerge.main">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.QtImageViewerMerge.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtImageViewerMerge.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to test the Viewer in a QBoxLayout with 1 and 2 channels</p>
+</dd></dl>
+
+</div>
+<div class="section" id="eda-original-smartmicro-qtimageviewerseries-module">
+<h2>eda_original.SmartMicro.QtImageViewerSeries module<a class="headerlink" href="#eda-original-smartmicro-qtimageviewerseries-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eda_original.SmartMicro.QtToolbox">
+<span id="eda-original-smartmicro-qttoolbox-module"></span><h2>eda_original.SmartMicro.QtToolbox module<a class="headerlink" href="#module-eda_original.SmartMicro.QtToolbox" title="Permalink to this headline">¶</a></h2>
+<p>Module that implements some custom functions that are often used with Qt GUIs.</p>
+<dl class="py function">
+<dt id="eda_original.SmartMicro.QtToolbox.getImageItemcolormap">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.QtToolbox.</span></code><code class="sig-name descname"><span class="pre">getImageItemcolormap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.3,</span> <span class="pre">0.85)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtToolbox.getImageItemcolormap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a LUT that can be used with a QImageItem from a matplotlib LUT name</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_original.SmartMicro.QtToolbox.getImageViewcolormap">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.QtToolbox.</span></code><code class="sig-name descname"><span class="pre">getImageViewcolormap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hot'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtToolbox.getImageViewcolormap" title="Permalink to this definition">¶</a></dt>
+<dd><p>This can be used in a pyqtgrah ImageView to set a colormap that’s known from matplotlib</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name (str, optional): name of the matplotlib colormap. Defaults to ‘hot’.</p>
+</dd>
+<dt>Returns:</dt><dd><p>[type]: [description]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_original.SmartMicro.QtToolbox.getQtcolormap">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.QtToolbox.</span></code><code class="sig-name descname"><span class="pre">getQtcolormap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hot'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.QtToolbox.getQtcolormap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deprecated used to get a LUT consisting of QColors</p>
+</dd></dl>
+
+</div>
+<div class="section" id="eda-original-smartmicro-satsgui-module">
+<h2>eda_original.SmartMicro.SatsGUI module<a class="headerlink" href="#eda-original-smartmicro-satsgui-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eda_original.SmartMicro.TestTifSaver">
+<span id="eda-original-smartmicro-testtifsaver-module"></span><h2>eda_original.SmartMicro.TestTifSaver module<a class="headerlink" href="#module-eda_original.SmartMicro.TestTifSaver" title="Permalink to this headline">¶</a></h2>
+<p>Created on 201102</p>
+<p>&#64;author: stepp</p>
+<p>Application to read a h5 file and save a tif from it at 2Hz to test the
+watchdog on lebpc20</p>
+<dl class="py function">
+<dt id="eda_original.SmartMicro.TestTifSaver.main">
+<code class="sig-prename descclassname"><span class="pre">eda_original.SmartMicro.TestTifSaver.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_original.SmartMicro.TestTifSaver.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to simulate microManager saving for testing network_watchdog</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-eda_original.SmartMicro">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-eda_original.SmartMicro" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Willi L. Stepp.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

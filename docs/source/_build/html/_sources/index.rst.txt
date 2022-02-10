@@ -1,5 +1,5 @@
 Welcome to event driven acquisition!
-===================================
+====================================
 
 .. note::
 
@@ -24,6 +24,6 @@ Contents
 .. toctree::
 
    usage
-   api
    custom_loop
    custom_components
+   api

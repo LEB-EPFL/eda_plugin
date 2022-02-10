@@ -1,10 +1,10 @@
 """Protocols to avoid direct inheritance."""
 
-from typing import Protocol
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
-import numpy as np
+# from typing import Protocol
+# from PyQt5.QtCore import pyqtSignal, pyqtSlot
+# import numpy as np
 
-from utility.data_structures import ParameterSet
+# from utility.data_structures import ParameterSet
 
 # TODO Check if we use this somewhere and think about if we want to redo this.
 # class ImageAnalyser(Protocol):
