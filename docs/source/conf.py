@@ -21,6 +21,10 @@ autodoc_mock_imports = [
     "tensorflow",
     "pycromanager",
     "zmq",
+    "pyqtgraph",
+    "pycromanager",
+    "qdarkstyle",
+    "qimage2ndarray",
 ]
 
 sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
