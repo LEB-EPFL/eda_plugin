@@ -37,6 +37,7 @@ class EDAMainGUI(QWidgetRestore):
             self.viewer = NetworkImageViewer()
             self.layout().addWidget(self.viewer)
             event_bus.new_network_image.connect(self.viewer.add_network_image)
+
         self.layout().addWidget(self.plot)
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
         # Establish communication between the different parts
@@ -114,6 +115,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
     @QtCore.pyqtSlot(np.ndarray, tuple)
     def add_network_image(self, image: np.ndarray, dims: tuple):
         """Translate the input image into a QImage and display in the scene."""
+        log.debug(f"New image in ImageViewer with shape {image.shape}")
         if dims[0] == 0:
             self._reset_scene_rect(image.shape)
         image = gray2qimage(image, normalize=True)
@@ -125,12 +127,18 @@ class NapariImageViewer(QtWidgets.QWidget):
     """Simple implementation showing the output of the neural network.
 
     This could be extended to also show the images received from micro-manager or the preprocessed
-    versions of those. Calling this can lead to the other Qt widgets being very scaled down.
+    versions of those. Calling this can lead to the other Qt widgets being very scaled down. Napari
+    is not installed with the module, so you have to install it yourself.
     """
 
     def __init__(self):
         """Open a napari viewer."""
-        import napari
+        try:
+            import napari
+        except:
+            log.warning(
+                "Napari was most likely not installed in this environment, please install"
+            )
 
         super().__init__()
         self.viewer = napari.Viewer()

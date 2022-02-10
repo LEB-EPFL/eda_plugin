@@ -121,6 +121,31 @@ def prepareNNImages(bact_img, ftsz_img, model, bacteria=False):
     return inputData, positions
 
 
+def prepare_wo_tiling(images: np.ndarray):
+    sig = 121.5 / 81
+    out_range = (0, 1)
+    prep_images = []
+    for idx in range(images.shape[-1]):
+        image = images[:, :, idx]
+        # resc_image = transform.rescale(image, resize_param)
+        image = filters.gaussian(image, sig)
+        # Do the background subtraction for the Drp1/FtsZ channel only
+        if idx == 1:
+            image = image - filters.gaussian(images[:, :, idx], sig * 5)
+        in_range = (
+            (image.min(), image.max()) if idx == 1 else (image.mean(), image.max())
+        )
+        image = exposure.rescale_intensity(image, in_range, out_range=out_range)
+
+        crop_pixels = (
+            image.shape[0] - image.shape[0] % 4,
+            image.shape[1] - image.shape[1] % 4,
+        )
+        image = image[: crop_pixels[0], : crop_pixels[1]]
+        prep_images.append(image)
+    return np.stack(prep_images, 2)
+
+
 def getTilePositionsV2(image, targetSize=128):
     """Generate tuples with the positions of tiles to split up an image withan overlap.
 

@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eda_plugin-wl-stepp",
-    version="0.1.11",
+    version="0.1.12",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",

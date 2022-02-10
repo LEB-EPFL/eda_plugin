@@ -2,6 +2,7 @@
 
 import sys
 from PyQt5 import QtWidgets
+from eda_plugin.actuators.micro_manager import TimerMMAcquisition
 
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.eda_gui import EDAMainGUI
@@ -64,7 +65,8 @@ def pyro():
 def keras():
     """EDA loop using a neural network analyser that can be used for testing."""
     from eda_plugin.analysers.keras import KerasAnalyser
-    from .actuators.pycro import InjectedPycroAcquisition
+
+    # from .actuators.pycro import InjectedPycroAcquisition
     from eda_plugin.actuators.micro_manager import MMActuator
 
     eda_plugin.utility.settings.setup_logging()
@@ -73,7 +75,7 @@ def keras():
     event_bus = EventBus()
 
     gui = EDAMainGUI(event_bus, viewer=True)
-    actuator = MMActuator(event_bus, InjectedPycroAcquisition)
+    actuator = MMActuator(event_bus)
     analyser = KerasAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
@@ -128,4 +130,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    basic()
+    keras()

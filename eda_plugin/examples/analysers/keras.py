@@ -1,11 +1,19 @@
 """Examples of using the KerasWorker QRunnable to add on pre and post-processing steps."""
 
+from multiprocessing.spawn import prepare
 import numpy as np
 
 from eda_plugin.analysers.keras import KerasWorker
-from eda_plugin.utility.image_processing import prepareNNImages
-from eda_plugin.utility.image_processing import stitchImage
+from eda_plugin.utility.image_processing import (
+    prepareNNImages,
+    stitchImage,
+    prepare_wo_tiling,
+)
 from skimage import exposure, filters, transform
+
+import logging
+
+log = logging.getLogger("EDA")
 
 
 class KerasRescaleWorker(KerasWorker):
@@ -17,26 +25,17 @@ class KerasRescaleWorker(KerasWorker):
 
     def prepare_images(self, images: np.ndarray):
         """Subtract background and normalize image intensity."""
-        sig = 121.5 / 81
-        out_range = (0, 1)
-
-        for idx in range(images.shape[-1]):
-            image = images[:, :, idx]
-            # resc_image = transform.rescale(image, resize_param)
-            image = filters.gaussian(image, sig)
-            # Do the background subtraction for the Drp1/FtsZ channel only
-            if idx == 1:
-                image = image - filters.gaussian(images[:, :, idx], sig * 5)
-            in_range = (
-                (image.min(), image.max()) if idx == 1 else (image.mean(), image.max())
-            )
-            image = exposure.rescale_intensity(image, in_range, out_range=out_range)
-            images[:, :, idx] = image
+        images = prepare_wo_tiling(images)
+        print(images.shape)
         data = {"pixels": np.expand_dims(images, 0)}
         return data
 
+    def extract_decision_parameter(self, network_output: np.ndarray):
+        return np.max(network_output)
+
     def post_process_output(self, data: np.ndarray, positions):
         """Strip off the dimensions that come from the network."""
+        print(data.shape)
         return data[0, :, :, 0]
 
 
@@ -54,6 +53,9 @@ class KerasTilingWorker(KerasWorker):
     def post_process_output(self, network_output: np.ndarray, input_data) -> np.ndarray:
         """Stitch the images recevied from the network to an array with the same size as input."""
         return stitchImage(network_output, input_data["positions"])
+
+    def extract_decision_parameter(self, network_output: np.ndarray):
+        return np.max(network_output)
 
     def prepare_images(self, images: np.ndarray):
         """Background subtraction, resize, intensity normalization and tiling."""
