@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API &mdash; event-driven-acquisition 0.1 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>api &mdash; event-driven-acquisition 0.1 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -15,7 +15,6 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="eda_plugin package" href="generated/eda_plugin.html" />
     <link rel="prev" title="Creating Custom components" href="custom_components.html" /> 
 </head>
 
@@ -38,19 +37,22 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Welcome to event driven acquisition!</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_loop.html">Custom Loop Compilation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_components.html">Creating Custom components</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">api</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_loop.html">Custom Loop Compilation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_components.html">Creating Custom components</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.html">eda_plugin package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.actuators.html">eda_plugin.actuators package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.analysers.html">eda_plugin.analysers package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.html">eda_plugin.examples package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html">eda_plugin.examples.actuators package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html">eda_plugin.examples.analysers package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.interpreters.html">eda_plugin.interpreters package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html">eda_plugin.utility package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/modules.html">eda_plugin</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">api</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -69,7 +71,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>API</li>
+      <li>api</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -80,206 +82,9 @@
            <div itemprop="articleBody">
              
   <div class="section" id="api">
-<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<h1>api<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="generated/eda_plugin.html">eda_plugin package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.actuators.html">eda_plugin.actuators package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.actuators.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.daq">eda_plugin.actuators.daq module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.micro_manager">eda_plugin.actuators.micro_manager module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.pycromanager">eda_plugin.actuators.pycromanager module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.analysers.html">eda_plugin.analysers package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.analysers.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.analysers.html#eda-plugin-analysers-image-module">eda_plugin.analysers.image module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.analysers.html#eda-plugin-analysers-keras-module">eda_plugin.analysers.keras module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.analysers.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.examples.html">eda_plugin.examples package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html">eda_plugin.examples.actuators package</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#submodules">Submodules</a></li>
-<li class="toctree-l6"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#eda-plugin-examples-actuators-pycro-module">eda_plugin.examples.actuators.pycro module</a></li>
-<li class="toctree-l6"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html">eda_plugin.examples.analysers package</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#submodules">Submodules</a></li>
-<li class="toctree-l6"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#eda-plugin-examples-analysers-keras-module">eda_plugin.examples.analysers.keras module</a></li>
-<li class="toctree-l6"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.html#eda-plugin-examples-main-module">eda_plugin.examples.main module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.interpreters.html">eda_plugin.interpreters package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.interpreters.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.interpreters.html#eda-plugin-interpreters-frame-rate-module">eda_plugin.interpreters.frame_rate module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.interpreters.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.utility.html">eda_plugin.utility package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.data_structures">eda_plugin.utility.data_structures module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#eda-plugin-utility-eda-gui-module">eda_plugin.utility.eda_gui module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.event_bus">eda_plugin.utility.event_bus module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.event_thread">eda_plugin.utility.event_thread module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#eda-plugin-utility-image-processing-module">eda_plugin.utility.image_processing module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.protocols">eda_plugin.utility.protocols module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.qt_classes">eda_plugin.utility.qt_classes module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.settings">eda_plugin.utility.settings module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="generated/eda_plugin.actuators.html">eda_plugin.actuators package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.actuators.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.daq">eda_plugin.actuators.daq module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.micro_manager">eda_plugin.actuators.micro_manager module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.pycromanager">eda_plugin.actuators.pycromanager module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="generated/eda_plugin.analysers.html">eda_plugin.analysers package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.analysers.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.analysers.html#eda-plugin-analysers-image-module">eda_plugin.analysers.image module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.analysers.html#eda-plugin-analysers-keras-module">eda_plugin.analysers.keras module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.analysers.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="generated/eda_plugin.examples.html">eda_plugin.examples package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html">eda_plugin.examples.actuators package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#eda-plugin-examples-actuators-pycro-module">eda_plugin.examples.actuators.pycro module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html">eda_plugin.examples.analysers package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#eda-plugin-examples-analysers-keras-module">eda_plugin.examples.analysers.keras module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.html#eda-plugin-examples-main-module">eda_plugin.examples.main module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html">eda_plugin.examples.actuators package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#eda-plugin-examples-actuators-pycro-module">eda_plugin.examples.actuators.pycro module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html">eda_plugin.examples.analysers package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#eda-plugin-examples-analysers-keras-module">eda_plugin.examples.analysers.keras module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="generated/eda_plugin.interpreters.html">eda_plugin.interpreters package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.interpreters.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.interpreters.html#eda-plugin-interpreters-frame-rate-module">eda_plugin.interpreters.frame_rate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.interpreters.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="generated/eda_plugin.utility.html">eda_plugin.utility package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.data_structures">eda_plugin.utility.data_structures module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#eda-plugin-utility-eda-gui-module">eda_plugin.utility.eda_gui module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.event_bus">eda_plugin.utility.event_bus module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.event_thread">eda_plugin.utility.event_thread module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#eda-plugin-utility-image-processing-module">eda_plugin.utility.image_processing module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.protocols">eda_plugin.utility.protocols module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.qt_classes">eda_plugin.utility.qt_classes module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.settings">eda_plugin.utility.settings module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="generated/modules.html">eda_plugin</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/eda_plugin.html">eda_plugin package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.actuators.html">eda_plugin.actuators package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.actuators.html#submodules">Submodules</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.daq">eda_plugin.actuators.daq module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.micro_manager">eda_plugin.actuators.micro_manager module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators.pycromanager">eda_plugin.actuators.pycromanager module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.actuators.html#module-eda_plugin.actuators">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.analysers.html">eda_plugin.analysers package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.analysers.html#submodules">Submodules</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.analysers.html#eda-plugin-analysers-image-module">eda_plugin.analysers.image module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.analysers.html#eda-plugin-analysers-keras-module">eda_plugin.analysers.keras module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.analysers.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.examples.html">eda_plugin.examples package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.examples.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html">eda_plugin.examples.actuators package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#submodules">Submodules</a></li>
-<li class="toctree-l7"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#eda-plugin-examples-actuators-pycro-module">eda_plugin.examples.actuators.pycro module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="generated/eda_plugin.examples.actuators.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html">eda_plugin.examples.analysers package</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#submodules">Submodules</a></li>
-<li class="toctree-l7"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#eda-plugin-examples-analysers-keras-module">eda_plugin.examples.analysers.keras module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="generated/eda_plugin.examples.analysers.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.examples.html#submodules">Submodules</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.examples.html#eda-plugin-examples-main-module">eda_plugin.examples.main module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.examples.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.interpreters.html">eda_plugin.interpreters package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.interpreters.html#submodules">Submodules</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.interpreters.html#eda-plugin-interpreters-frame-rate-module">eda_plugin.interpreters.frame_rate module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.interpreters.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="generated/eda_plugin.utility.html">eda_plugin.utility package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#submodules">Submodules</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.data_structures">eda_plugin.utility.data_structures module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#eda-plugin-utility-eda-gui-module">eda_plugin.utility.eda_gui module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.event_bus">eda_plugin.utility.event_bus module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.event_thread">eda_plugin.utility.event_thread module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#eda-plugin-utility-image-processing-module">eda_plugin.utility.image_processing module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.protocols">eda_plugin.utility.protocols module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.qt_classes">eda_plugin.utility.qt_classes module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility.settings">eda_plugin.utility.settings module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="generated/eda_plugin.utility.html#module-eda_plugin.utility">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="generated/eda_plugin.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
 </div>
-<p><a class="reference internal" href="generated/eda_plugin.actuators.html#eda_plugin.actuators.micro_manager.MMActuator" title="eda_plugin.actuators.micro_manager.MMActuator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MMActuator</span></code></a></p>
 </div>
 
 
@@ -287,7 +92,6 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="custom_components.html" class="btn btn-neutral float-left" title="Creating Custom components" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="generated/eda_plugin.html" class="btn btn-neutral float-right" title="eda_plugin package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

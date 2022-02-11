@@ -1,11 +1,8 @@
-API
+api
 ===
 
 
-
 .. toctree::
-   :glob:
+   :maxdepth: 4
 
-   generated/*
-
-:class:`~eda_plugin.actuators.micro_manager.MMActuator`
+   eda_plugin

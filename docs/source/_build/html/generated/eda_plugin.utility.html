@@ -38,6 +38,27 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Welcome to event driven acquisition!</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#contents">Contents</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../custom_loop.html">Custom Loop Compilation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../custom_components.html">Creating Custom components</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="eda_plugin.html">eda_plugin package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.actuators.html">eda_plugin.actuators package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.analysers.html">eda_plugin.analysers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.examples.html">eda_plugin.examples package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.examples.actuators.html">eda_plugin.examples.actuators package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.examples.analysers.html">eda_plugin.examples.analysers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.interpreters.html">eda_plugin.interpreters package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">eda_plugin.utility package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="modules.html">eda_plugin</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../custom_loop.html">Custom Loop Compilation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../custom_components.html">Creating Custom components</a></li>
@@ -51,7 +72,7 @@
 <li class="toctree-l4 current"><a class="current reference internal" href="#">eda_plugin.utility package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="eda_plugin.html#module-contents">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eda_plugin.html#module-eda_plugin">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="eda_plugin.actuators.html">eda_plugin.actuators package</a></li>
@@ -63,10 +84,10 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">eda_plugin.utility package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-eda_plugin.utility.data_structures">eda_plugin.utility.data_structures module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#eda-plugin-utility-eda-gui-module">eda_plugin.utility.eda_gui module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-eda_plugin.utility.eda_gui">eda_plugin.utility.eda_gui module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-eda_plugin.utility.event_bus">eda_plugin.utility.event_bus module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-eda_plugin.utility.event_thread">eda_plugin.utility.event_thread module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#eda-plugin-utility-image-processing-module">eda_plugin.utility.image_processing module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-eda_plugin.utility.image_processing">eda_plugin.utility.image_processing module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-eda_plugin.utility.protocols">eda_plugin.utility.protocols module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-eda_plugin.utility.qt_classes">eda_plugin.utility.qt_classes module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-eda_plugin.utility.settings">eda_plugin.utility.settings module</a></li>
@@ -76,7 +97,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">eda_plugin</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="eda_plugin.html">eda_plugin package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="eda_plugin.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="eda_plugin.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.html#module-eda_plugin">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -206,8 +227,58 @@
 </dd></dl>
 
 </div>
-<div class="section" id="eda-plugin-utility-eda-gui-module">
-<h2>eda_plugin.utility.eda_gui module<a class="headerlink" href="#eda-plugin-utility-eda-gui-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-eda_plugin.utility.eda_gui">
+<span id="eda-plugin-utility-eda-gui-module"></span><h2>eda_plugin.utility.eda_gui module<a class="headerlink" href="#module-eda_plugin.utility.eda_gui" title="Permalink to this headline">¶</a></h2>
+<p>QtWidgets that can be used as main GUI components for the EDA loop.</p>
+<dl class="py class">
+<dt id="eda_plugin.utility.eda_gui.EDAMainGUI">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.eda_gui.</span></code><code class="sig-name descname"><span class="pre">EDAMainGUI</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.eda_gui.EDAMainGUI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.</span></code></p>
+<p>Assemble different Widgets to have a main window for the GUI.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="eda_plugin.utility.eda_gui.EDAPlot">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.eda_gui.</span></code><code class="sig-name descname"><span class="pre">EDAPlot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.eda_gui.EDAPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyqtgraph.</span></code></p>
+<p>Displays output of an analyser over time and the decision parameters of the interpreter.</p>
+<dl class="py method">
+<dt id="eda_plugin.utility.eda_gui.EDAPlot.add_datapoint">
+<code class="sig-name descname"><span class="pre">add_datapoint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.eda_gui.EDAPlot.add_datapoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a datapoint that is received from the analyser.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="eda_plugin.utility.eda_gui.NapariImageViewer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.eda_gui.</span></code><code class="sig-name descname"><span class="pre">NapariImageViewer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.eda_gui.NapariImageViewer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.</span></code></p>
+<p>Simple implementation showing the output of the neural network.</p>
+<p>This could be extended to also show the images received from micro-manager or the preprocessed
+versions of those. Calling this can lead to the other Qt widgets being very scaled down. Napari
+is not installed with the module, so you have to install it yourself.</p>
+<dl class="py method">
+<dt id="eda_plugin.utility.eda_gui.NapariImageViewer.add_network_image">
+<code class="sig-name descname"><span class="pre">add_network_image</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.eda_gui.NapariImageViewer.add_network_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the image received to the respective layer, or make a new layer.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="eda_plugin.utility.eda_gui.NetworkImageViewer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.eda_gui.</span></code><code class="sig-name descname"><span class="pre">NetworkImageViewer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.eda_gui.NetworkImageViewer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.</span></code></p>
+<p>Display a grayscale np.ndarray.</p>
+<dl class="py method">
+<dt id="eda_plugin.utility.eda_gui.NetworkImageViewer.add_network_image">
+<code class="sig-name descname"><span class="pre">add_network_image</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.eda_gui.NetworkImageViewer.add_network_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate the input image into a QImage and display in the scene.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-eda_plugin.utility.event_bus">
 <span id="eda-plugin-utility-event-bus-module"></span><h2>eda_plugin.utility.event_bus module<a class="headerlink" href="#module-eda_plugin.utility.event_bus" title="Permalink to this headline">¶</a></h2>
@@ -350,8 +421,59 @@ the communication.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="eda-plugin-utility-image-processing-module">
-<h2>eda_plugin.utility.image_processing module<a class="headerlink" href="#eda-plugin-utility-image-processing-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-eda_plugin.utility.image_processing">
+<span id="eda-plugin-utility-image-processing-module"></span><h2>eda_plugin.utility.image_processing module<a class="headerlink" href="#module-eda_plugin.utility.image_processing" title="Permalink to this headline">¶</a></h2>
+<p>Image processing/preparation functions used in examples.keras.</p>
+<dl class="py function">
+<dt id="eda_plugin.utility.image_processing.calculatePixel">
+<code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.image_processing.</span></code><code class="sig-name descname"><span class="pre">calculatePixel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posMN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.image_processing.calculatePixel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the corresponding pixel start end x/y values to the tile defined by row/column in posMN.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>posMN ([type]): tile as in row/column
+overlap ([type]): overlap between tiles as defined by getTilePositions
+targetSize ([type]): Size of the tiles
+shape ([type]): shape of the tiled image</p>
+</dd>
+<dt>Returns:</dt><dd><p>[type]: tuple of start/end x/y pixels of the tile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_plugin.utility.image_processing.getTilePositionsV2">
+<code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.image_processing.</span></code><code class="sig-name descname"><span class="pre">getTilePositionsV2</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.image_processing.getTilePositionsV2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate tuples with the positions of tiles to split up an image withan overlap.</p>
+<p>Calculates the number of tiles in a way that allows for only
+full tiles to be needed.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filePath (PIL image): Image.open of a tiff file. Should be square and
+ideally from the geometric series (128, 256, 512, 1024, etc)
+targetSize (int, optional): target square size. Defaults to 128.</p>
+</dd>
+<dt>Returns:</dt><dd><p>[type]: [description]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_plugin.utility.image_processing.prepareNNImages">
+<code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.image_processing.</span></code><code class="sig-name descname"><span class="pre">prepareNNImages</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bact_img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftsz_img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bacteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.image_processing.prepareNNImages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess raw iSIM images before running them throught the neural network.</p>
+<p>Returns a 3D numpy array that contains the data for the neural network and the
+positions dict generated by getTilePositions for tiling.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eda_plugin.utility.image_processing.prepare_wo_tiling">
+<code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.image_processing.</span></code><code class="sig-name descname"><span class="pre">prepare_wo_tiling</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.image_processing.prepare_wo_tiling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="eda_plugin.utility.image_processing.stitchImage">
+<code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.image_processing.</span></code><code class="sig-name descname"><span class="pre">stitchImage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.image_processing.stitchImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stitch an image back together that has been tiled by prepareNNImages.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-eda_plugin.utility.protocols">
 <span id="eda-plugin-utility-protocols-module"></span><h2>eda_plugin.utility.protocols module<a class="headerlink" href="#module-eda_plugin.utility.protocols" title="Permalink to this headline">¶</a></h2>
