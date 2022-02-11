@@ -28,3 +28,4 @@ Contents
    custom_loop
    custom_components
    api
+   generated/modules
