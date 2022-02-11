@@ -24,17 +24,6 @@ eda\_plugin.examples.main
 
    
    
-   .. rubric:: Classes
-
-   .. autosummary::
-      :toctree:
-      :template: custom_class.rst
-   
-      BinaryFrameRateInterpreter
-      EDAMainGUI
-      EventBus
-      TimerMMAcquisition
-   
    
 
    

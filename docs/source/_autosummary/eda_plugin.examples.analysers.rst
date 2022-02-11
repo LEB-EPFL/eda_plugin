@@ -9,16 +9,6 @@ eda\_plugin.examples.analysers
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-   
-      prepare
-      prepareNNImages
-      prepare_wo_tiling
-      stitchImage
-   
    
 
    
@@ -31,7 +21,6 @@ eda\_plugin.examples.analysers
    
       KerasRescaleWorker
       KerasTilingWorker
-      KerasWorker
    
    
 

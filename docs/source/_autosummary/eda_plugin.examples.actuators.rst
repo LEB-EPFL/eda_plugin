@@ -20,7 +20,6 @@ eda\_plugin.examples.actuators
       :template: custom_class.rst
    
       InjectedPycroAcquisition
-      PycroAcquisition
    
    
 

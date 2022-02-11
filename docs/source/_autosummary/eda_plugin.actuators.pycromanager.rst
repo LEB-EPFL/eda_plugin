@@ -1,4 +1,4 @@
-﻿eda\_plugin.actuators.pycromanager
+eda\_plugin.actuators.pycromanager
 ==================================
 
 .. automodule:: eda_plugin.actuators.pycromanager
@@ -19,8 +19,6 @@
       :toctree:
       :template: custom_class.rst
    
-      MMAcquisition
-      PyImage
       PycroAcquisition
    
    

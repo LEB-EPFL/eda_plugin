@@ -42,7 +42,7 @@ extensions = [
 ]
 
 autosummary_generate = True
-autosummary_imported_members = True
+
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),

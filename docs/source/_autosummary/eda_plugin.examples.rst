@@ -9,15 +9,6 @@
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-   
-      basic
-      keras
-      pyro
-   
    
 
    

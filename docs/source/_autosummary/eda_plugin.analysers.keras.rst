@@ -1,4 +1,4 @@
-﻿eda\_plugin.analysers.keras
+eda\_plugin.analysers.keras
 ===========================
 
 .. automodule:: eda_plugin.analysers.keras
@@ -26,13 +26,9 @@
       :toctree:
       :template: custom_class.rst
    
-      EventBus
-      ImageAnalyser
-      ImageAnalyserWorker
       KerasAnalyser
       KerasSettingsGUI
       KerasWorker
-      QWidgetRestore
    
    
 
