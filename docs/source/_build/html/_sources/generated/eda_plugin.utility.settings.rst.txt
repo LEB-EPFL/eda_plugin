@@ -1,7 +1,0 @@
-eda\_plugin.utility.settings module
-===================================
-
-.. automodule:: eda_plugin.utility.settings
-   :members:
-   :undoc-members:
-   :show-inheritance:

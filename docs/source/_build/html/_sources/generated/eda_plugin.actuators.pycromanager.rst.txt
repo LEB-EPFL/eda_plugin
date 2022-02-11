@@ -1,7 +1,0 @@
-eda\_plugin.actuators.pycromanager module
-=========================================
-
-.. automodule:: eda_plugin.actuators.pycromanager
-   :members:
-   :undoc-members:
-   :show-inheritance:

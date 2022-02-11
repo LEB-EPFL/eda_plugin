@@ -1,7 +1,0 @@
-eda\_plugin.utility.data\_structures module
-===========================================
-
-.. automodule:: eda_plugin.utility.data_structures
-   :members:
-   :undoc-members:
-   :show-inheritance:

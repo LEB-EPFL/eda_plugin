@@ -1,9 +1,0 @@
-05_Software
-===========
-
-.. toctree::
-   :maxdepth: 4
-
-   eda_original
-   polyP
-   toolbox

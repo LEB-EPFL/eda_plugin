@@ -1,8 +1,0 @@
-api
-===
-
-
-.. autosummary::
-   :toctree: _autosummary
-
-   eda_plugin

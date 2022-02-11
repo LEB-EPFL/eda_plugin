@@ -1,7 +1,0 @@
-eda\_plugin.examples.main module
-================================
-
-.. automodule:: eda_plugin.examples.main
-   :members:
-   :undoc-members:
-   :show-inheritance:

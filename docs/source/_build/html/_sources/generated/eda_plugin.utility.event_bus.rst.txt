@@ -1,7 +1,0 @@
-eda\_plugin.utility.event\_bus module
-=====================================
-
-.. automodule:: eda_plugin.utility.event_bus
-   :members:
-   :undoc-members:
-   :show-inheritance:

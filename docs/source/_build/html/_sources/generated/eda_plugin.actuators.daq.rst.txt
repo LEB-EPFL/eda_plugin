@@ -1,7 +1,0 @@
-eda\_plugin.actuators.daq module
-================================
-
-.. automodule:: eda_plugin.actuators.daq
-   :members:
-   :undoc-members:
-   :show-inheritance:

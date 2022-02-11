@@ -1,7 +1,0 @@
-eda\_plugin.interpreters.frame\_rate module
-===========================================
-
-.. automodule:: eda_plugin.interpreters.frame_rate
-   :members:
-   :undoc-members:
-   :show-inheritance:
