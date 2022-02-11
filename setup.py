@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eda_plugin-wl-stepp",
-    version="0.1.12",
+    version="0.1.14",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -30,6 +30,7 @@ setup(
         "pyqtgraph",
         "qimage2ndarray",
         "qdarkstyle",
+        "tifffile",
     ],
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",

@@ -1,0 +1,7 @@
+eda\_plugin.utility.qt\_classes module
+======================================
+
+.. automodule:: eda_plugin.utility.qt_classes
+   :members:
+   :undoc-members:
+   :show-inheritance:

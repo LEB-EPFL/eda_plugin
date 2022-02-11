@@ -13,17 +13,6 @@ Subpackages
    eda_plugin.interpreters
    eda_plugin.utility
 
-Submodules
-----------
-
-eda\_plugin.eda\_gui module
----------------------------
-
-.. automodule:: eda_plugin.eda_gui
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

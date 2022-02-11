@@ -12,6 +12,14 @@ eda\_plugin.utility.data\_structures module
    :undoc-members:
    :show-inheritance:
 
+eda\_plugin.utility.eda\_gui module
+-----------------------------------
+
+.. automodule:: eda_plugin.utility.eda_gui
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 eda\_plugin.utility.event\_bus module
 -------------------------------------
 

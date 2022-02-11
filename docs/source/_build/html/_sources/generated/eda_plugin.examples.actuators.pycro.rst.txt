@@ -1,0 +1,7 @@
+eda\_plugin.examples.actuators.pycro module
+===========================================
+
+.. automodule:: eda_plugin.examples.actuators.pycro
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -7,9 +7,9 @@ import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
 from qimage2ndarray import gray2qimage
 
-from .utility.data_structures import ParameterSet
-from .utility.event_bus import EventBus
-from .utility.qt_classes import QWidgetRestore
+from .data_structures import ParameterSet
+from .event_bus import EventBus
+from .qt_classes import QWidgetRestore
 import qdarkstyle
 
 

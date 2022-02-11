@@ -51,9 +51,7 @@
 <li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.html">eda_plugin.utility package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="eda_plugin.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="eda_plugin.html#module-eda_plugin.eda_gui">eda_plugin.eda_gui module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="eda_plugin.html#module-eda_plugin">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eda_plugin.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">eda_plugin.actuators package</a><ul>
@@ -73,15 +71,11 @@
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">eda_plugin</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="eda_plugin.html">eda_plugin package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="eda_plugin.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="eda_plugin.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="eda_plugin.html#module-eda_plugin.eda_gui">eda_plugin.eda_gui module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="eda_plugin.html#module-eda_plugin">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.html#module-contents">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="setup.html">setup module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="setup.html">setup module</a></li>
 </ul>
 </li>
 </ul>
@@ -152,8 +146,8 @@ output stream that corresponds to the interval set by the interpreter into this 
 
 <dl class="py class">
 <dt id="eda_plugin.actuators.daq.DAQActuator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.daq.</span></code><code class="sig-name descname"><span class="pre">DAQActuator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_bus</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="eda_plugin.utility.html#eda_plugin.utility.event_bus.EventBus" title="eda_plugin.utility.event_bus.EventBus"><span class="pre">eda_plugin.utility.event_bus.EventBus</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.daq.DAQActuator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.daq.</span></code><code class="sig-name descname"><span class="pre">DAQActuator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.daq.DAQActuator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.</span></code></p>
 <p>Deliver new data to the DAQ with the framerate as given by the FrameRateInterpreter.</p>
 <dl class="py method">
 <dt id="eda_plugin.actuators.daq.DAQActuator.acq_done">
@@ -173,11 +167,6 @@ output stream that corresponds to the interval set by the interpreter into this 
 <dd><p>Table settings in MM changed, adapt internal settings.</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="eda_plugin.actuators.daq.DAQActuator.new_daq_data">
-<code class="sig-name descname"><span class="pre">new_daq_data</span></code><a class="headerlink" href="#eda_plugin.actuators.daq.DAQActuator.new_daq_data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt id="eda_plugin.actuators.daq.DAQActuator.new_settings">
 <code class="sig-name descname"><span class="pre">new_settings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_settings</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#eda_plugin.actuators.daq.MMSettings" title="eda_plugin.actuators.daq.MMSettings"><span class="pre">eda_plugin.actuators.daq.MMSettings</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.daq.DAQActuator.new_settings" title="Permalink to this definition">¶</a></dt>
@@ -190,17 +179,12 @@ output stream that corresponds to the interval set by the interpreter into this 
 <dd><p>Run the acquisition by forwarding the pyqtSignal to the Acquisition instance.</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="eda_plugin.actuators.daq.DAQActuator.start_acq_signal">
-<code class="sig-name descname"><span class="pre">start_acq_signal</span></code><a class="headerlink" href="#eda_plugin.actuators.daq.DAQActuator.start_acq_signal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt id="eda_plugin.actuators.daq.EDAAcquisition">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.daq.</span></code><code class="sig-name descname"><span class="pre">EDAAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ni</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#eda_plugin.actuators.daq.DAQActuator" title="eda_plugin.actuators.daq.DAQActuator"><span class="pre">eda_plugin.actuators.daq.DAQActuator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#eda_plugin.actuators.daq.MMSettings" title="eda_plugin.actuators.daq.MMSettings"><span class="pre">eda_plugin.actuators.daq.MMSettings</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.daq.EDAAcquisition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.daq.</span></code><code class="sig-name descname"><span class="pre">EDAAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.daq.EDAAcquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.</span></code></p>
 <p>An acquisition that can be run from the main Actuator instance.</p>
 <p>This setup of a separate object for the Acquisition comes from the isimgui, where there are two
 different classes for the live mode and the mda acquisition. Here it could be included in the
@@ -416,8 +400,8 @@ A GUI to start and stop the acquisition from outside Micro-Manager. The actuator
 without GUI and EDA will start with every acquisition as long as the plugin is running.</p>
 <dl class="py class">
 <dt id="eda_plugin.actuators.micro_manager.DirectMMAcquisition">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">DirectMMAcquisition</span></code><a class="headerlink" href="#eda_plugin.actuators.micro_manager.DirectMMAcquisition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#eda_plugin.actuators.micro_manager.MMAcquisition" title="eda_plugin.actuators.micro_manager.MMAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">eda_plugin.actuators.micro_manager.MMAcquisition</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">DirectMMAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.DirectMMAcquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.</span></code></p>
 <p>Directly take images from the microscope by using the snap() function.</p>
 <p>This is the most straight-forward approach to take images, but it would be necessary to handle
 channel switching etc. So pursued any further.</p>
@@ -443,8 +427,8 @@ better way in the moment.</p>
 
 <dl class="py class">
 <dt id="eda_plugin.actuators.micro_manager.MMAcquisition">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">MMAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_bus</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="eda_plugin.utility.html#eda_plugin.utility.event_bus.EventBus" title="eda_plugin.utility.event_bus.EventBus"><span class="pre">eda_plugin.utility.event_bus.EventBus</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMAcquisition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">MMAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMAcquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.</span></code></p>
 <p>Thread that represents a running acquisition.</p>
 <p>This QThread will be started from MMActuator to start an acquisition. It sets the properties
 that are relevant for all MMAcquisition, but specific acquisition types are implemented
@@ -453,11 +437,6 @@ to check how many channels are active in MM, which is not directly obvious from 
 The only settings that has be set by the user is the channel_switch_time, that should be the
 time in ms that MM takes to change between two channels used. This can be set in the
 settings.json.</p>
-<dl class="py attribute">
-<dt id="eda_plugin.actuators.micro_manager.MMAcquisition.acquisition_ended">
-<code class="sig-name descname"><span class="pre">acquisition_ended</span></code><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMAcquisition.acquisition_ended" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt id="eda_plugin.actuators.micro_manager.MMAcquisition.get_channel_information">
 <code class="sig-name descname"><span class="pre">get_channel_information</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMAcquisition.get_channel_information" title="Permalink to this definition">¶</a></dt>
@@ -480,8 +459,8 @@ settings.json.</p>
 
 <dl class="py class">
 <dt id="eda_plugin.actuators.micro_manager.MMActuator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">MMActuator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_bus</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="eda_plugin.utility.html#eda_plugin.utility.event_bus.EventBus" title="eda_plugin.utility.event_bus.EventBus"><span class="pre">eda_plugin.utility.event_bus.EventBus</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acquisition_mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#eda_plugin.actuators.micro_manager.MMAcquisition" title="eda_plugin.actuators.micro_manager.MMAcquisition"><span class="pre">eda_plugin.actuators.micro_manager.MMAcquisition</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gui</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMActuator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">MMActuator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMActuator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.</span></code></p>
 <p>Micro-Manager based actuator.</p>
 <p>An actuator that uses a standard Micro-Manager acquisition to run EDA on. Micro-Manager is
 contacted via pycromanager and the actuator receives events like AcquisitionStartedEvent via the
@@ -495,7 +474,8 @@ EventBus.</p>
 <dl class="py attribute">
 <dt id="eda_plugin.actuators.micro_manager.MMActuator.new_interval">
 <code class="sig-name descname"><span class="pre">new_interval</span></code><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMActuator.new_interval" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>alias of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="eda_plugin.actuators.micro_manager.MMActuator.reset_thread">
@@ -512,19 +492,15 @@ EventBus.</p>
 <dl class="py attribute">
 <dt id="eda_plugin.actuators.micro_manager.MMActuator.start_acq_signal">
 <code class="sig-name descname"><span class="pre">start_acq_signal</span></code><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMActuator.start_acq_signal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="eda_plugin.actuators.micro_manager.MMActuator.stop_acq_signal">
-<code class="sig-name descname"><span class="pre">stop_acq_signal</span></code><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMActuator.stop_acq_signal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>alias of <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="eda_plugin.actuators.micro_manager.MMActuatorGUI">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">MMActuatorGUI</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actuator</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#eda_plugin.actuators.micro_manager.MMActuator" title="eda_plugin.actuators.micro_manager.MMActuator"><span class="pre">eda_plugin.actuators.micro_manager.MMActuator</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMActuatorGUI" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="eda_plugin.utility.html#eda_plugin.utility.qt_classes.QWidgetRestore" title="eda_plugin.utility.qt_classes.QWidgetRestore"><code class="xref py py-class docutils literal notranslate"><span class="pre">eda_plugin.utility.qt_classes.QWidgetRestore</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">MMActuatorGUI</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.MMActuatorGUI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.</span></code></p>
 <p>GUI for the MMActuator providing a Start and Stop button.</p>
 <p>The actuator could also be implemented to start/stop with an acquisition in MicroManager using
 the AcquisitionStarted/Ended events.</p>
@@ -532,8 +508,8 @@ the AcquisitionStarted/Ended events.</p>
 
 <dl class="py class">
 <dt id="eda_plugin.actuators.micro_manager.TimerMMAcquisition">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">TimerMMAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">studio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_interval</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.TimerMMAcquisition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#eda_plugin.actuators.micro_manager.MMAcquisition" title="eda_plugin.actuators.micro_manager.MMAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">eda_plugin.actuators.micro_manager.MMAcquisition</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.micro_manager.</span></code><code class="sig-name descname"><span class="pre">TimerMMAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.micro_manager.TimerMMAcquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.</span></code></p>
 <p>An acquisition using a timer in slow mode to ‘open; acquisition in specific intervals.</p>
 <p>A mechanism is used where the acquisition in Micro-Manager is paused for the interval time and
 resarted for a short time period to allow for the acquisition of the necessary frames. The time
@@ -592,8 +568,8 @@ pycromanager (<a class="reference external" href="https://github.com/micro-manag
 Micro-Magellan (<a class="reference external" href="https://micro-manager.org/MicroMagellan">https://micro-manager.org/MicroMagellan</a>)</p>
 <dl class="py class">
 <dt id="eda_plugin.actuators.pycromanager.PycroAcquisition">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.pycromanager.</span></code><code class="sig-name descname"><span class="pre">PycroAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">studio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_interval</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.pycromanager.PycroAcquisition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#eda_plugin.actuators.micro_manager.MMAcquisition" title="eda_plugin.actuators.micro_manager.MMAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">eda_plugin.actuators.micro_manager.MMAcquisition</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.actuators.pycromanager.</span></code><code class="sig-name descname"><span class="pre">PycroAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.actuators.pycromanager.PycroAcquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.</span></code></p>
 <p>MMAcquisition that can be used with actuators.micro_manager.MMActuator.</p>
 <p>This implementation of a MMAcquisition uses the remote acquisition interplay between
 pycromanager (<a class="reference external" href="https://github.com/micro-manager/pycro-manager">https://github.com/micro-manager/pycro-manager</a>) and Micro-Magellan

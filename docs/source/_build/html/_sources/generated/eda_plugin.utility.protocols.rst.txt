@@ -1,0 +1,7 @@
+eda\_plugin.utility.protocols module
+====================================
+
+.. automodule:: eda_plugin.utility.protocols
+   :members:
+   :undoc-members:
+   :show-inheritance:

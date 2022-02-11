@@ -1,0 +1,7 @@
+eda\_plugin.actuators.micro\_manager module
+===========================================
+
+.. automodule:: eda_plugin.actuators.micro_manager
+   :members:
+   :undoc-members:
+   :show-inheritance:
