@@ -42,6 +42,7 @@ extensions = [
 ]
 
 autosummary_generate = True
+autosummary_imported_members = True
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
@@ -57,3 +58,6 @@ html_theme = "sphinx_rtd_theme"
 
 # -- Options for EPUB output
 epub_show_urls = "footnote"
+
+
+# https://stackoverflow.com/questions/2701998/sphinx-autodoc-is-not-automatic-enough/62613202#62613202

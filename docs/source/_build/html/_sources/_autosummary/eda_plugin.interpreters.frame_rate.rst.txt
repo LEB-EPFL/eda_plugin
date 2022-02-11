@@ -16,6 +16,8 @@ eda\_plugin.interpreters.frame\_rate
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       BinaryFrameRateInterpreter
       BinaryFrameRateParameterForm

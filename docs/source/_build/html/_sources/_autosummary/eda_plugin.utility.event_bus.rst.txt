@@ -16,6 +16,8 @@ eda\_plugin.utility.event\_bus
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       EventBus
    

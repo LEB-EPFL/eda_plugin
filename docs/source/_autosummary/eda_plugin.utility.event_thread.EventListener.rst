@@ -1,0 +1,37 @@
+eda\_plugin.utility.event\_thread.EventListener
+===============================================
+
+.. currentmodule:: eda_plugin.utility.event_thread
+
+.. autoclass:: EventListener
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EventListener.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EventListener.acquisition_ended_event
+      ~EventListener.acquisition_started_event
+      ~EventListener.configuration_settings_event
+      ~EventListener.new_image_event
+      ~EventListener.start
+      ~EventListener.stop
+      ~EventListener.stop_thread_event
+   
+   

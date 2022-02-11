@@ -1,4 +1,4 @@
-eda\_plugin.utility.event\_thread
+﻿eda\_plugin.utility.event\_thread
 =================================
 
 .. automodule:: eda_plugin.utility.event_thread
@@ -12,6 +12,7 @@ eda\_plugin.utility.event\_thread
    .. rubric:: Functions
 
    .. autosummary::
+      :toctree:
    
       main
    
@@ -22,9 +23,12 @@ eda\_plugin.utility.event\_thread
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       EventListener
       EventThread
+      PyImage
    
    
 

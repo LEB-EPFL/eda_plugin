@@ -16,6 +16,8 @@ eda\_plugin.utility.data\_structures
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       EDAEvent
       ParameterSet

@@ -12,6 +12,7 @@ eda\_plugin.examples.main
    .. rubric:: Functions
 
    .. autosummary::
+      :toctree:
    
       basic
       keras
@@ -22,6 +23,17 @@ eda\_plugin.examples.main
    
 
    
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom_class.rst
+   
+      BinaryFrameRateInterpreter
+      EDAMainGUI
+      EventBus
+      TimerMMAcquisition
    
    
 

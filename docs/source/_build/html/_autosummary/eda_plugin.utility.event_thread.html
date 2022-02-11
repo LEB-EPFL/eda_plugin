@@ -15,8 +15,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="eda_plugin.utility.protocols" href="eda_plugin.utility.protocols.html" />
-    <link rel="prev" title="eda_plugin.utility.event_bus" href="eda_plugin.utility.event_bus.html" /> 
+    <link rel="next" title="eda_plugin.utility.event_thread.main" href="eda_plugin.utility.event_thread.main.html" />
+    <link rel="prev" title="eda_plugin.utility.event_bus.EventBus" href="eda_plugin.utility.event_bus.EventBus.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,7 +50,13 @@
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.data_structures.html">eda_plugin.utility.data_structures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.eda_gui.html">eda_plugin.utility.eda_gui</a></li>
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.event_bus.html">eda_plugin.utility.event_bus</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">eda_plugin.utility.event_thread</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">eda_plugin.utility.event_thread</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.event_thread.main.html">eda_plugin.utility.event_thread.main</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.event_thread.EventListener.html">eda_plugin.utility.event_thread.EventListener</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.event_thread.EventThread.html">eda_plugin.utility.event_thread.EventThread</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.image_processing.html">eda_plugin.utility.image_processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.protocols.html">eda_plugin.utility.protocols</a></li>
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.qt_classes.html">eda_plugin.utility.qt_classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.settings.html">eda_plugin.utility.settings</a></li>
@@ -100,7 +106,7 @@ acquisitions.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="eda_plugin.utility.event_thread.main.html#eda_plugin.utility.event_thread.main" title="eda_plugin.utility.event_thread.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
 <td><p>Start an EventThread, can be used to test PythonEventServer plugin from Micro-Manager.</p></td>
 </tr>
 </tbody>
@@ -112,10 +118,10 @@ acquisitions.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventListener</span></code>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="eda_plugin.utility.event_thread.EventListener.html#eda_plugin.utility.event_thread.EventListener" title="eda_plugin.utility.event_thread.EventListener"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventListener</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Loop running in a QThread that listens to events published on the spcified zmq sockets.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventThread</span></code>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="eda_plugin.utility.event_thread.EventThread.html#eda_plugin.utility.event_thread.EventThread" title="eda_plugin.utility.event_thread.EventThread"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventThread</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Thread that receives events from Micro-Manager and relays them to the main program.</p></td>
 </tr>
 </tbody>
@@ -126,8 +132,8 @@ acquisitions.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="eda_plugin.utility.event_bus.html" class="btn btn-neutral float-left" title="eda_plugin.utility.event_bus" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="eda_plugin.utility.protocols.html" class="btn btn-neutral float-right" title="eda_plugin.utility.protocols" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="eda_plugin.utility.event_bus.EventBus.html" class="btn btn-neutral float-left" title="eda_plugin.utility.event_bus.EventBus" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eda_plugin.utility.event_thread.main.html" class="btn btn-neutral float-right" title="eda_plugin.utility.event_thread.main" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

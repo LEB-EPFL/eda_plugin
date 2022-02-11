@@ -1,4 +1,4 @@
-eda\_plugin.analysers.keras
+﻿eda\_plugin.analysers.keras
 ===========================
 
 .. automodule:: eda_plugin.analysers.keras
@@ -12,6 +12,7 @@ eda\_plugin.analysers.keras
    .. rubric:: Functions
 
    .. autosummary::
+      :toctree:
    
       main
    
@@ -22,10 +23,16 @@ eda\_plugin.analysers.keras
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
+      EventBus
+      ImageAnalyser
+      ImageAnalyserWorker
       KerasAnalyser
       KerasSettingsGUI
       KerasWorker
+      QWidgetRestore
    
    
 

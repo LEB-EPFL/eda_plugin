@@ -1,4 +1,4 @@
-eda\_plugin.actuators.daq
+﻿eda\_plugin.actuators.daq
 =========================
 
 .. automodule:: eda_plugin.actuators.daq
@@ -12,7 +12,9 @@ eda\_plugin.actuators.daq
    .. rubric:: Functions
 
    .. autosummary::
+      :toctree:
    
+      dataclass
       make_pulse
    
    
@@ -22,14 +24,18 @@ eda\_plugin.actuators.daq
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       AOTF
       Camera
       DAQActuator
       EDAAcquisition
+      EventBus
       Galvo
       MMChannel
       MMSettings
+      Path
       Stage
    
    

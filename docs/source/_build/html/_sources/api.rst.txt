@@ -3,6 +3,7 @@ api
 
 .. autosummary::
    :toctree: _autosummary
+   :template: custom_module.rst
    :recursive:
 
    eda_plugin.actuators

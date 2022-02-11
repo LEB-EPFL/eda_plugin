@@ -9,6 +9,15 @@
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      basic
+      keras
+      pyro
+   
    
 
    
@@ -25,6 +34,7 @@
 
 .. autosummary::
    :toctree:
+   :template: custom_module.rst
    :recursive:
 
    eda_plugin.examples.actuators

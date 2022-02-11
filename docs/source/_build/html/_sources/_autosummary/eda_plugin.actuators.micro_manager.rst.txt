@@ -16,6 +16,8 @@ eda\_plugin.actuators.micro\_manager
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       DirectMMAcquisition
       MMAcquisition

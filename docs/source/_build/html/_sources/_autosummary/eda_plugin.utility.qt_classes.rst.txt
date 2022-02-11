@@ -16,6 +16,8 @@ eda\_plugin.utility.qt\_classes
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       QWidgetRestore
    

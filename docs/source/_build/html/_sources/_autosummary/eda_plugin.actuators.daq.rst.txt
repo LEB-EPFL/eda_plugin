@@ -12,6 +12,7 @@ eda\_plugin.actuators.daq
    .. rubric:: Functions
 
    .. autosummary::
+      :toctree:
    
       make_pulse
    
@@ -22,6 +23,8 @@ eda\_plugin.actuators.daq
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       AOTF
       Camera

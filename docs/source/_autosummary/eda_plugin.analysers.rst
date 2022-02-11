@@ -25,6 +25,7 @@
 
 .. autosummary::
    :toctree:
+   :template: custom_module.rst
    :recursive:
 
    eda_plugin.analysers.image

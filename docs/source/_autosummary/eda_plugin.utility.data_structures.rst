@@ -1,4 +1,4 @@
-eda\_plugin.utility.data\_structures
+﻿eda\_plugin.utility.data\_structures
 ====================================
 
 .. automodule:: eda_plugin.utility.data_structures
@@ -9,6 +9,13 @@ eda\_plugin.utility.data\_structures
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      dataclass
+   
    
 
    
@@ -16,6 +23,8 @@ eda\_plugin.utility.data\_structures
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: custom_class.rst
    
       EDAEvent
       ParameterSet
