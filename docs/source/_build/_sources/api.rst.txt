@@ -1,11 +1,8 @@
-API
+api
 ===
 
 
+.. autosummary::
+   :toctree: _autosummary
 
-.. toctree::
-   :glob:
-
-   generated/*
-
-:class:`~eda_plugin.actuators.micro_manager.MMActuator`
+   eda_plugin

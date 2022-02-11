@@ -29,6 +29,7 @@ autodoc_mock_imports = [
 
 sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
 
+
 extensions = [
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
@@ -36,6 +37,8 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
 ]
+
+autosummary_generate = True
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),

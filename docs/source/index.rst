@@ -23,9 +23,7 @@ Contents
 
 .. toctree::
 
-   index
    usage
    custom_loop
    custom_components
    api
-   generated/modules

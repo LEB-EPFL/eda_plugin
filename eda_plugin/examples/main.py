@@ -13,8 +13,6 @@ import eda_plugin.utility.settings
 def basic():
     """EDA loop that can be used to test without a microscope and without CUDA installation."""
     from eda_plugin.analysers.image import ImageAnalyser
-
-    # from .actuators.pycro import InjectedPycroAcquisition
     from eda_plugin.actuators.micro_manager import MMActuator, TimerMMAcquisition
 
     eda_plugin.utility.settings.setup_logging()
@@ -23,7 +21,6 @@ def basic():
     event_bus = EventBus()
 
     gui = EDAMainGUI(event_bus, viewer=True)
-    # actuator = MMActuator(event_bus, InjectedPycroAcquisition)
     actuator = MMActuator(event_bus, TimerMMAcquisition)
     analyser = ImageAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
@@ -88,7 +85,7 @@ def keras():
 def pyro_keras():
     """EDA loop thay can be used to test without a microscope and without CUDA installation."""
     from eda_plugin.analysers.keras import KerasAnalyser
-    from .actuators.pycro import InjectedPycroAcquisition
+    from .analysers import InjectedPycroAcquisition
     from eda_plugin.actuators.micro_manager import MMActuator
 
     eda_plugin.utility.settings.setup_logging()

@@ -36,7 +36,6 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">Welcome to event driven acquisition!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../custom_loop.html">Custom Loop Compilation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../custom_components.html">Creating Custom components</a></li>
@@ -69,27 +68,34 @@
              
   <div class="section" id="eda-plugin-examples-package">
 <h1>eda_plugin.examples package<a class="headerlink" href="#eda-plugin-examples-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="eda_plugin.examples.actuators.html">eda_plugin.examples.actuators package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.examples.actuators.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.examples.actuators.html#eda-plugin-examples-actuators-pycro-module">eda_plugin.examples.actuators.pycro module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.examples.actuators.html#module-eda_plugin.examples.actuators">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="eda_plugin.examples.analysers.html">eda_plugin.examples.analysers package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.examples.analysers.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.examples.analysers.html#eda-plugin-examples-analysers-keras-module">eda_plugin.examples.analysers.keras module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.examples.analysers.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eda_plugin.examples.actuators">
+<span id="eda-plugin-examples-actuators-module"></span><h2>eda_plugin.examples.actuators module<a class="headerlink" href="#module-eda_plugin.examples.actuators" title="Permalink to this headline">¶</a></h2>
+<p>Example of using the PycroAcquisition class.</p>
+<dl class="py class">
+<dt id="eda_plugin.examples.actuators.InjectedPycroAcquisition">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">eda_plugin.examples.actuators.</span></code><code class="sig-name descname"><span class="pre">InjectedPycroAcquisition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.examples.actuators.InjectedPycroAcquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.</span></code></p>
+<p>Acquisition based on pycromanager with image injection.</p>
+<p>This can be used with the DemoConfig of MicroManager. It injects an image from a tif-stack to
+replace the image from the DemoCam. This allows to test the performance of the EDA loop and the
+model used without a sample or even a microscope.</p>
+<dl class="py method">
+<dt id="eda_plugin.examples.actuators.InjectedPycroAcquisition.receive_image">
+<code class="sig-name descname"><span class="pre">receive_image</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.examples.actuators.InjectedPycroAcquisition.receive_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the function in the original PycroAcquisition.</p>
+<p>Add the image replacement before calling the original function on the injected image. The
+frame is chosen from the tif stack according to the time passed since the last acquired
+frame.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="eda-plugin-examples-analysers-module">
+<h2>eda_plugin.examples.analysers module<a class="headerlink" href="#eda-plugin-examples-analysers-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-eda_plugin.examples.main">
 <span id="eda-plugin-examples-main-module"></span><h2>eda_plugin.examples.main module<a class="headerlink" href="#module-eda_plugin.examples.main" title="Permalink to this headline">¶</a></h2>

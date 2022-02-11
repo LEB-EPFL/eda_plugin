@@ -1,8 +1,12 @@
 api
 ===
 
+.. autosummary::
+   :toctree: _autosummary
+   :recursive:
 
-.. toctree::
-   :maxdepth: 4
-
-   eda_plugin
+   eda_plugin.actuators
+   eda_plugin.analysers
+   eda_plugin.interpreters
+   eda_plugin.examples
+   eda_plugin.utility
