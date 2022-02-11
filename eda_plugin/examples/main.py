@@ -38,7 +38,7 @@ def basic():
 
 def pyro():
     """EDA loop thay can be used to test without a microscope and without CUDA installation."""
-    from eda_plugin.analysers.image import ImageAnalyser
+    from eda_plugin.analysers.image import PycroImageAnalyser
     from eda_plugin.actuators.pycromanager import PycroAcquisition
     from eda_plugin.actuators.micro_manager import MMActuator
 
@@ -49,7 +49,7 @@ def pyro():
 
     gui = EDAMainGUI(event_bus, viewer=True)
     actuator = MMActuator(event_bus, PycroAcquisition)
-    analyser = ImageAnalyser(event_bus)
+    analyser = PycroImageAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
     gui.show()
@@ -125,4 +125,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    keras()
+    basic()

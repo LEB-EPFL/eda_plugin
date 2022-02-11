@@ -7,21 +7,17 @@ output stream that corresponds to the interval set by the interpreter into this 
 """
 
 from __future__ import annotations
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-import numpy as np
+
 import copy
+import logging
 
 import nidaqmx
 import nidaqmx.stream_writers
-from eda_plugin.utility.event_bus import EventBus
-
-# MMSettings imports
-from dataclasses import dataclass
 import numpy as np
-from typing import List, Any
-from pathlib import Path
+from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility.data_structures import MMSettings
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
-import logging
 
 log = logging.getLogger("EDA")
 
@@ -425,89 +421,3 @@ class AOTF:
             frame = np.hstack([delay, frame])
 
         return frame
-
-
-@dataclass
-class MMChannel:
-    """Part of a channel as found in the MDA channels list in MM."""
-
-    name: str
-    active: bool
-    power: float
-    exposure_ms: int
-
-
-@dataclass
-class MMSettings:
-    """Settings mainly as in MM, but some things are iSIM specific.
-
-    Sweeps_per_frame: How many times does the galvo go back and forth during one exposure. Can be
-    bigger for longer exposure times, to reduce the time a specific part is exposed to light, to
-    reduce phototoxicity.
-    """
-
-    java_settings: Any = None
-
-    timepoints: int = 11
-    interval_ms: int = 1000
-
-    pre_delay: float = 0.0
-    post_delay: float = 0.03
-
-    java_channels: Any = None
-    use_channels = True
-    channels: List[MMChannel] = None
-    n_channels: int = 0
-
-    slices_start: float = None
-    slices_end: float = None
-    slices_step: float = None
-    slices: List[float] = None
-    use_slices: bool = False
-
-    save_path: Path = None
-    prefix: str = None
-
-    sweeps_per_frame: int = 1
-
-    acq_order: str = None
-
-    def __post_init__(self):
-        """Take the settings from MM as a java object and get the settings are represented here.
-
-        Function that is called after parameters above are initialized by the dataclass.
-        """
-        if self.java_settings is not None:
-            # print(dir(self.java_settings))
-            self.interval_ms = self.java_settings.interval_ms()
-            self.timepoints = self.java_settings.num_frames()
-            self.java_channels = self.java_settings.channels()
-            self.acq_order = self.java_settings.acq_order_mode()
-            self.use_channels = self.java_settings.use_channels()
-
-        try:
-            self.java_channels.size()
-        except:
-            return
-
-        self.channels = {}
-        self.n_channels = 0
-        for channel_ind in range(self.java_channels.size()):
-            channel = self.java_channels.get(channel_ind)
-            config = channel.config()
-            self.channels[config] = {
-                "name": config,
-                "use": channel.use_channel(),
-                "exposure": channel.exposure(),
-                "z_stack": channel.do_z_stack(),
-            }
-            if self.channels[config]["use"]:
-                self.n_channels += 1
-
-        self.use_slices = self.java_settings.use_slices()
-        self.java_slices = self.java_settings.slices()
-        self.slices = []
-        for slice_num in range(self.java_settings.slices().size()):
-            self.slices.append(self.java_slices.get(slice_num))
-        if len(self.slices) == 0:
-            self.slices = [0]

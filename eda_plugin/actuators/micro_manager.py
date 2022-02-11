@@ -120,8 +120,11 @@ class MMAcquisition(QThread):
         self.event_bus = event_bus
         self.settings = self.studio.acquisitions().get_acquisition_settings()
         # TODO: Set interval to fast interval so it can be used when running freely
-        self.settings = self.settings.copy_builder().interval_ms(0).build()
         self.channels = self.get_channel_information()
+        # This has to be higher for 1 channel, otherwise it will be a burst acq that can't be paused
+        interval = 0 if len(self.channels) > 1 else self.channels[0] + 1
+        log.info(f"Interval {interval}")
+        self.settings = self.settings.copy_builder().interval_ms(interval).build()
 
         default_settings = settings.get_settings(__class__)
         self.channel_switch_time = default_settings["channel_switch_time_ms"]
@@ -205,7 +208,10 @@ class TimerMMAcquisition(MMAcquisition):
             self.acq_eng.set_pause(False)
             return
 
+        # TODO: Add support for z slices
+        # TODO: think about a calibration scheme for the waiting time.
         self.acq_eng.set_pause(True)
+        self.acquisitions.set_pause(True)
         self.check_missing_channels()
         self.timer.setInterval(new_interval * 1_000)
         if not self.timer.isActive():
@@ -213,13 +219,20 @@ class TimerMMAcquisition(MMAcquisition):
 
     def acquire(self):
         """Open acquisition for a short time in slow mode."""
-        self.acq_eng.set_pause(False)
-        time.sleep(
-            sum(self.channels) / 1000
-            + self.channel_switch_time / 1000 * (self.num_channels - 1)
+        log.debug("acquire")
+        wait_time = sum(self.channels) / 1000 + self.channel_switch_time / 1000 * (
+            self.num_channels - 1
         )
-        self.acq_eng.set_pause(True)
-        self.check_missing_channels()
+
+        wait_time = wait_time if wait_time > 0.015 else wait_time + 0.01
+
+        self.acquisitions.set_pause(False)
+
+        time.sleep(wait_time)
+
+        self.acquisitions.set_pause(True)
+        if len(self.channels) > 1:
+            self.check_missing_channels()
 
     def check_missing_channels(self):
         """Get missing images.

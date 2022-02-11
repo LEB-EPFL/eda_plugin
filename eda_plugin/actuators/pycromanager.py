@@ -8,6 +8,7 @@ pycromanager (https://github.com/micro-manager/pycro-manager)
 Micro-Magellan (https://micro-manager.org/MicroMagellan)
 """
 
+from typing import List
 import pycromanager
 import copy
 import queue
@@ -16,6 +17,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from eda_plugin.utility.data_structures import PyImage
 from eda_plugin.actuators.micro_manager import MMAcquisition
+from eda_plugin.utility.event_bus import EventBus
 
 
 log = logging.getLogger("EDA")
@@ -35,22 +37,19 @@ class PycroAcquisition(MMAcquisition):
     new_image = pyqtSignal(PyImage)
     acquisition_started_event = pyqtSignal(object)
 
-    def __init__(self, studio, start_interval: float = 5.0, settings=None):
+    def __init__(self, event_bus: EventBus, start_interval: float = 5.0, settings=None):
         """Set default settings, set up first acquisiton events connect signals."""
-        super().__init__(studio)
+        super().__init__(event_bus)
+        self.event_bus = event_bus
+        self.dir = None
+
         if settings is None:
-            settings = {
-                "num_time_points": 2,
-                "time_interval_s": start_interval,
-                "channel_group": "Channel",
-                "channels": ["FITC", "DAPI"],
-                "order": "tc",
-            }
-        self.events = pycromanager.multi_d_acquisition_events(**settings)
-        self.channels = [
-            self.events[i]["channel"] for i in range(len(settings["channels"]))
-        ]
-        self.start_timepoints = settings["num_time_points"]
+            self.settings = self._get_new_settings()
+        else:
+            self.settings = settings
+        self.events = pycromanager.multi_d_acquisition_events(**self.settings)
+        self.start_timepoints = self.settings["num_time_points"]
+        self.channel_names = self.settings["channels"]
 
         self.interval = start_interval
         self.stop_acq_condition = False
@@ -59,11 +58,11 @@ class PycroAcquisition(MMAcquisition):
 
     def start_acq(self):
         """Start acquisition."""
-        # TODO: The save_path should be possible to set from the outside
+
         self.acquisition = pycromanager.Acquisition(
-            directory="C:/Users/stepp/Desktop/eda_save",
-            name="acquisition_name",
-            # magellan_acq_index=0,
+            directory=self.dir,
+            name="EDA",
+            # magellan_acq_index=0, activating this unfortunately throws and error
             post_hardware_hook_fn=self.post_hardware,
             image_process_fn=self.receive_image,
             show_display=True,
@@ -93,38 +92,89 @@ class PycroAcquisition(MMAcquisition):
         if all(
             [
                 event["axes"]["time"] >= self.start_timepoints - 1,
-                event["channel"] == self.events[1]["channel"],
+                event["channel"] == self.events[-1]["channel"],
+                event["axes"]["z"] == self.events[-1]["axes"]["z"],
             ]
         ):
-            new_event = copy.deepcopy(event)
             if self.interval > 0:
-                new_event["min_start_time"] = event["min_start_time"] + self.interval
+                new_start_time = event["min_start_time"] + self.interval
             else:
-                new_event["min_start_time"] = self.last_arrival_time + self.interval
-            new_event["axes"]["time"] = event["axes"]["time"] + 1
-            for c in range(2):
-                new_event["channel"] = self.channels[c]
-                new_event["axes"]["channel"] = c
+                new_start_time = self.last_arrival_time + self.interval
+
+            one_timepoint = copy.deepcopy(self.settings)
+            one_timepoint["num_time_points"] = 1
+            new_events = pycromanager.multi_d_acquisition_events(**one_timepoint)
+            for new_event in new_events:
+                new_event["axes"]["time"] = event["axes"]["time"] + 1
+                new_event["min_start_time"] = new_start_time
                 event_queue.put(copy.deepcopy(new_event))
         return event
 
     def receive_image(self, image, metadata):
         """Extract relevant metadata, make utility.data_sctructures.PyImage and notify EventBus."""
-        for idx, c in enumerate(self.channels):
-            if metadata["Channel"] == c["config"]:
+        for idx, c in enumerate(self.channel_names):
+            if metadata["Channel"] == c:
                 channel = idx
         py_image = PyImage(
             image,
             metadata["Axes"]["time"],
             channel,
-            metadata["SliceIndex"],
+            metadata["Axes"]["z"],
             metadata["ElapsedTime-ms"],
         )
         self.new_image.emit(py_image)
         self.last_arrival_time = metadata["ElapsedTime-ms"] / 1000
-        log.debug(f"timepoint {py_image.timepoint} - new image")
+        z = metadata["Axes"]["z"]
+        log.debug(f"timepoint {py_image.timepoint} - new image c{channel}, z{z}")
         return image, metadata
 
     def change_interval(self, new_interval):
         """Change the internal interval."""
         self.interval = new_interval
+
+    def _get_magellan_channels(self, settings) -> List:
+        channels = []
+        for channel_idx in range(settings.channels_.get_channel_names().size()):
+            if settings.channels_.get_channel_list_setting(channel_idx).use_:
+                channels.append(settings.channels_.get_channel_names().get(channel_idx))
+        return channels
+
+    def _calc_interval_s(self, settings) -> float:
+        unit = settings.timeIntervalUnit_
+        interval = settings.timePointInterval_
+        if unit == 0:
+            interval = interval / 1000
+        elif unit == 2:
+            interval = interval * 60
+        return interval
+
+    def _get_new_settings(self):
+        self.magellan_settings = (
+            self.event_bus.event_thread.bridge.get_magellan().get_acquisition_settings(
+                0
+            )
+        )
+        self.dir = self.magellan_settings.dir_
+
+        # Running the Acquisition with the GUI settings does not work (see start_acq above)
+        # So translate manually
+        if self.magellan_settings.spaceMode_ != 4:
+            # 3D
+            settings = {
+                "num_time_points": self.magellan_settings.numTimePoints_,
+                "time_interval_s": self._calc_interval_s(self.magellan_settings),
+                "channel_group": self.magellan_settings.channels_.get_channel_group(),
+                "channels": self._get_magellan_channels(self.magellan_settings),
+                "z_start": self.magellan_settings.zStart_,
+                "z_end": self.magellan_settings.zEnd_,
+                "z_step": self.magellan_settings.zStep_,
+            }
+        else:
+            settings = {
+                "num_time_points": self.magellan_settings.numTimePoints_,
+                "time_interval_s": self._calc_interval_s(self.magellan_settings),
+                "channel_group": self.magellan_settings.channels_.get_channel_group(),
+                "channels": self._get_magellan_channels(self.magellan_settings),
+            }
+        self.event_bus.new_magellan_settings.emit(settings)
+        return settings

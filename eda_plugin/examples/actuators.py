@@ -21,14 +21,8 @@ class InjectedPycroAcquisition(PycroAcquisition):
 
     def __init__(self, *args, **kwargs):
         """Make a short starting sequence and load the tif file into memory."""
-        my_settings = {
-            "num_time_points": 10,
-            "time_interval_s": 1,
-            "channel_group": "Channel",
-            "channels": ["FITC", "DAPI"],
-            "order": "tc",
-        }
-        super().__init__(*args, settings=my_settings, **kwargs)
+
+        super().__init__(*args, **kwargs)
         tif_file = "C:/Users/stepp/Documents/02_Raw/SmartMito/180420_120_comp.tif"
         try:
             self.tif = tifffile.imread(tif_file)

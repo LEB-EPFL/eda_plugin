@@ -10,6 +10,7 @@ import numpy as np
 import time
 
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable
+from eda_plugin.actuators.daq import MMSettings
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.data_structures import PyImage
 from eda_plugin.utility import settings
@@ -31,15 +32,15 @@ class ImageAnalyser(QObject):
     def __init__(self, event_bus: EventBus):
         """Get settings from settings.json, set up the threadpool and connect signals."""
         super().__init__()
-        self.name = "ImageAnalyser"
+
         self.shape = None
         self.time = None
         self.images = None
         self.start_time = None
-        default_settings = settings.get_settings(__class__)
-        log.debug(default_settings)
-        self.channels = default_settings["channels"]
-        self.z_slices = default_settings["z_slices"]
+
+        settings = event_bus.studio.acquisitions().get_acquisition_settings()
+        settings = MMSettings(settings)
+        self.new_mda_settings(settings)
 
         # Attach the standard worker, subclasses can replace this.
         self.worker = ImageAnalyserWorker
@@ -53,8 +54,13 @@ class ImageAnalyser(QObject):
         self.new_decision_parameter.connect(event_bus.new_decision_parameter)
 
         # Connect incoming events
+        self.connect_incoming_events(event_bus)
+
+    def connect_incoming_events(self, event_bus: EventBus) -> None:
+        """Connect the events here, so subclasses can choose to not do so."""
         event_bus.acquisition_started_event.connect(self._reset_time)
         event_bus.new_image_event.connect(self.start_analysis)
+        event_bus.mda_settings_event.connect(self.new_mda_settings)
 
     @pyqtSlot(PyImage)
     def start_analysis(self, evt: PyImage):
@@ -80,17 +86,22 @@ class ImageAnalyser(QObject):
         """Connect worker signals in extra method, so that this can be overwritten independently."""
         worker.signals.new_decision_parameter.connect(self.new_decision_parameter)
 
+    def new_mda_settings(self, new_settings: MMSettings):
+        self.channels = new_settings.n_channels
+        self.slices = new_settings.n_slices
+        log.info(f"New settings: {self.channels} channels & {self.slices} slices")
+
     def gather_images(self, py_image: PyImage) -> bool:
         """Gather the amount of images needed."""
-        # TODO: Also make this work for z-slices
+
         try:
-            self.images[:, :, py_image.channel] = py_image.raw_image
-        except (ValueError, TypeError):
+            self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
+        except (ValueError, TypeError, IndexError):
             self._reset_shape(py_image)
-            self.images[:, :, py_image.channel] = py_image.raw_image
+            self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
 
         self.time = py_image.timepoint
-        if py_image.channel < self.channels - 1:
+        if py_image.channel < self.channels - 1 or py_image.z_slice < self.slices - 1:
             return False
         else:
             return True
@@ -100,7 +111,7 @@ class ImageAnalyser(QObject):
 
     def _reset_shape(self, image: PyImage):
         self.shape = image.raw_image.shape
-        self.images = np.ndarray([*self.shape, self.channels])
+        self.images = np.ndarray([*self.shape, self.channels, self.slices])
 
     def _reset_time(self):
         log.debug(f"start_time reset in {self.__class__.__name__}")
@@ -135,3 +146,35 @@ class ImageAnalyserWorker(QRunnable):
         """Signals have to be separate because QRunnable can't have its own."""
 
         new_decision_parameter = pyqtSignal(float, float, int)
+
+
+class PycroImageAnalyser(ImageAnalyser):
+    def __init__(self, event_bus):
+        super().__init__(event_bus)
+
+    def connect_incoming_events(self, event_bus: EventBus) -> None:
+        """Do not connect the MDA and acquisition events, we need the info from magellan"""
+        event_bus.new_image_event.connect(self.start_analysis)
+        event_bus.new_magellan_settings.connect(self.new_magellan_settings)
+
+    def new_magellan_settings(self, new_settings: dict):
+        self.channels = len(new_settings["channels"])
+
+        try:
+            slices = (
+                abs(new_settings["z_end"] - new_settings["z_start"])
+                / new_settings["z_step"]
+            )
+            if slices % 1 == 0:
+                self.slices = int(slices) + 2
+            else:
+                self.slices = int(np.ceil(slices)) + 1
+        except:
+            self.slices = 1
+
+        log.info(
+            f"Magellan settings in Analyser: {self.channels} channels & {self.slices} slices"
+        )
+        self.start_time = time.time()
+        if self.images is not None:
+            self._reset_shape(PyImage(self.images[0], 0, 0, 0, 0))

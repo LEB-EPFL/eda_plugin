@@ -15,6 +15,8 @@ import zmq
 from pycromanager import Bridge
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
+from eda_plugin.utility.data_structures import MMSettings
+
 from .data_structures import PyImage
 
 log = logging.getLogger("EDA")
@@ -91,6 +93,7 @@ class EventListener(QObject):
     new_image_event = pyqtSignal(PyImage)
     configuration_settings_event = pyqtSignal(str, str, str)
     stop_thread_event = pyqtSignal()
+    mda_settings_event = pyqtSignal(MMSettings)
 
     def __init__(self, socket, event_sockets, bridge: Bridge, thread: QThread):
         """Store passed arguments and starting time for frequency limitation of certain events."""
@@ -166,6 +169,12 @@ class EventListener(QObject):
                     self.configuration_settings_event.emit(
                         evt.get_device(), evt.get_property(), evt.get_value()
                     )
+                elif "CustomMDAEvent" in eventString:
+                    if time.perf_counter() - self.last_custom_mda > 0.2:
+                        settings = evt.get_settings()
+                        settings = MMSettings(java_settings=settings)
+                        self.mda_settings_event.emit(settings)
+                    self.last_custom_mda = time.perf_counter()
 
             except zmq.error.Again:
                 pass
