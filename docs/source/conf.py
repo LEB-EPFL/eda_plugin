@@ -25,6 +25,9 @@ autodoc_mock_imports = [
     "pycromanager",
     "qdarkstyle",
     "qimage2ndarray",
+    "tifffile",
+    "nidaqmx",
+    "skimage",
 ]
 
 sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
