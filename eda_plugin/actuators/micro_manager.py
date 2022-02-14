@@ -20,12 +20,14 @@ without GUI and EDA will start with every acquisition as long as the plugin is r
 from __future__ import annotations
 import threading
 import time
+import numpy as np
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets
 import qdarkstyle
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.qt_classes import QWidgetRestore
 from eda_plugin.utility import settings
+
 
 import logging
 
@@ -61,7 +63,15 @@ class MMActuator(QObject):
             TimerMMAcquisition if acquisition_mode is None else acquisition_mode
         )
 
-        self.gui = MMActuatorGUI(self) if gui else None
+        try:
+            self.acquisition_mode.calibrate
+            self.calibration = True
+        except:
+            self.calibration = False
+
+        self.gui = MMActuatorGUI(self, self.calibration) if gui else None
+
+        self.calibrated_wait_time = None
 
         self.event_bus.new_interpretation.connect(self.call_action)
         self.event_bus.acquisition_ended_event.connect(self._stop_acq)
@@ -75,8 +85,12 @@ class MMActuator(QObject):
 
     def start_acq(self):
         """Construct an MMAcquisition object, connect the relevant events to it and start."""
-        self.acquisition = self.acquisition_mode(self.event_bus)
-
+        if self.calibration:
+            self.acquisition = self.acquisition_mode(
+                self.event_bus, calibrated_wait_time=self.calibrated_wait_time
+            )
+        else:
+            self.acquisition = self.acquisition_mode(self.event_bus)
         self.acquisition.acquisition_ended.connect(self.reset_thread)
         self.stop_acq_signal.connect(self.acquisition.stop_acq)
         self.new_interval.connect(self.acquisition.change_interval)
@@ -94,9 +108,17 @@ class MMActuator(QObject):
         if self.acquisition is not None:
             log.info(f"Stop acquisition {self.acquisition.__class__} in MMActuator")
             self.stop_acq_signal.emit()
+            if self.acquisition.calibrated_wait_time is not None:
+                self.calibrated_wait_time = self.acquisition.calibrated_wait_time
+                self.gui.calib_edit.setText(str(int(self.calibrated_wait_time)))
             self.acquisition.exit()
             self.acquisition.deleteLater()
             self.acquisition = None
+
+    def _calibrate(self):
+        self.acquisition = self.acquisition_mode(self.event_bus)
+        self.calibrated_wait_time = self.acquisition.calibrate()
+        self.gui.calib_edit.setText(str(int(self.calibrated_wait_time)))
 
 
 class MMAcquisition(QThread):
@@ -122,13 +144,18 @@ class MMAcquisition(QThread):
         # TODO: Set interval to fast interval so it can be used when running freely
         self.channels = self.get_channel_information()
         # This has to be higher for 1 channel, otherwise it will be a burst acq that can't be paused
-        interval = 0 if len(self.channels) > 1 else self.channels[0] + 1
-        log.info(f"Interval {interval}")
-        self.settings = self.settings.copy_builder().interval_ms(interval).build()
 
         default_settings = settings.get_settings(__class__)
         self.channel_switch_time = default_settings["channel_switch_time_ms"]
         self.num_channels = len(self.channels)
+        self.slices = self.settings.slices().size()
+        self.slices = 1 if self.slices == 0 else self.slices
+        log.info(f"Settings: {self.slices} slices & {self.num_channels} channels")
+
+        num_frames = self.num_channels * self.slices
+        interval = 0 if num_frames > 1 else self.channels[0] + 1
+        log.info(f"Interval {interval}")
+        self.settings = self.settings.copy_builder().interval_ms(interval).build()
 
         self.acquisitions = self.studio.acquisitions()
         self.acq_eng = self.studio.get_acquisition_engine()
@@ -161,18 +188,27 @@ class TimerMMAcquisition(MMAcquisition):
 
     A mechanism is used where the acquisition in Micro-Manager is paused for the interval time and
     resarted for a short time period to allow for the acquisition of the necessary frames. The time
-    that this takes is tried to be estimated and depends on the channel_switch_time from the
+    that this takes should be calibrated by calling calibrate. If this is not called, the time to
+    wait is estimated and depends on the channel_switch_time defined in the
     MMAcquisition. As this can be wrong and not all slices/channels might have been recorded,
-    check_missing_channels opens up the acquisition again to get additional frames as necessary.
+    check_missing_channels opens up the acquisition again to get additional frames as necessary. It
+    also increases the wait_time for the next time, if it was calibrated. This will fine-adjust the
+    wait time and make the acquisition more consistent. The updated wait_time is also saved into
+    MMActuator for the next acquisition.
     """
 
-    def __init__(self, studio, start_interval: float = 5.0):
+    def __init__(
+        self, studio, start_interval: float = 5.0, calibrated_wait_time: float = None
+    ):
         """Initialise the QTimer and connect signals."""
         super().__init__(studio)
         self.timer = QTimer()
         self.timer.timeout.connect(self.acquire)
         self.start_interval = start_interval
         self.event_bus.acquisition_started_event.connect(self._pause_acquisition)
+        self.calibrated_wait_time = calibrated_wait_time
+        self.acquire_num = 0
+        self.last_adjust = 0
 
     def start_acq(self):
         """Start the acquisition with the current settings."""
@@ -212,29 +248,33 @@ class TimerMMAcquisition(MMAcquisition):
         # TODO: think about a calibration scheme for the waiting time.
         self.acq_eng.set_pause(True)
         self.acquisitions.set_pause(True)
-        self.check_missing_channels()
+        self.check_missing_channels(adjust=False)
         self.timer.setInterval(new_interval * 1_000)
         if not self.timer.isActive():
             self.timer.start()
+        log.debug("New interval set in actuator")
 
     def acquire(self):
         """Open acquisition for a short time in slow mode."""
-        log.debug("acquire")
-        wait_time = sum(self.channels) / 1000 + self.channel_switch_time / 1000 * (
-            self.num_channels - 1
-        )
-
-        wait_time = wait_time if wait_time > 0.015 else wait_time + 0.01
+        log.debug(f"acquire {self.calibrated_wait_time}")
+        self.acquire_num += 1
+        if self.calibrated_wait_time is None:
+            wait_time = sum(self.channels) / 1000 + self.channel_switch_time / 1000 * (
+                self.num_channels - 1
+            )
+            wait_time = wait_time if wait_time > 0.015 else wait_time + 0.01
+        else:
+            wait_time = self.calibrated_wait_time / 1000
 
         self.acquisitions.set_pause(False)
 
         time.sleep(wait_time)
 
         self.acquisitions.set_pause(True)
-        if len(self.channels) > 1:
-            self.check_missing_channels()
+        if self.num_channels > 1 or self.slices > 1:
+            self.check_missing_channels(adjust=True)
 
-    def check_missing_channels(self):
+    def check_missing_channels(self, adjust: bool = False):
         """Get missing images.
 
         Check if there are all images of the last timepoint in the datastore. If not, acquisition
@@ -245,22 +285,82 @@ class TimerMMAcquisition(MMAcquisition):
         """
         # TODO: Increase the channel_wait_time if a channel is missing.
         time.sleep(0.2)
-        missing_images = self.datastore.get_num_images() % self.num_channels
+        num_frames = self.num_channels * self.slices
+        missing_images = num_frames - (self.datastore.get_num_images() % num_frames)
+        missing_images = 0 if missing_images == num_frames else missing_images
         tries = 0
         while missing_images > 0 and tries < 3:
-            log.debug(f"Getting additional image")
-            self.acq_eng.set_pause(False)
-            time.sleep(
-                sum(self.channels[-missing_images:]) / 1000
-                + self.channel_switch_time / 1000 * (missing_images - 0.5)
+            log.debug(
+                f"Getting additional images: {missing_images}, {self.channels[-missing_images:]}"
             )
+            if self.calibrated_wait_time is None:
+                wait_time = sum(
+                    self.channels[-missing_images:]
+                ) / 1000 + self.channel_switch_time / 1000 * (missing_images - 0.5)
+            elif missing_images > 1:
+                wait_time = (
+                    self.calibrated_wait_time * (missing_images / num_frames) / 1000
+                )
+                if adjust and tries == 0 and self.acquire_num > 1:
+                    self.calibrated_wait_time += (
+                        self.calibrated_wait_time / num_frames / 5
+                    )
+            else:
+                if self.slices == 1:
+                    wait_time = 0.02
+                else:
+                    wait_time = 0.05
+
+                if adjust and tries == 0 and self.acquire_num >= self.last_adjust + 10:
+                    self.last_adjust = self.acquire_num
+                elif adjust and tries == 0 and self.acquire_num > 1:
+                    self.calibrated_wait_time += self.channels[-1] / 10
+                    self.last_adjust = self.acquire_num
+
+            self.acq_eng.set_pause(False)
+            time.sleep(wait_time)
             self.acq_eng.set_pause(True)
             time.sleep(0.2)
-            missing_images = self.datastore.get_num_images() % self.num_channels
-            tries = +tries
+            missing_images = num_frames - (self.datastore.get_num_images() % num_frames)
+            missing_images = 0 if missing_images == num_frames else missing_images
+            log.debug(f"Images still missing {missing_images}")
+            tries = tries + 1
 
     def _pause_acquisition(self):
         self.acq_eng.set_pause(True)
+
+    def calibrate(self):
+        """Take a short sequence and measure the time to open acquisition for each frame."""
+        log.info("Starting calibration")
+        num_timepoints = 5
+        old_settings = self.studio.acquisitions().get_acquisition_settings()
+        self.settings = (
+            old_settings.copy_builder()
+            .interval_ms(3000)
+            .num_frames(num_timepoints)
+            .build()
+        )
+        self.datastore = self.acquisitions.run_acquisition_with_settings(
+            self.settings, True
+        )
+        log.debug("calibration sequence recorded")
+        coord_builder = self.datastore.get_any_image().get_coords().copy_builder()
+        time_per_timepoint = []
+        for i in range(1, num_timepoints):
+            coords0 = coord_builder.c(0).z(0).t(i).build()
+            image0 = self.datastore.get_image(coords0)
+            coords = (
+                coord_builder.c(self.num_channels - 1).z(self.slices - 1).t(i).build()
+            )
+            image1 = self.datastore.get_image(coords)
+            time0 = image0.get_metadata().get_elapsed_time_ms()
+            time1 = image1.get_metadata().get_elapsed_time_ms()
+            time_per_timepoint.append(time1 - time0)
+            log.debug(f"timepoint time: {time1 - time0}")
+        self.calibrated_wait_time = np.mean(time_per_timepoint)
+        log.info(f"Calibrated wait time: {self.calibrated_wait_time}")
+        self.studio.acquisitions().set_acquisition_settings(old_settings)
+        return self.calibrated_wait_time
 
 
 class DirectMMAcquisition(MMAcquisition):
@@ -320,7 +420,7 @@ class MMActuatorGUI(QWidgetRestore):
     the AcquisitionStarted/Ended events.
     """
 
-    def __init__(self, actuator: MMActuator):
+    def __init__(self, actuator: MMActuator, calibrate: bool = False):
         """Pyqt GUI as a widget that could also be added to a bigger MainWindow."""
         super().__init__()
         self.actuator = actuator
@@ -330,9 +430,22 @@ class MMActuatorGUI(QWidgetRestore):
         self.stop_button.clicked.connect(self._stop_acq)
         self.stop_button.setDisabled(True)
 
-        grid = QtWidgets.QVBoxLayout(self)
-        grid.addWidget(self.start_button)
-        grid.addWidget(self.stop_button)
+        if calibrate:
+            self.calib_button = QtWidgets.QPushButton("Calibrate")
+            self.calib_button.clicked.connect(self._calib)
+            self.calib_edit = QtWidgets.QTextEdit("0")
+            self.calib_check = QtWidgets.QCheckBox()
+            self.calib_check.setChecked(True)
+
+        grid = QtWidgets.QFormLayout(self)
+        grid.addRow(self.start_button)
+        grid.addRow(self.stop_button)
+
+        if calibrate:
+            grid.addRow(self.calib_button)
+            grid.addRow("Calibration [ms]", self.calib_edit)
+            grid.addRow("Auto-adjust", self.calib_check)
+
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
         self.setWindowTitle("EDA Actuator Plugin")
 
@@ -347,3 +460,6 @@ class MMActuatorGUI(QWidgetRestore):
         self.actuator._stop_acq()
         self.start_button.setDisabled(False)
         self.stop_button.setDisabled(True)
+
+    def _calib(self):
+        self.actuator._calibrate()

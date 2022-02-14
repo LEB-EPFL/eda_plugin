@@ -26,6 +26,7 @@ class KerasRescaleWorker(KerasWorker):
     def prepare_images(self, images: np.ndarray):
         """Subtract background and normalize image intensity."""
         images = prepare_wo_tiling(images)
+        images = images[:, :, :, 0]
         print(images.shape)
         data = {"pixels": np.expand_dims(images, 0)}
         return data

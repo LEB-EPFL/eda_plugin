@@ -8,7 +8,7 @@
         "analysers": {
             "keras":{
                 "worker_modules": ["eda_plugin.examples.analysers"],
-                "model": "W:/Watchdog/Model/paramSweep6/f32_c09_b08.h5"
+                "model": "W:/Watchdog/Model/paramSweep9/f32_c07_b16.h5"
             },
             "image":{
                 "channels": 2,

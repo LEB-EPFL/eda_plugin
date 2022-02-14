@@ -124,26 +124,38 @@ def prepareNNImages(bact_img, ftsz_img, model, bacteria=False):
 def prepare_wo_tiling(images: np.ndarray):
     sig = 121.5 / 81
     out_range = (0, 1)
-    prep_images = []
-    for idx in range(images.shape[-1]):
-        image = images[:, :, idx]
-        # resc_image = transform.rescale(image, resize_param)
-        image = filters.gaussian(image, sig)
-        # Do the background subtraction for the Drp1/FtsZ channel only
-        if idx == 1:
-            image = image - filters.gaussian(images[:, :, idx], sig * 5)
-        in_range = (
-            (image.min(), image.max()) if idx == 1 else (image.mean(), image.max())
-        )
-        image = exposure.rescale_intensity(image, in_range, out_range=out_range)
 
-        crop_pixels = (
-            image.shape[0] - image.shape[0] % 4,
-            image.shape[1] - image.shape[1] % 4,
-        )
-        image = image[: crop_pixels[0], : crop_pixels[1]]
-        prep_images.append(image)
-    return np.stack(prep_images, 2)
+    for z_slice in range(images.shape[-1]):
+        for channel in range(images.shape[-2]):
+
+            image = images[:, :, channel, z_slice]
+            # resc_image = transform.rescale(image, resize_param)
+            image = filters.gaussian(image, sig)
+            # Do the background subtraction for the Drp1/FtsZ channel only
+            if channel == 1:
+                image = image - filters.gaussian(
+                    images[:, :, channel, z_slice], sig * 5
+                )
+            in_range = (
+                (image.min(), image.max())
+                if channel == 1
+                else (image.mean(), image.max())
+            )
+            image = exposure.rescale_intensity(image, in_range, out_range=out_range)
+
+            crop_pixels = (
+                image.shape[0] - image.shape[0] % 4,
+                image.shape[1] - image.shape[1] % 4,
+            )
+            image = image[: crop_pixels[0], : crop_pixels[1]]
+
+            if z_slice == 0 and channel == 0:
+                prep_images = np.empty(
+                    [image.shape[0], image.shape[1], images.shape[-2], images.shape[-1]]
+                )
+
+            prep_images[:, :, channel, z_slice] = image
+    return prep_images
 
 
 def getTilePositionsV2(image, targetSize=128):
