@@ -7,7 +7,7 @@ start a worker if a thread is available, analysis will keep up with acquisiton b
 behind.
 """
 
-
+import os
 import logging
 import time
 import numpy as np
@@ -61,17 +61,51 @@ class KerasAnalyser(ImageAnalyser):
         """Load and initialize model so first predict is fast(er)."""
         self.model_path = new_settings["model"]
         self.model = keras.models.load_model(self.model_path, compile=True)
-        self.channels = self.model.layers[0].input_shape[0][3]
+        self.model_channels = self.model.layers[0].input_shape[0][3]
         self.worker = new_settings["worker"]
         self._init_model()
+        self._compare_model_mda()
 
     def _init_model(self):
         if self.model.layers[0].input_shape[0][1] is None:
             size = 512
         else:
             size = self.model.layers[0].input_shape[0][1]
-        self.model(np.random.randint(10, size=[1, size, size, self.channels]))
+        model_channels, model_slices = self._inspect_model(self.model)
+        if model_slices > 1:
+            self.model(
+                np.random.randint(
+                    10, size=[1, size, size, model_channels, model_slices]
+                )
+            )
+        else:
+            self.model(np.random.randint(10, size=[1, size, size, model_channels]))
         log.info("New model initialised")
+
+    def _inspect_model(self, model):
+        try:
+            self.model_channels = self.model.layers[0].input_shape[0][3]
+        except:
+            self.model_channels = 1
+        try:
+            self.model_slices = self.model.layers[0].input_shape[0][4]
+        except:
+            self.model_slices = 1
+        return self.model_channels, self.model_slices
+
+    def _compare_model_mda(self):
+        """Compare the model and the MDA settings and give a warning if they don't match"""
+        model_channels, model_slices = self._inspect_model(self.model)
+        if not (model_channels, model_slices) == (self.channels, self.slices):
+            warning_text = f"Model and MDA Settings don't match.<br> \
+                      channels, slices<br>\
+                Model:          {model_channels},   {model_slices} <br>\
+                MDA  :          {self.channels},    {self.slices}<br>"
+            log.warning(warning_text)
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(2)
+            msg.setText(warning_text)
+            msg.exec()
 
 
 class KerasWorker(ImageAnalyserWorker):
@@ -155,6 +189,10 @@ class KerasSettingsGUI(QWidgetRestore):
         self.layout().addWidget(self.model_select)
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
 
+        self.model_load_dir = os.path.join(
+            os.path.abspath(os.path.join(__file__, "..", "..")), "utility", "models"
+        )
+
     def _get_available_workers(self, settings):
         modules = settings["worker_modules"]
         available_workers = []
@@ -171,7 +209,10 @@ class KerasSettingsGUI(QWidgetRestore):
         return available_workers
 
     def _select_model(self):
-        new_model = QtWidgets.QFileDialog().getOpenFileName()[0]
+        new_model = QtWidgets.QFileDialog().getOpenFileName(
+            directory=self.model_load_dir
+        )[0]
+        self.model_load_dir = os.path.dirname(new_model)
         self.keras_settings["model"] = new_model
         self.model.setText(new_model)
         self.new_settings.emit(self.keras_settings)

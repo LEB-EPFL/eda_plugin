@@ -85,6 +85,14 @@ class MMActuator(QObject):
 
     def start_acq(self):
         """Construct an MMAcquisition object, connect the relevant events to it and start."""
+        if self.studio.acquisitions().is_acquisition_running():
+            warning_text = "Acquisition is already running, please stop first."
+            log.warning(warning_text)
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(2)
+            msg.setText(warning_text)
+            msg.exec()
+            return False
         if self.calibration:
             self.acquisition = self.acquisition_mode(
                 self.event_bus, calibrated_wait_time=self.calibrated_wait_time
@@ -98,6 +106,7 @@ class MMActuator(QObject):
         self.acquisition.start()
         log.info("Start new acquisition")
         self.start_acq_signal.emit(None)
+        return True
 
     def reset_thread(self):
         """Stop and close the MMAcquisition object based on QThread."""
@@ -457,8 +466,11 @@ class MMActuatorGUI(QWidgetRestore):
 
     def _start_acq(self):
         self.start_button.setDisabled(True)
-        self.stop_button.setDisabled(False)
-        self.actuator.start_acq()
+        success = self.actuator.start_acq()
+        if success:
+            self.stop_button.setDisabled(False)
+        else:
+            self.start_button.setDisabled(False)
 
     def _stop_acq(self):
         self.actuator._stop_acq()

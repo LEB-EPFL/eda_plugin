@@ -126,4 +126,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    pyro_keras()
+    keras()

@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eda_plugin",
-    version="0.2.3",
+    version="0.2.4",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -21,7 +21,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     packages=packages,
-    package_data={"": ["settings.json", "utility/*.jar"]},
+    package_data={"": ["settings.json", "utility/*.jar", "utility/models/*"]},
     include_package_data=True,
     install_requires=[
         "pyqt5",
