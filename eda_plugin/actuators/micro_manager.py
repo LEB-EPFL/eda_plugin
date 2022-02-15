@@ -108,9 +108,13 @@ class MMActuator(QObject):
         if self.acquisition is not None:
             log.info(f"Stop acquisition {self.acquisition.__class__} in MMActuator")
             self.stop_acq_signal.emit()
-            if self.acquisition.calibrated_wait_time is not None:
+            try:
                 self.calibrated_wait_time = self.acquisition.calibrated_wait_time
                 self.gui.calib_edit.setText(str(int(self.calibrated_wait_time)))
+            except (AttributeError, TypeError):
+                log.debug(
+                    f"{self.acquisition_mode} does not have a calibration feature"
+                )
             self.acquisition.exit()
             self.acquisition.deleteLater()
             self.acquisition = None

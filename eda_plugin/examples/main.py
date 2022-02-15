@@ -85,7 +85,7 @@ def keras():
 def pyro_keras():
     """EDA loop thay can be used to test without a microscope and without CUDA installation."""
     from eda_plugin.analysers.keras import KerasAnalyser
-    from .analysers import InjectedPycroAcquisition
+    from .actuators import InjectedPycroAcquisition
     from eda_plugin.actuators.micro_manager import MMActuator
 
     eda_plugin.utility.settings.setup_logging()
@@ -100,6 +100,7 @@ def pyro_keras():
 
     gui.show()
     actuator.gui.show()
+    analyser.gui.show()
     interpreter.gui.show()
 
     sys.exit(app.exec_())
@@ -125,4 +126,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    keras()
+    pyro_keras()

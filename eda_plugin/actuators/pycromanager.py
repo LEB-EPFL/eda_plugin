@@ -88,12 +88,23 @@ class PycroAcquisition(MMAcquisition):
         if self.stop_acq_condition:
             event_queue.put(None)
             return None
+
         # Add another event with the interval that is set at the moment
+        try:
+            z_decision = event["axes"]["z"] == self.events[-1]["axes"]["z"]
+        except:
+            z_decision = True
+
+        try:
+            channel_decision = event["channel"] == self.events[-1]["channel"]
+        except:
+            channel_decision = True
+
         if all(
             [
                 event["axes"]["time"] >= self.start_timepoints - 1,
-                event["channel"] == self.events[-1]["channel"],
-                event["axes"]["z"] == self.events[-1]["axes"]["z"],
+                channel_decision,
+                z_decision,
             ]
         ):
             if self.interval > 0:
@@ -115,16 +126,21 @@ class PycroAcquisition(MMAcquisition):
         for idx, c in enumerate(self.channel_names):
             if metadata["Channel"] == c:
                 channel = idx
+
+        try:
+            z = metadata["Axes"]["z"]
+        except:
+            z = 0
+
         py_image = PyImage(
             image,
             metadata["Axes"]["time"],
             channel,
-            metadata["Axes"]["z"],
+            z,
             metadata["ElapsedTime-ms"],
         )
         self.new_image.emit(py_image)
         self.last_arrival_time = metadata["ElapsedTime-ms"] / 1000
-        z = metadata["Axes"]["z"]
         log.debug(f"timepoint {py_image.timepoint} - new image c{channel}, z{z}")
         return image, metadata
 
@@ -176,5 +192,6 @@ class PycroAcquisition(MMAcquisition):
                 "channel_group": self.magellan_settings.channels_.get_channel_group(),
                 "channels": self._get_magellan_channels(self.magellan_settings),
             }
+        self.channels = self._get_magellan_channels(self.magellan_settings)
         self.event_bus.new_magellan_settings.emit(settings)
         return settings
