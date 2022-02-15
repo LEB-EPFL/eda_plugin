@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eda_plugin",
-    version="0.2.1",
+    version="0.2.3",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -21,7 +21,6 @@ setup(
         "Operating System :: OS Independent",
     ],
     packages=packages,
-    # package_data={"eda_plugin": ["actuators/*", "examples/*"]},
     package_data={"": ["settings.json", "utility/*.jar"]},
     include_package_data=True,
     install_requires=[

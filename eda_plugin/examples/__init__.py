@@ -1,1 +1,1 @@
-from .main import keras, pyro, basic
+from .main import keras, pyro, basic, pyro_keras

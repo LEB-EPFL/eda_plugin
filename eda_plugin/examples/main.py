@@ -20,7 +20,7 @@ def basic():
     app = QtWidgets.QApplication(sys.argv)
     event_bus = EventBus()
 
-    gui = EDAMainGUI(event_bus, viewer=True)
+    gui = EDAMainGUI(event_bus, viewer=False)
     actuator = MMActuator(event_bus, TimerMMAcquisition)
     analyser = ImageAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
@@ -47,7 +47,7 @@ def pyro():
     app = QtWidgets.QApplication(sys.argv)
     event_bus = EventBus()
 
-    gui = EDAMainGUI(event_bus, viewer=True)
+    gui = EDAMainGUI(event_bus, viewer=False)
     actuator = MMActuator(event_bus, PycroAcquisition)
     analyser = PycroImageAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
