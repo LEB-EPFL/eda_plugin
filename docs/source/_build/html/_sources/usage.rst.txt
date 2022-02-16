@@ -42,8 +42,11 @@ the readout will also be a wave. If you start an acquisition from the MDA window
 range of values in the main plot. If the frequency of the wave pattern is very high, you can set
 Devices -> Device Property Browser -> Camera-StripeWidth to a smaller value.
 
-.. video:: _static/StripeWidth.mp4
-   :width: 720
+.. raw:: html
+
+   <video controls width=720 src="_static/StripeWidth.mp4" type="video/mp4"> "Video" </video>
+
+
 
 **Calibration**
 
