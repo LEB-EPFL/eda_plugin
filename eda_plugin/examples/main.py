@@ -12,8 +12,7 @@ from PyQt5 import QtWidgets
 
 def basic():
     """EDA loop that can be used to test without a microscope and without CUDA installation."""
-    from eda_plugin.actuators.micro_manager import (MMActuator,
-                                                    TimerMMAcquisition)
+    from eda_plugin.actuators.micro_manager import MMActuator, TimerMMAcquisition
     from eda_plugin.analysers.image import ImageAnalyser
 
     eda_plugin.utility.settings.setup_logging()
@@ -136,4 +135,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    keras()
+    basic()

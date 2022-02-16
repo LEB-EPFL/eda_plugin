@@ -87,8 +87,7 @@ to run in.</p>
 
 <span class="k">def</span> <span class="nf">basic</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;EDA loop that can be used to test without a microscope and without CUDA installation.&quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">eda_plugin.actuators.micro_manager</span> <span class="kn">import</span> <span class="p">(</span><span class="n">MMActuator</span><span class="p">,</span>
-                                                    <span class="n">TimerMMAcquisition</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">eda_plugin.actuators.micro_manager</span> <span class="kn">import</span> <span class="n">MMActuator</span><span class="p">,</span> <span class="n">TimerMMAcquisition</span>
     <span class="kn">from</span> <span class="nn">eda_plugin.analysers.image</span> <span class="kn">import</span> <span class="n">ImageAnalyser</span>
 
     <span class="n">eda_plugin</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">setup_logging</span><span class="p">()</span>
@@ -113,6 +112,7 @@ to run in.</p>
 
     <span class="c1"># Start the event loop</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+
 </pre></div>
 </div>
 <p>The normal use case for custom situation will be to replace one of the main components, <cite>actuator</cite>,

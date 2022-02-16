@@ -106,27 +106,30 @@ examples:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">basic</span><span class="p">()</span>
 </pre></div>
 </div>
-<p><strong>Camera settings</strong>
-If you are in the Demo configuration of Micro-Manager, acquisitions will normally result in a moving
+<p><strong>Camera settings</strong></p>
+<p>If you are in the Demo configuration of Micro-Manager, acquisitions will normally result in a moving
 stripe pattern. The analyser in this basic implementation uses the intensity of the first pixel, so
 the readout will also be a wave. If you start an acquisition from the MDA window, you should see the
 range of values in the main plot. If the frequency of the wave pattern is very high, you can set
 Devices -&gt; Device Property Browser -&gt; Camera-StripeWidth to a smaller value.</p>
-<p><strong>Calibration</strong>
-The actuator pauses acquisition to match the requested interval. After each interval it opens
+
+    <video width="720"  controls >
+    <source src="_media/StripeWidth.mp4" type="video/mp4">
+    Video
+    </video>
+    <p><strong>Calibration</strong></p>
+<a class="reference internal image-reference" href="_images/Actuator.png"><img alt="Actuator GUI for the basic implementation" src="_images/Actuator.png" style="width: 200px;" /></a>
+<p>The actuator pauses acquisition to match the requested interval. After each interval it opens
 acquisition to acquire one timepoint. To be flexible for many systems, the time to open acquisition
 can be calibrated using the Calibration button. The EDA-plugin triggers a 5 timepoint acquisition
 and calculates the time to open acquisition from the image arrival times. During acquisition, this
 value will be further adjusted if the auto-acquisition checkbox is checked. So ideally let it adjust
 for one more acquisition and when the value does not increase further, uncheck.</p>
-<p><strong>Acquisition</strong>
-If you start acquisition from the Actuator GUI, EDA will be active. Set the thresholds to be in the
+<p><strong>Acquisition</strong></p>
+<a class="reference internal image-reference" href="_images/Interpreter_settings.png"><img alt="Settings GUI for the interpreter" src="_images/Interpreter_settings.png" style="width: 200px;" /></a>
+<p>If you start acquisition from the Actuator GUI, EDA will be active. Set the thresholds to be in the
 range that you have observed for the analyser to be in. Set the thresholds to somewhere in that
 range and click the Start button.</p>
-<p>For this version you can use the ImageInjector Plugin that was copied above to test EDA on a
-dataset of your choice. (Plugins -&gt; On-the-fly image processing -&gt; ImageInjector)</p>
-<p>An example dataset can be found at (TODO insert link) of mitochondria and Drp1. For this dataset,
-Micro-Manager should be set to 2 channels and no Z slices.</p>
 </div>
 </div>
 

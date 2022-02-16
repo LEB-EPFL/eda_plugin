@@ -21,8 +21,14 @@ network for image analysis as described in the article.
 >>> eda_plugin.examples.main.keras()
 
 To get an image that the neural network can process, use the ImageInjector plugin installed during
-the setup process in the on-the-fly processor pipeline in Micro-Manager.
+the setup process in the on-the-fly processor pipeline in Micro-Manager.  (Plugins -> On-the-fly image processing -> ImageInjector)
 
+You can download an example dataset by
+
+>>> eda_plugin.download_data("C:/yourpath")
+
+They are tif-stacks of mitochondria and Drp1. For this dataset, Micro-Manager should be set to 2
+channels and no Z slices.
 
 As this only uses a different Analyser, it can just as well be used with the pycro-manager based
 actuator:

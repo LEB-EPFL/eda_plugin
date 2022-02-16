@@ -86,7 +86,13 @@ network for image analysis as described in the article.</p>
 </pre></div>
 </div>
 <p>To get an image that the neural network can process, use the ImageInjector plugin installed during
-the setup process in the on-the-fly processor pipeline in Micro-Manager.</p>
+the setup process in the on-the-fly processor pipeline in Micro-Manager.  (Plugins -&gt; On-the-fly image processing -&gt; ImageInjector)</p>
+<p>You can download an example dataset by</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="s2">&quot;C:/yourpath&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>They are tif-stacks of mitochondria and Drp1. For this dataset, Micro-Manager should be set to 2
+channels and no Z slices.</p>
 <p>As this only uses a different Analyser, it can just as well be used with the pycro-manager based
 actuator:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro_keras</span><span class="p">()</span>

@@ -454,7 +454,7 @@ class MMActuatorGUI(QWidgetRestore):
         if calibrate:
             self.calib_button = QtWidgets.QPushButton("Calibrate")
             self.calib_button.clicked.connect(self._calib)
-            self.calib_edit = QtWidgets.QTextEdit("0")
+            self.calib_edit = QtWidgets.QLineEdit("0")
             self.calib_check = QtWidgets.QCheckBox()
             self.calib_check.setChecked(True)
 

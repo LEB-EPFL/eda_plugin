@@ -7,7 +7,7 @@ copyright = "2022, Willi L. Stepp"
 author = "Willi L. Stepp"
 
 release = "0.2"
-version = "0.2.5"
+version = "0.2.7"
 
 # -- General configuration
 
@@ -40,6 +40,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    "sphinxcontrib.video",
 ]
 
 autosummary_generate = True
