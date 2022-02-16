@@ -25,6 +25,7 @@ Contents
    :maxdepth: 2
 
    usage
+   examples
    custom_loop
    custom_components
    api
