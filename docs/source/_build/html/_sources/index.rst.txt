@@ -18,6 +18,12 @@ article <https://www.biorxiv.org/content/10.1101/2021.10.04.463102v1>`_.
 Check out the :doc:`usage` section for further information, including
 how to install the project (:ref:`install`).
 
+.. raw:: html
+
+   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/EDA.mp4" type="video/mp4"> "Video" </video>
+
+
+
 .. note::
 
    This project is under active development.

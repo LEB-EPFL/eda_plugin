@@ -1,10 +1,11 @@
+=====
 Usage
 =====
 
 .. _install:
 
 Installation
-------------
+============
 
 1) Install using pip:
 
@@ -26,7 +27,8 @@ Note: This installation does not include tensorflow needed for analysers using n
 Please refer to :ref:`tensorflow_install` to set your system up.
 
 Running the test environment
-----------------------------
+============================
+
 With Micro-Manager, the zmq server and PythonEventServer open, run the test environment from the
 examples:
 
@@ -34,7 +36,8 @@ examples:
 >>> eda_plugin.examples.main.basic()
 
 
-**Camera settings**
+Camera settings
+---------------
 
 If you are in the Demo configuration of Micro-Manager, acquisitions will normally result in a moving
 stripe pattern. The analyser in this basic implementation uses the intensity of the first pixel, so
@@ -46,11 +49,10 @@ Devices -> Device Property Browser -> Camera-StripeWidth to a smaller value.
 
    <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/StripeWidth.mp4" type="video/mp4"> "Video" </video>
 
-**Calibration**
+Change in Wave pattern upon demo camera adjustment
 
-.. image:: _media/Actuator.png
-   :width: 200
-   :alt: Actuator GUI for the basic implementation
+Calibration
+-----------
 
 The actuator pauses acquisition to match the requested interval. After each interval it opens
 acquisition to acquire one timepoint. To be flexible for many systems, the time to open acquisition
@@ -63,12 +65,10 @@ for one more acquisition and when the value does not increase further, uncheck.
 
    <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/Calibration.mp4" type="video/mp4"> "Video" </video>
 
+Calibration procedure for three channels
 
-**Acquisition**
-
-.. image:: _media/Interpreter_settings.png
-   :width: 200
-   :alt: Settings GUI for the interpreter
+Acquisition
+-----------
 
 If you start acquisition from the Actuator GUI, EDA will be active. Set the thresholds to be in the
 range that you have observed for the analyser to be in. Set the thresholds to somewhere in that
