@@ -7,3 +7,4 @@ build/
 *.egg*
 dist/
 eda_plugin/examples/data/*
+!eda_plugin/examples/data/*.py

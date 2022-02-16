@@ -6,8 +6,8 @@ project = "event-driven-acquisition"
 copyright = "2022, Willi L. Stepp"
 author = "Willi L. Stepp"
 
-release = "0.1"
-version = "0.1.0"
+release = "0.2"
+version = "0.2.5"
 
 # -- General configuration
 
@@ -28,6 +28,7 @@ autodoc_mock_imports = [
     "tifffile",
     "nidaqmx",
     "skimage",
+    "zenodo_get",
 ]
 
 sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))

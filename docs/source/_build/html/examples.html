@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examples &mdash; event-driven-acquisition 0.2 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> event-driven-acquisition
+          </a>
+              <div class="version">
+                0.2.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_loop.html">Custom Loop Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Creating Custom components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">api</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">event-driven-acquisition</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Examples</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/examples.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="based-on-pycromanager">
+<h2>Based on <a class="reference external" href="https://github.com/micro-manager/pycro-manager">pycromanager</a><a class="headerlink" href="#based-on-pycromanager" title="Permalink to this headline">¶</a></h2>
+<p>If you are used to Micro-Magellan acquisitions, then the actuator implementation using pycromanagers
+<code class="docutils literal notranslate"><span class="pre">Acquisition</span></code> class to start a remote Micro-Magellan acquisition might be interesting for you:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For this implementation no calibration is necessary as described in the basic example. However, all
+settings have to be done in the Micro-Magellan GUI: Plugins -&gt; Micro-Magellan.</p>
+</div>
+<div class="section" id="cuda">
+<h2>CUDA<a class="headerlink" href="#cuda" title="Permalink to this headline">¶</a></h2>
+<p>If you have CUDA, cuDNN and tensorflow installed you can run the analyser that uses the neural
+network for image analysis as described in the article.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">keras</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To get an image that the neural network can process, use the ImageInjector plugin installed during
+the setup process in the on-the-fly processor pipeline in Micro-Manager.</p>
+<p>As this only uses a different Analyser, it can just as well be used with the pycro-manager based
+actuator:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro_keras</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In this example the actuator is modified as described in <span class="xref std std-ref">Custom Actuators</span> to allow for image
+injection, as the Micro-Magellan plugins don’t work with the on-the-fly processors.</p>
+<p><strong>Tensorflow installation</strong></p>
+<p>These guides can help for tensorflow installation:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.tensorflow.org/install">Tensorflow install</a></p></li>
+<li><p><a class="reference external" href="https://www.tensorflow.org/install/source_windows#tested_build_configurations">Compatibility</a></p></li>
+<li><p><a class="reference external" href="https://towardsdatascience.com/setting-up-tensorflow-gpu-with-cuda-and-anaconda-onwindows-2ee9c39b5c44">Towardsdatascience blog post</a></p></li>
+</ul>
+<p>For more advanced things, have a look at <a class="reference internal" href="custom_loop.html"><span class="doc">Custom Loop Compilation</span></a></p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Willi L. Stepp.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

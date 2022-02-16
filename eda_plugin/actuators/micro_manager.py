@@ -312,9 +312,17 @@ class TimerMMAcquisition(MMAcquisition):
                 ) / 1000 + self.channel_switch_time / 1000 * (missing_images - 0.5)
             elif missing_images > 1:
                 wait_time = (
-                    self.calibrated_wait_time * (missing_images / num_frames) / 1000
+                    self.calibrated_wait_time
+                    * (missing_images / num_frames)
+                    / 1000
+                    * 0.9
                 )
-                if adjust and tries == 0 and self.acquire_num > 1:
+                if (
+                    adjust
+                    and tries == 0
+                    and self.acquire_num > 1
+                    and self.acquire_num >= self.last_adjust + 10
+                ):
                     self.calibrated_wait_time += (
                         self.calibrated_wait_time / num_frames / 5
                     )
