@@ -3,6 +3,8 @@ Creating Custom components
 
 You may want to adapt one of the components to your needs, here are some hints on how to do this.
 
+.. _custom-actuators:
+
 Custom Actuators
 ----------------
 Actuators are seperated into the main class for basic parameters and control and Acquisition classes

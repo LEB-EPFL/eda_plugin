@@ -35,11 +35,11 @@ actuator:
 
 >>> eda.examples.main.pyro_keras()
 
-In this example the actuator is modified as described in :ref:`Custom Actuators <custom_actuators>` to allow for image
+In this example the actuator is modified as described in  :ref:`custom-actuators` to allow for image
 injection, as the Micro-Magellan plugins don't work with the on-the-fly processors.
 
 
-.. _tensorflow_installation:
+.. _tensorflow_install:
 
 **Tensorflow installation**
 

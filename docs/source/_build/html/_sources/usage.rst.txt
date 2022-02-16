@@ -1,7 +1,7 @@
 Usage
 =====
 
-.. _installation:
+.. _install:
 
 Installation
 ------------
@@ -23,7 +23,7 @@ Installation
 5) Run the PythonEventServer from Plugins -> Developer Tools -> Python Event Server
 
 Note: This installation does not include tensorflow needed for analysers using neural networks.
-Please refer to :ref:`tensorflow installation <tensorflow_installation>` to set your system up.
+Please refer to :ref:`tensorflow_install` to set your system up.
 
 Running the test environment
 ----------------------------
@@ -44,9 +44,7 @@ Devices -> Device Property Browser -> Camera-StripeWidth to a smaller value.
 
 .. raw:: html
 
-   <video controls width=720 src="_static/StripeWidth.mp4" type="video/mp4"> "Video" </video>
-
-
+   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/StripeWidth.mp4" type="video/mp4"> "Video" </video>
 
 **Calibration**
 
@@ -61,6 +59,11 @@ and calculates the time to open acquisition from the image arrival times. During
 value will be further adjusted if the auto-acquisition checkbox is checked. So ideally let it adjust
 for one more acquisition and when the value does not increase further, uncheck.
 
+.. raw:: html
+
+   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/Calibration.mp4" type="video/mp4"> "Video" </video>
+
+
 **Acquisition**
 
 .. image:: _media/Interpreter_settings.png
@@ -70,3 +73,7 @@ for one more acquisition and when the value does not increase further, uncheck.
 If you start acquisition from the Actuator GUI, EDA will be active. Set the thresholds to be in the
 range that you have observed for the analyser to be in. Set the thresholds to somewhere in that
 range and click the Start button.
+
+.. raw:: html
+
+   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/Acquisition.mp4" type="video/mp4"> "Video" </video>
