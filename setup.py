@@ -30,6 +30,7 @@ setup(
         "qimage2ndarray",
         "qdarkstyle",
         "tifffile",
+        "zenodo_get",
     ],
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",

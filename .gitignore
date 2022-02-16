@@ -6,3 +6,4 @@ __pycache__/
 build/
 *.egg*
 dist/
+eda_plugin/examples/data/*
