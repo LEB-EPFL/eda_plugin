@@ -47,7 +47,8 @@ Devices -> Device Property Browser -> Camera-StripeWidth to a smaller value.
 
 .. raw:: html
 
-   <iframe src="https://player.vimeo.com/video/678707620?h=8f5231bf54" width="640" height="564" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+   <iframe src="https://player.vimeo.com/video/678707620?h=8f5231bf54" width="640" height="350"
+   frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
 
 Change in Wave pattern upon demo camera adjustment
 
@@ -63,7 +64,7 @@ for one more acquisition and when the value does not increase further, uncheck.
 
 .. raw:: html
 
-  <iframe src="https://player.vimeo.com/video/678707516?h=92f49b1618" width="640" height="564" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+  <iframe src="https://player.vimeo.com/video/678707516?h=92f49b1618" width="640" height="350" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
 
 Calibration procedure for three channels
 
@@ -76,4 +77,4 @@ range and click the Start button.
 
 .. raw:: html
 
-   <iframe src="https://player.vimeo.com/video/678707542?h=a17cd92590" width="640" height="564" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+   <iframe src="https://player.vimeo.com/video/678707542?h=a17cd92590" width="640" height="350" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
