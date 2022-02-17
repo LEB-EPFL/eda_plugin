@@ -47,7 +47,8 @@ Devices -> Device Property Browser -> Camera-StripeWidth to a smaller value.
 
 .. raw:: html
 
-   <iframe src="https://player.vimeo.com/video/678707620?h=8f5231bf54" width="640" height="564" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+   <iframe src="https://player.vimeo.com/video/678707620?h=8f5231bf54" width="640" height="300"
+   frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
 
 Change in Wave pattern upon demo camera adjustment
 
