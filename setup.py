@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eda_plugin",
-    version="0.2.7",
+    version="0.2.9",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -31,6 +31,7 @@ setup(
         "qdarkstyle",
         "tifffile",
         "zenodo_get",
+        "docstring_inheritance",
     ],
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",

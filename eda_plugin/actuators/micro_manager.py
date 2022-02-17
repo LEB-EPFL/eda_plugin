@@ -230,7 +230,7 @@ class TimerMMAcquisition(MMAcquisition):
         )
         self.acq_eng.set_pause(True)
         self.acquisitions.set_pause(True)
-        self.timer.setInterval(self.start_interval * 1_000)
+        self.timer.setInterval(int(self.start_interval * 1_000))
         self.timer.start()
 
     @pyqtSlot()
@@ -262,7 +262,7 @@ class TimerMMAcquisition(MMAcquisition):
         self.acq_eng.set_pause(True)
         self.acquisitions.set_pause(True)
         self.check_missing_channels(adjust=False)
-        self.timer.setInterval(new_interval * 1_000)
+        self.timer.setInterval(int(new_interval * 1_000))
         if not self.timer.isActive():
             self.timer.start()
         log.debug("New interval set in actuator")
