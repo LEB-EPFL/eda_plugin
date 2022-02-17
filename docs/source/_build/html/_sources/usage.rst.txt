@@ -47,7 +47,7 @@ Devices -> Device Property Browser -> Camera-StripeWidth to a smaller value.
 
 .. raw:: html
 
-   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/StripeWidth.mp4" type="video/mp4"> "Video" </video>
+   <iframe src="https://player.vimeo.com/video/678707620?h=8f5231bf54" width="640" height="564" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
 
 Change in Wave pattern upon demo camera adjustment
 
@@ -63,7 +63,7 @@ for one more acquisition and when the value does not increase further, uncheck.
 
 .. raw:: html
 
-   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/Calibration.mp4" type="video/mp4"> "Video" </video>
+  <iframe src="https://player.vimeo.com/video/678707516?h=92f49b1618" width="640" height="564" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
 
 Calibration procedure for three channels
 
@@ -76,4 +76,4 @@ range and click the Start button.
 
 .. raw:: html
 
-   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/EDA.mp4" type="video/mp4"> "Video" </video>
+   <iframe src="https://player.vimeo.com/video/678707542?h=a17cd92590" width="640" height="564" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
