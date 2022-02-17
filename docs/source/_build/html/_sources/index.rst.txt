@@ -20,7 +20,7 @@ how to install the project (:ref:`install`).
 
 .. raw:: html
 
-   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/EDA.mp4" type="video/mp4"> "Video" </video>
+   <video controls width=720 src="https://event-driven-acquisition.readthedocs.io/en/latest/_static/EDA.mp4" type="video/mp4" preload="none"> "Video" </video>
 
 
 
