@@ -1,4 +1,4 @@
-eda\_plugin.utility.settings
+﻿eda\_plugin.utility.settings
 ============================
 
 .. automodule:: eda_plugin.utility.settings
@@ -16,6 +16,7 @@ eda\_plugin.utility.settings
    
       get_settings
       install_mm_plugins
+      set_settings
       setup_logging
    
    

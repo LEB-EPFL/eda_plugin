@@ -3,7 +3,7 @@
         "actuators": {
             "micro_manager": {
                 "channel_switch_time_ms": 50,
-                "calibration": 449.334375
+                "calibration": 0
             }
         },
         "analysers": {

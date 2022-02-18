@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>eda_plugin.utility.settings.get_settings &mdash; event-driven-acquisition 0.2 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>eda_plugin.utility.settings.set_settings &mdash; event-driven-acquisition 0.2 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -15,8 +15,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="eda_plugin.utility.settings.install_mm_plugins" href="eda_plugin.utility.settings.install_mm_plugins.html" />
-    <link rel="prev" title="eda_plugin.utility.settings" href="eda_plugin.utility.settings.html" /> 
+    <link rel="next" title="eda_plugin.utility.settings.setup_logging" href="eda_plugin.utility.settings.setup_logging.html" />
+    <link rel="prev" title="eda_plugin.utility.settings.install_mm_plugins" href="eda_plugin.utility.settings.install_mm_plugins.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,9 +57,9 @@
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.protocols.html">eda_plugin.utility.protocols</a></li>
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.qt_classes.html">eda_plugin.utility.qt_classes</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="eda_plugin.utility.settings.html">eda_plugin.utility.settings</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">eda_plugin.utility.settings.get_settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.settings.get_settings.html">eda_plugin.utility.settings.get_settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.settings.install_mm_plugins.html">eda_plugin.utility.settings.install_mm_plugins</a></li>
-<li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.settings.set_settings.html">eda_plugin.utility.settings.set_settings</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">eda_plugin.utility.settings.set_settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.settings.setup_logging.html">eda_plugin.utility.settings.setup_logging</a></li>
 </ul>
 </li>
@@ -86,9 +86,9 @@
           <li><a href="../api.html">api</a> &raquo;</li>
           <li><a href="eda_plugin.utility.html">eda_plugin.utility</a> &raquo;</li>
           <li><a href="eda_plugin.utility.settings.html">eda_plugin.utility.settings</a> &raquo;</li>
-      <li>eda_plugin.utility.settings.get_settings</li>
+      <li>eda_plugin.utility.settings.set_settings</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/eda_plugin.utility.settings.get_settings.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/eda_plugin.utility.settings.set_settings.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -96,13 +96,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="eda-plugin-utility-settings-get-settings">
-<h1>eda_plugin.utility.settings.get_settings<a class="headerlink" href="#eda-plugin-utility-settings-get-settings" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="eda-plugin-utility-settings-set-settings">
+<h1>eda_plugin.utility.settings.set_settings<a class="headerlink" href="#eda-plugin-utility-settings-set-settings" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="eda_plugin.utility.settings.get_settings">
-<code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.settings.</span></code><code class="sig-name descname"><span class="pre">get_settings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calling_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.settings.get_settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the settings from the settings.json file and extract a module if defined.</p>
-</dd></dl>
+<dt id="eda_plugin.utility.settings.set_settings">
+<code class="sig-prename descclassname"><span class="pre">eda_plugin.utility.settings.</span></code><code class="sig-name descname"><span class="pre">set_settings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calling_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#eda_plugin.utility.settings.set_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 
@@ -110,8 +109,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="eda_plugin.utility.settings.html" class="btn btn-neutral float-left" title="eda_plugin.utility.settings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="eda_plugin.utility.settings.install_mm_plugins.html" class="btn btn-neutral float-right" title="eda_plugin.utility.settings.install_mm_plugins" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="eda_plugin.utility.settings.install_mm_plugins.html" class="btn btn-neutral float-left" title="eda_plugin.utility.settings.install_mm_plugins" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eda_plugin.utility.settings.setup_logging.html" class="btn btn-neutral float-right" title="eda_plugin.utility.settings.setup_logging" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
