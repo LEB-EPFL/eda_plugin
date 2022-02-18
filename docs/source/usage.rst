@@ -24,7 +24,7 @@ Installation
 5) Run the PythonEventServer from Plugins -> Developer Tools -> Python Event Server
 
 Note: This installation does not include tensorflow needed for analysers using neural networks.
-Please refer to :ref:`tensorflow_install` to set your system up.
+Please refer to :ref:`tensorflowinstall` to set your system up.
 
 Running the test environment
 ============================
@@ -58,9 +58,13 @@ Calibration
 The actuator pauses acquisition to match the requested interval. After each interval it opens
 acquisition to acquire one timepoint. To be flexible for many systems, the time to open acquisition
 can be calibrated using the Calibration button. The EDA-plugin triggers a 5 timepoint acquisition
-and calculates the time to open acquisition from the image arrival times. During acquisition, this
-value will be further adjusted if the auto-acquisition checkbox is checked. So ideally let it adjust
-for one more acquisition and when the value does not increase further, uncheck.
+and calculates the time to open acquisition from the image arrival times. It then runs a ramp of
+waiting time to further adjust to capture the correct number of frames.
+
+Once calibration has finished, custom_intervals might still be enabled in the MDA window.
+Unfortunately you might have to restart Micro-Manager to disable it. So, note the calibration value
+in the Actuator. If the calibrated value does not yet capture all frames all the time, you can
+enable the auto-adjust checkbox for an acquisition, and see if this improves.
 
 .. raw:: html
 
@@ -72,8 +76,7 @@ Acquisition
 -----------
 
 If you start acquisition from the Actuator GUI, EDA will be active. Set the thresholds to be in the
-range that you have observed for the analyser to be in. Set the thresholds to somewhere in that
-range and click the Start button.
+range that you have observed for the analyser to be in and click the Start button.
 
 .. raw:: html
 

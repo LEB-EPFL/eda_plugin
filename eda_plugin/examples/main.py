@@ -135,4 +135,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    keras()
+    basic()

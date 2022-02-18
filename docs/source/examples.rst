@@ -21,7 +21,9 @@ network for image analysis as described in the article.
 >>> eda_plugin.examples.main.keras()
 
 To get an image that the neural network can process, use the ImageInjector plugin installed during
-the setup process in the on-the-fly processor pipeline in Micro-Manager.  (Plugins -> On-the-fly image processing -> ImageInjector)
+the setup process in the on-the-fly processor pipeline in Micro-Manager.  (Plugins -> On-the-fly
+image processing -> ImageInjector)
+Attention: The ImageInjector has to be deactivated during calibration.
 
 You can download an example dataset by
 
@@ -38,10 +40,10 @@ actuator:
 In this example the actuator is modified as described in  :ref:`custom-actuators` to allow for image
 injection, as the Micro-Magellan plugins don't work with the on-the-fly processors.
 
+.. _tensorflowinstall:
 
-.. _tensorflow_install:
-
-**Tensorflow installation**
+Tensorflow installation
+^^^^^^^^^^^^^^^^^^^^^^^
 
 These guides can help for tensorflow installation:
 

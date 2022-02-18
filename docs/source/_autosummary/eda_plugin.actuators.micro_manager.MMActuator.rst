@@ -1,4 +1,4 @@
-eda\_plugin.actuators.micro\_manager.MMActuator
+﻿eda\_plugin.actuators.micro\_manager.MMActuator
 ===============================================
 
 .. currentmodule:: eda_plugin.actuators.micro_manager
@@ -18,6 +18,8 @@ eda\_plugin.actuators.micro\_manager.MMActuator
    
       ~MMActuator.__init__
       ~MMActuator.reset_thread
+      ~MMActuator.set_auto_adjust
+      ~MMActuator.set_calibrated_time_from_gui
       ~MMActuator.start_acq
    
    

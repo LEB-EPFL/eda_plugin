@@ -72,6 +72,7 @@ class MMActuator(QObject):
         self.gui = MMActuatorGUI(self, self.calibration) if gui else None
 
         self.calibrated_wait_time = None
+        self.auto_adjust = True
 
         self.event_bus.new_interpretation.connect(self.call_action)
         self.event_bus.acquisition_ended_event.connect(self._stop_acq)
@@ -95,7 +96,9 @@ class MMActuator(QObject):
             return False
         if self.calibration:
             self.acquisition = self.acquisition_mode(
-                self.event_bus, calibrated_wait_time=self.calibrated_wait_time
+                self.event_bus,
+                calibrated_wait_time=self.calibrated_wait_time,
+                auto_adjust=self.auto_adjust,
             )
         else:
             self.acquisition = self.acquisition_mode(self.event_bus)
@@ -132,6 +135,15 @@ class MMActuator(QObject):
         self.acquisition = self.acquisition_mode(self.event_bus)
         self.calibrated_wait_time = self.acquisition.calibrate()
         self.gui.calib_edit.setText(str(int(self.calibrated_wait_time)))
+
+    def set_calibrated_time_from_gui(self, manual_time: str):
+        self.calibrated_wait_time = int(manual_time)
+        log.info(f"New calibration time: {manual_time} ms")
+
+    def set_auto_adjust(self, new_value: bool):
+        new_value = True if new_value == 2 else False
+        self.auto_adjust = new_value
+        log.info(f"New auto-adjust setting: {new_value}")
 
 
 class MMAcquisition(QThread):
@@ -211,7 +223,11 @@ class TimerMMAcquisition(MMAcquisition):
     """
 
     def __init__(
-        self, studio, start_interval: float = 5.0, calibrated_wait_time: float = None
+        self,
+        studio,
+        start_interval: float = 5.0,
+        calibrated_wait_time: float = None,
+        auto_adjust: bool = True,
     ):
         """Initialise the QTimer and connect signals."""
         super().__init__(studio)
@@ -220,6 +236,7 @@ class TimerMMAcquisition(MMAcquisition):
         self.start_interval = start_interval
         self.event_bus.acquisition_started_event.connect(self._pause_acquisition)
         self.calibrated_wait_time = calibrated_wait_time
+        self.auto_adjust = auto_adjust
         self.acquire_num = 0
         self.last_adjust = 0
 
@@ -319,6 +336,7 @@ class TimerMMAcquisition(MMAcquisition):
                 )
                 if (
                     adjust
+                    and self.auto_adjust
                     and tries == 0
                     and self.acquire_num > 1
                     and self.acquire_num >= self.last_adjust + 10
@@ -334,7 +352,9 @@ class TimerMMAcquisition(MMAcquisition):
 
                 if adjust and tries == 0 and self.acquire_num >= self.last_adjust + 10:
                     self.last_adjust = self.acquire_num
-                elif adjust and tries == 0 and self.acquire_num > 1:
+                elif (
+                    self.auto_adjust and adjust and tries == 0 and self.acquire_num > 1
+                ):
                     self.calibrated_wait_time += self.channels[-1] / 10
                     self.last_adjust = self.acquire_num
 
@@ -351,14 +371,85 @@ class TimerMMAcquisition(MMAcquisition):
         self.acq_eng.set_pause(True)
 
     def calibrate(self):
-        """Take a short sequence and measure the time to open acquisition for each frame."""
+        """Take a short sequence and measure the time to open acquisition for each frame.
+
+        Take this as a starting point for a ramp up."""
         log.info("Starting calibration")
-        num_timepoints = 5
+
         old_settings = self.studio.acquisitions().get_acquisition_settings()
+        initial_wait_time = self._initial_calibration(old_settings)
+        log.info(
+            f"Initial calibration finished ({initial_wait_time}), starting ramp calibration"
+        )
+        num_frames = self.num_channels + self.slices
+
+        step = initial_wait_time / num_frames / 2
+        calibrated_time = self._ramp_calibration(initial_wait_time, step, old_settings)
+
+        self.calibrated_wait_time = calibrated_time
+        log.info(f"Calibrated wait time: {self.calibrated_wait_time}")
+        self.acquisitions.set_acquisition_settings(
+            old_settings.copy_builder()
+            .use_custom_intervals(False)
+            .should_display_images(True)
+            .build()
+        )
+
+        # Get the dialog to disbale custom intervals, as this is sometimes buggy in MM
+        # dialog = self.event_bus.event_thread.bridge.construct_java_object(
+        #     "org.micromanager.internal.dialogs.CustomTimesDialog",
+        #     args=[self.acq_eng, self.studio],
+        # )
+        # dialog.set_visible(True)
+        return self.calibrated_wait_time
+
+    def _ramp_calibration(self, wait_time, step, settings):
+        custom_int = settings.custom_intervals_ms()
+        custom_int.clear()
+        custom_int.add(1000)
+        custom_int.add(0)
+        settings = (
+            settings.copy_builder()
+            .custom_intervals_ms(custom_int)
+            .use_custom_intervals(True)
+            .num_frames(2)
+            .should_display_images(False)
+            .save(False)
+            .build()
+        )
+        num_frames = self.num_channels * self.slices
+        print("Expected number of frames: ", num_frames)
+        step_now = 0
+        missing_images = 1
+        first_hit = None
+        while missing_images >= 0:
+            datastore = self.acquisitions.run_acquisition_with_settings(settings, False)
+            self.acquisitions.set_acquisition_settings(
+                settings.copy_builder().use_custom_intervals(False).build()
+            )
+            self.acquisitions.set_pause(True)
+            time.sleep(1)
+            self.acquisitions.set_pause(False)
+            time.sleep((wait_time + step_now) / 1000)
+            self.acquisitions.set_pause(True)
+            time.sleep(0.5)
+            missing_images = num_frames - datastore.get_num_images()
+            if missing_images == 0 and first_hit is None:
+                first_hit = wait_time + step_now
+            step_now += step
+            self.acquisitions.set_pause(False)
+            time.sleep(wait_time * 2)
+            self.acquisitions.halt_acquisition()
+            print(int(wait_time + step_now), missing_images)
+        return (first_hit + wait_time + step_now) / 2
+
+    def _initial_calibration(self, old_settings):
+        num_timepoints = 5
         self.settings = (
             old_settings.copy_builder()
             .interval_ms(3000)
             .num_frames(num_timepoints)
+            .save(False)
             .build()
         )
         self.datastore = self.acquisitions.run_acquisition_with_settings(
@@ -378,10 +469,7 @@ class TimerMMAcquisition(MMAcquisition):
             time1 = image1.get_metadata().get_elapsed_time_ms()
             time_per_timepoint.append(time1 - time0)
             log.debug(f"timepoint time: {time1 - time0}")
-        self.calibrated_wait_time = np.mean(time_per_timepoint)
-        log.info(f"Calibrated wait time: {self.calibrated_wait_time}")
-        self.studio.acquisitions().set_acquisition_settings(old_settings)
-        return self.calibrated_wait_time
+        return np.mean(time_per_timepoint)
 
 
 class DirectMMAcquisition(MMAcquisition):
@@ -455,7 +543,11 @@ class MMActuatorGUI(QWidgetRestore):
             self.calib_button = QtWidgets.QPushButton("Calibrate")
             self.calib_button.clicked.connect(self._calib)
             self.calib_edit = QtWidgets.QLineEdit("0")
+            self.calib_edit.textChanged.connect(
+                self.actuator.set_calibrated_time_from_gui
+            )
             self.calib_check = QtWidgets.QCheckBox()
+            self.calib_check.stateChanged.connect(self.actuator.set_auto_adjust)
             self.calib_check.setChecked(True)
 
         grid = QtWidgets.QFormLayout(self)

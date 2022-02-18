@@ -41,7 +41,10 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#based-on-pycromanager">Based on pycromanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cuda">CUDA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cuda">CUDA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow-installation">Tensorflow installation</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="custom_loop.html">Custom Loop Compilation</a></li>
@@ -93,7 +96,9 @@ network for image analysis as described in the article.</p>
 </pre></div>
 </div>
 <p>To get an image that the neural network can process, use the ImageInjector plugin installed during
-the setup process in the on-the-fly processor pipeline in Micro-Manager.  (Plugins -&gt; On-the-fly image processing -&gt; ImageInjector)</p>
+the setup process in the on-the-fly processor pipeline in Micro-Manager.  (Plugins -&gt; On-the-fly
+image processing -&gt; ImageInjector)
+Attention: The ImageInjector has to be deactivated during calibration.</p>
 <p>You can download an example dataset by</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="s2">&quot;C:/yourpath&quot;</span><span class="p">)</span>
 </pre></div>
@@ -107,7 +112,8 @@ actuator:</p>
 </div>
 <p>In this example the actuator is modified as described in  <a class="reference internal" href="custom_components.html#custom-actuators"><span class="std std-ref">Custom Actuators</span></a> to allow for image
 injection, as the Micro-Magellan plugins don’t work with the on-the-fly processors.</p>
-<p id="tensorflow-install"><strong>Tensorflow installation</strong></p>
+<div class="section" id="tensorflow-installation">
+<span id="tensorflowinstall"></span><h3>Tensorflow installation<a class="headerlink" href="#tensorflow-installation" title="Permalink to this headline">¶</a></h3>
 <p>These guides can help for tensorflow installation:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.tensorflow.org/install">Tensorflow install</a></p></li>
@@ -115,6 +121,7 @@ injection, as the Micro-Magellan plugins don’t work with the on-the-fly proces
 <li><p><a class="reference external" href="https://towardsdatascience.com/setting-up-tensorflow-gpu-with-cuda-and-anaconda-onwindows-2ee9c39b5c44">Towardsdatascience blog post</a></p></li>
 </ul>
 <p>For more advanced things, have a look at <a class="reference internal" href="custom_loop.html"><span class="doc">Custom Loop Compilation</span></a></p>
+</div>
 </div>
 </div>
 
