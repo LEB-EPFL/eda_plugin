@@ -102,6 +102,10 @@ class MMActuator(QObject):
             )
         else:
             self.acquisition = self.acquisition_mode(self.event_bus)
+
+        if not self.acquisition.setup_success:
+            return False
+
         self.acquisition.acquisition_ended.connect(self.reset_thread)
         self.stop_acq_signal.connect(self.acquisition.stop_acq)
         self.new_interval.connect(self.acquisition.change_interval)
@@ -163,12 +167,12 @@ class MMAcquisition(QThread):
     def __init__(self, event_bus: EventBus):
         """Get the settings from MM and settings.json and store."""
         super().__init__()
+        self.setup_success = False
         self.studio = event_bus.studio
         self.event_bus = event_bus
         self.settings = self.studio.acquisitions().get_acquisition_settings()
         # TODO: Set interval to fast interval so it can be used when running freely
         self.channels = self.get_channel_information()
-        # This has to be higher for 1 channel, otherwise it will be a burst acq that can't be paused
 
         default_settings = settings.get_settings(__class__)
         self.channel_switch_time = default_settings["channel_switch_time_ms"]
@@ -178,7 +182,16 @@ class MMAcquisition(QThread):
         log.info(f"Settings: {self.slices} slices & {self.num_channels} channels")
 
         num_frames = self.num_channels * self.slices
-        interval = 0 if num_frames > 1 else self.channels[0] + 1
+
+        try:
+            # This has to be higher for 1 channel, otherwise it will be a burst acq that can't be paused
+            interval = 0 if num_frames > 1 else self.channels[0] + 1
+        except IndexError:
+            log.warning(
+                "No channels selected in MDA window, please select at least one channel."
+            )
+            return None
+
         log.info(f"Interval {interval}")
         self.settings = self.settings.copy_builder().interval_ms(interval).build()
 
@@ -186,6 +199,7 @@ class MMAcquisition(QThread):
         self.acq_eng = self.studio.get_acquisition_engine()
 
         self.stop = False
+        self.setup_success = True
 
     def start(self):
         """Start the QThread first, then yourself."""

@@ -1,3 +1,5 @@
+.. _customloop:
+
 Custom Loop Compilation
 =======================
 

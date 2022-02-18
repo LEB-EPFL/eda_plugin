@@ -32,6 +32,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   eda
    usage
    examples
    custom_loop
