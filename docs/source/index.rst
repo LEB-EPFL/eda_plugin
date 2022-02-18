@@ -20,7 +20,7 @@ how to install the project (:ref:`install`).
 
 .. raw:: html
 
-   <iframe src="https://player.vimeo.com/video/678707542?h=a17cd92590" width="640" height="350" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+   <iframe src="https://player.vimeo.com/video/679101428?h=ade96e748f" width="640" height="350" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
 
 .. note::
 
