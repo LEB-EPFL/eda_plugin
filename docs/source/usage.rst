@@ -68,7 +68,7 @@ enable the auto-adjust checkbox for an acquisition, and see if this improves.
 
 .. raw:: html
 
-  <iframe src="https://player.vimeo.com/video/678707516?h=92f49b1618" width="640" height="350" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+  <iframe src="https://player.vimeo.com/video/679096472?h=fb679f5efe" width="640" height="350" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
 
 Calibration procedure for three channels
 

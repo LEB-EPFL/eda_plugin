@@ -71,8 +71,8 @@ class MMActuator(QObject):
 
         self.gui = MMActuatorGUI(self, self.calibration) if gui else None
 
-        self.calibrated_wait_time = None
-        self.auto_adjust = True
+        self.calibrated_wait_time = settings.get_settings(self)["calibration"]
+        self.auto_adjust = False
 
         self.event_bus.new_interpretation.connect(self.call_action)
         self.event_bus.acquisition_ended_event.connect(self._stop_acq)
@@ -227,7 +227,7 @@ class TimerMMAcquisition(MMAcquisition):
         studio,
         start_interval: float = 5.0,
         calibrated_wait_time: float = None,
-        auto_adjust: bool = True,
+        auto_adjust: bool = False,
     ):
         """Initialise the QTimer and connect signals."""
         super().__init__(studio)
@@ -395,6 +395,7 @@ class TimerMMAcquisition(MMAcquisition):
             .build()
         )
 
+        settings.set_settings("calibration", self.calibrated_wait_time, self)
         # Get the dialog to disbale custom intervals, as this is sometimes buggy in MM
         # dialog = self.event_bus.event_thread.bridge.construct_java_object(
         #     "org.micromanager.internal.dialogs.CustomTimesDialog",
@@ -432,16 +433,21 @@ class TimerMMAcquisition(MMAcquisition):
             self.acquisitions.set_pause(False)
             time.sleep((wait_time + step_now) / 1000)
             self.acquisitions.set_pause(True)
-            time.sleep(0.5)
+            time.sleep(0.7)
             missing_images = num_frames - datastore.get_num_images()
             if missing_images == 0 and first_hit is None:
                 first_hit = wait_time + step_now
             step_now += step
             self.acquisitions.set_pause(False)
-            time.sleep(wait_time * 2)
+            time.sleep(wait_time / 300)
             self.acquisitions.halt_acquisition()
-            print(int(wait_time + step_now), missing_images)
-        return (first_hit + wait_time + step_now) / 2
+            print(
+                f"acq_time: {int(wait_time + step_now)} image_offset: {missing_images}"
+            )
+
+        mean = (first_hit + wait_time + step_now) / 2
+        diff = wait_time + step_now - first_hit
+        return mean - diff * 0.33
 
     def _initial_calibration(self, old_settings):
         num_timepoints = 5
@@ -542,13 +548,15 @@ class MMActuatorGUI(QWidgetRestore):
         if calibrate:
             self.calib_button = QtWidgets.QPushButton("Calibrate")
             self.calib_button.clicked.connect(self._calib)
-            self.calib_edit = QtWidgets.QLineEdit("0")
+            self.calib_edit = QtWidgets.QLineEdit()
             self.calib_edit.textChanged.connect(
                 self.actuator.set_calibrated_time_from_gui
             )
+            calib = settings.get_settings(self)["calibration"]
+            self.calib_edit.setText(str(int(calib)))
             self.calib_check = QtWidgets.QCheckBox()
             self.calib_check.stateChanged.connect(self.actuator.set_auto_adjust)
-            self.calib_check.setChecked(True)
+            self.calib_check.setChecked(False)
 
         grid = QtWidgets.QFormLayout(self)
         grid.addRow(self.start_button)

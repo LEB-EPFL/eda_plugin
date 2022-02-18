@@ -18,6 +18,26 @@ def get_settings(calling_class=None):
         return contents
 
 
+def set_settings(name: str, value, calling_class=None):
+    settings_file = os.path.dirname(__file__) + "/../settings.json"
+    with open(settings_file, "r") as j:
+        contents = json.loads(j.read())
+
+    def nested_set(dic, keys, value):
+        for key in keys[:-1]:
+            dic = dic.setdefault(key, {})
+        dic[keys[-1]] = value
+
+    if calling_class is None:
+        contents[name] = value
+    else:
+        trace = calling_class.__module__.split(".")
+        trace = trace + [name]
+        nested_set(contents, trace, value)
+    with open(settings_file, "w") as fp:
+        json.dump(contents, fp, indent=4)
+
+
 def setup_logging():
     """Set up the logging for the project."""
     logger = logging.getLogger("EDA")

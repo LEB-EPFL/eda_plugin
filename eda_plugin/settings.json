@@ -1,26 +1,29 @@
 {
     "eda_plugin": {
         "actuators": {
-            "micro_manager":{
-                "channel_switch_time_ms" : 50
+            "micro_manager": {
+                "channel_switch_time_ms": 50,
+                "calibration": 449.334375
             }
         },
         "analysers": {
-            "keras":{
-                "worker_modules": ["eda_plugin.examples.analysers"],
+            "keras": {
+                "worker_modules": [
+                    "eda_plugin.examples.analysers"
+                ],
                 "model": "W:/Watchdog/Model/paramSweep9/f32_c07_b16.h5"
             },
-            "image":{
+            "image": {
                 "channels": 2,
                 "z_slices": 1
             }
         },
         "interpreters": {
-            "frame_rate":{
-                "slow_interval":3,
-                "fast_interval":0,
-                "lower_threshold":2000,
-                "upper_threshold":3000
+            "frame_rate": {
+                "slow_interval": 3,
+                "fast_interval": 0,
+                "lower_threshold": 2000,
+                "upper_threshold": 3000
             }
         }
     }
