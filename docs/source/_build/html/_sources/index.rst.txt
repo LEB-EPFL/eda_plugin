@@ -35,6 +35,7 @@ Contents
    eda
    usage
    examples
+   custom_networks
    custom_loop
    custom_components
    api
