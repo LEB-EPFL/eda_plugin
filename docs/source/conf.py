@@ -32,9 +32,7 @@ autodoc_mock_imports = [
 ]
 
 sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
-sys.path.insert(
-    0,
-)
+
 
 extensions = [
     "sphinx.ext.duration",
