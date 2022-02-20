@@ -72,6 +72,8 @@
              
   <div class="section" id="using-custom-neural-networks-with-kerasanalyser">
 <h1>Using custom neural networks with <a class="reference internal" href="_autosummary/eda_plugin.analysers.keras.KerasAnalyser.html#eda_plugin.analysers.keras.KerasAnalyser" title="eda_plugin.analysers.keras.KerasAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code></a><a class="headerlink" href="#using-custom-neural-networks-with-kerasanalyser" title="Permalink to this headline">¶</a></h1>
+<p>If you plan to use your own neural network with <a class="reference internal" href="_autosummary/eda_plugin.analysers.keras.KerasAnalyser.html#eda_plugin.analysers.keras.KerasAnalyser" title="eda_plugin.analysers.keras.KerasAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code></a>, consider the internal
+structure of the analysis pipeline.</p>
 <div class="mermaid">
             flowchart LR
     KerasAnalyser -- ImageStack --&gt; QThreadpool;
@@ -81,16 +83,46 @@
     QRunnable1 -- Computation --&gt; Interpreter;
     QRunnable2 -- Computation --&gt; Interpreter;
     QRunnable3 -- Computation --&gt; Interpreter;
-        </div><div class="section" id="computation">
+        </div><p>The <a class="reference internal" href="_autosummary/eda_plugin.analysers.image.ImageAnalyser.html#eda_plugin.analysers.image.ImageAnalyser" title="eda_plugin.analysers.image.ImageAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageAnalyser</span></code></a> is responsible for collecting the necessary amount of images and only
+starting analysis if all images have been received. <a class="reference internal" href="_autosummary/eda_plugin.analysers.keras.KerasAnalyser.html#eda_plugin.analysers.keras.KerasAnalyser" title="eda_plugin.analysers.keras.KerasAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code></a> will notify you if
+you load a model that does not fit the settings in the acquisition.
+These image stacks are forwarded to QRunnables in a QThreadpool that can concurrently analyse the
+images and send the results to the interpreter.</p>
+<div class="section" id="computation">
 <h2>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h2>
+<p>Depening on your neural network you might need a special QRunnable that allows for some
+functionality around the model. This can be subclassed from <a class="reference internal" href="_autosummary/eda_plugin.analysers.keras.KerasWorker.html#eda_plugin.analysers.keras.KerasWorker" title="eda_plugin.analysers.keras.KerasWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasWorker</span></code></a>. See examples
+in <a class="reference internal" href="_autosummary/eda_plugin.examples.analysers.html#module-eda_plugin.examples.analysers" title="eda_plugin.examples.analysers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">examples.analysers</span></code></a> like <a class="reference internal" href="_autosummary/eda_plugin.examples.analysers.KerasTilingWorker.html#eda_plugin.examples.analysers.KerasTilingWorker" title="eda_plugin.examples.analysers.KerasTilingWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasTilingWorker</span></code></a> and
+<a class="reference internal" href="_autosummary/eda_plugin.examples.analysers.KerasRescaleWorker.html#eda_plugin.examples.analysers.KerasRescaleWorker" title="eda_plugin.examples.analysers.KerasRescaleWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasRescaleWorker</span></code></a>. The dataflow is visualized here:</p>
 <div class="mermaid">
             flowchart TB
-    ImageStack --&gt; prep[/prepare_images/] -- data --&gt; Inference
+    ImageStack --&gt; prep[/prepare_images/] -- &quot;data['pixels']&quot; --&gt; Inference
     data(&quot;data:&lt;br&gt; {'pixels': network_input,&lt;br&gt; 'e.g. tile_positions': xxx}&quot;)
-    Inference --&gt; extr[/extract_decision_parameter/] --&gt;   ev1&gt;&quot;new_decision_parameter.emit()&quot;] --&gt; Interpreter
+    event&gt;pyqtSignal]
+    Inference --&gt; extr[/extract_decision_parameter/] --&gt;   ev1&gt;&quot;new_decision_parameter.emit()&quot;]
+    --EventBus --&gt; Interpreter
     Inference --&gt; post[/post_process_output/] --&gt; ev2&gt;&quot;new_network_image.emit()&quot;] --&gt; GUI
+    Inference(&lt;b&gt;Model&lt;/b&gt;&lt;br&gt;predict_on_batch)
     prep -- data --&gt; post
-        </div></div>
+        </div><p>If you want your worker to be available in the AnalyserGUI, you can add its location to the
+settings.json file.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;eda_plugin&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;analysers&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;keras&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;worker_modules&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;eda_plugin.examples.analysers&quot;</span>
+            <span class="p">],</span>
+<span class="p">}}}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resource-allocation">
+<h2>Resource allocation<a class="headerlink" href="#resource-allocation" title="Permalink to this headline">¶</a></h2>
+<p>Resource allocation is handeled by a <a class="reference external" href="https://doc.qt.io/qt-5/qthreadpool.html">QThreadpool</a>, using
+its <code class="xref py py-meth docutils literal notranslate"><span class="pre">tryStart()</span></code> method, this ensures that images are skipped if no resources are available
+for analysis. The number of availble threads can be overwritten by subclassing the KerasAnalyser and
+setting <code class="docutils literal notranslate"><span class="pre">self.threadpool.setMaxThreadCount(5)</span></code>.</p>
+</div>
 </div>
 
 
