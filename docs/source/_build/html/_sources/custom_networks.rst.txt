@@ -1,6 +1,6 @@
-============================================================
-Using custom neural networks with :py:class:`.KerasAnalyser`
-============================================================
+============================
+Custom Neural Networks
+============================
 
 If you plan to use your own neural network with :py:class:`.KerasAnalyser`, consider the internal
 structure of the analysis pipeline.
@@ -51,7 +51,8 @@ settings.json file.
         "analysers": {
             "keras": {
                 "worker_modules": [
-                    "eda_plugin.examples.analysers"
+                    "eda_plugin.examples.analysers",
+                    "your_worker.module_here"
                 ],
     }}}
 
@@ -60,4 +61,5 @@ Resource allocation
 Resource allocation is handeled by a `QThreadpool <https://doc.qt.io/qt-5/qthreadpool.html>`_, using
 its :py:meth:`tryStart` method, this ensures that images are skipped if no resources are available
 for analysis. The number of availble threads can be overwritten by subclassing the KerasAnalyser and
-setting ``self.threadpool.setMaxThreadCount(5)``.
+setting ``self.threadpool.setMaxThreadCount(number_of_threads)`` in the ``__init__`` function after
+initializing ``super().__init__()``.
