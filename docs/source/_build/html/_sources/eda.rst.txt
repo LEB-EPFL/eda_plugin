@@ -19,6 +19,7 @@ levels on Micro-Manager for microscope control.
 EventBus
 --------
 :py:class:`.EventBus`
+
 Communication between the components is realized using pyqtSignals and pyqtSlots. Components can
 connect to the signals directly on the EventBus
 (``event_bus.new_image_event.connect(self.start_analysis)``). They can post on the EventBus by

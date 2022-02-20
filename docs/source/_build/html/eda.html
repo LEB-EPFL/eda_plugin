@@ -12,6 +12,8 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script >mermaid.initialize({startOnLoad:true});</script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -27,7 +29,7 @@
             <a href="index.html" class="icon icon-home"> event-driven-acquisition
           </a>
               <div class="version">
-                0.2.7
+                0.2.12
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -90,8 +92,8 @@ levels on Micro-Manager for microscope control.</p>
 <a class="reference internal image-reference" href="_images/EDA_plugin_loop.png"><img alt="_images/EDA_plugin_loop.png" src="_images/EDA_plugin_loop.png" style="width: 600px;" /></a>
 <div class="section" id="eventbus">
 <h2>EventBus<a class="headerlink" href="#eventbus" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="_autosummary/eda_plugin.utility.event_bus.EventBus.html#eda_plugin.utility.event_bus.EventBus" title="eda_plugin.utility.event_bus.EventBus"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventBus</span></code></a>
-Communication between the components is realized using pyqtSignals and pyqtSlots. Components can
+<p><a class="reference internal" href="_autosummary/eda_plugin.utility.event_bus.EventBus.html#eda_plugin.utility.event_bus.EventBus" title="eda_plugin.utility.event_bus.EventBus"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventBus</span></code></a></p>
+<p>Communication between the components is realized using pyqtSignals and pyqtSlots. Components can
 connect to the signals directly on the EventBus
 (<code class="docutils literal notranslate"><span class="pre">event_bus.new_image_event.connect(self.start_analysis)</span></code>). They can post on the EventBus by
 connecting their own signals to the corresponding signals on the EventBus
