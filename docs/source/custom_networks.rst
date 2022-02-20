@@ -1,6 +1,6 @@
-============================
+======================
 Custom Neural Networks
-============================
+======================
 
 If you plan to use your own neural network with :py:class:`.KerasAnalyser`, consider the internal
 structure of the analysis pipeline.
