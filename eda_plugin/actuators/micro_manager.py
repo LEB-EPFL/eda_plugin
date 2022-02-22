@@ -301,6 +301,9 @@ class TimerMMAcquisition(MMAcquisition):
     def acquire(self):
         """Open acquisition for a short time in slow mode."""
         log.debug(f"acquire {self.calibrated_wait_time}")
+        self.calibrated_wait_time = (
+            None if self.calibrated_wait_time == 0 else self.calibrated_wait_time
+        )
         self.acquire_num += 1
         if self.calibrated_wait_time is None:
             wait_time = sum(self.channels) / 1000 + self.channel_switch_time / 1000 * (

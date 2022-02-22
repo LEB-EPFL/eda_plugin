@@ -72,6 +72,8 @@ To accomodate workers with potentially different inputs and signals, the functio
 and :py:meth:`.connect_worker_signals` can be overwritten seperately without having to rewrite the whole
 worker delivery logic.
 
+See also :doc:`custom_networks`.
+
 Interpreters
 ------------
 Interpreter implementations are responsible to translate the results of analysers to a specific
