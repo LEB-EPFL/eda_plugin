@@ -400,8 +400,10 @@ class TimerMMAcquisition(MMAcquisition):
         )
         num_frames = self.num_channels + self.slices
 
-        step = initial_wait_time / num_frames / 2
-        calibrated_time = self._ramp_calibration(initial_wait_time, step, old_settings)
+        step = initial_wait_time / num_frames / 4
+        calibrated_time = self._ramp_calibration(
+            initial_wait_time * 0.66, step, old_settings
+        )
 
         self.calibrated_wait_time = calibrated_time
         log.info(f"Calibrated wait time: {self.calibrated_wait_time}")
@@ -424,13 +426,14 @@ class TimerMMAcquisition(MMAcquisition):
     def _ramp_calibration(self, wait_time, step, settings):
         custom_int = settings.custom_intervals_ms()
         custom_int.clear()
-        custom_int.add(1000)
+        custom_int.add(1500)
+        custom_int.add(0)
         custom_int.add(0)
         settings = (
             settings.copy_builder()
             .custom_intervals_ms(custom_int)
             .use_custom_intervals(True)
-            .num_frames(2)
+            .num_frames(3)
             .should_display_images(False)
             .save(False)
             .build()
@@ -440,31 +443,48 @@ class TimerMMAcquisition(MMAcquisition):
         step_now = 0
         missing_images = 1
         first_hit = None
-        while missing_images >= 0:
+
+        def do_measurement(self, wait_time, step_now):
             datastore = self.acquisitions.run_acquisition_with_settings(settings, False)
-            self.acquisitions.set_acquisition_settings(
-                settings.copy_builder().use_custom_intervals(False).build()
-            )
+            time.sleep(0.5)
             self.acquisitions.set_pause(True)
-            time.sleep(1)
+            time.sleep(2)
+
+            missing_images = 0
+            for i in range(2):
+                time.sleep(1)
+                print("open")
+                self.acquisitions.set_pause(False)
+                time.sleep((wait_time + step_now) / 1000)
+                self.acquisitions.set_pause(True)
+                print("sleep")
+                time.sleep(1)
+
+                missing_images = (
+                    num_frames * (i + 1) - datastore.get_num_images() - missing_images
+                )
+                print("measure ", missing_images)
+
             self.acquisitions.set_pause(False)
-            time.sleep((wait_time + step_now) / 1000)
-            self.acquisitions.set_pause(True)
-            time.sleep(0.7)
-            missing_images = num_frames - datastore.get_num_images()
+            time.sleep(wait_time / 100)
+            self.acquisitions.halt_acquisition()
+            return missing_images
+
+        while missing_images >= 0:
+            missing_images = do_measurement(self, wait_time, step_now)
+            if missing_images < 0:
+                missing_images = do_measurement(self, wait_time, step_now)
             if missing_images == 0 and first_hit is None:
                 first_hit = wait_time + step_now
             step_now += step
-            self.acquisitions.set_pause(False)
-            time.sleep(wait_time / 300)
-            self.acquisitions.halt_acquisition()
+
             print(
                 f"acq_time: {int(wait_time + step_now)} image_offset: {missing_images}"
             )
 
-        mean = (first_hit + wait_time + step_now) / 2
+        # mean = (first_hit + wait_time + step_now) / 2
         diff = wait_time + step_now - first_hit
-        return mean - diff * 0.33
+        return first_hit + diff * 0.75
 
     def _initial_calibration(self, old_settings):
         num_timepoints = 5

@@ -7,7 +7,7 @@ copyright = "2022, Willi L. Stepp"
 author = "Willi L. Stepp"
 
 release = "0.2"
-version = "0.2.13"
+version = "0.2.15"
 
 # -- General configuration
 
