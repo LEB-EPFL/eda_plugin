@@ -55,6 +55,23 @@ Additionally to the actuators that are based on Micro-Manager controlling the mi
 implemented an actuator for our NI DAQ driven microscope :py:class:`.actuators.daq.DAQActuator`. This can be
 a starting point for a very different implementation of an actuator.
 
+An interesting application of a custom actuator could be one that additionally to the framerate
+changes another parameter on the microscope. For this, the ``call_action`` function would be
+overwritten to add functionality.
+
+.. code-block:: python
+
+    @pyqtSlot(float)
+    def call_action(self, interval):
+        # Do something intereseting
+        self.core.set_position(0)
+        # Call the original function
+        super().call_action(interval)
+
+In the :py:class:`.PycroAcquisition` this behaviour could be even more intricate, as described in
+the documentation (`pycro-manager documentation <https://pycro-manager.readthedocs.io/en/latest/>`_)
+
+
 Analysers
 ---------
 

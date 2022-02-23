@@ -57,6 +57,7 @@ class MMActuator(QObject):
 
         self.event_bus = event_bus
         self.studio = event_bus.studio
+        self.core = event_bus.event_thread.bridge.get_core()
         self.interval = 5
         self.acquisition = None
         self.acquisition_mode = (

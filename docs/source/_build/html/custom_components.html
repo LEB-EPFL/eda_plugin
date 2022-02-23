@@ -17,7 +17,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="api" href="api.html" />
+    <link rel="next" title="API" href="api.html" />
     <link rel="prev" title="Custom Loop Compilation" href="custom_loop.html" /> 
 </head>
 
@@ -29,7 +29,7 @@
             <a href="index.html" class="icon icon-home"> event-driven-acquisition
           </a>
               <div class="version">
-                0.2.12
+                0.2.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -51,7 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#interpreters">Interpreters</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">api</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 </ul>
 
         </div>
@@ -125,6 +125,19 @@ with the modified image.</p>
 <p>Additionally to the actuators that are based on Micro-Manager controlling the microscope, we also
 implemented an actuator for our NI DAQ driven microscope <a class="reference internal" href="_autosummary/eda_plugin.actuators.daq.DAQActuator.html#eda_plugin.actuators.daq.DAQActuator" title="eda_plugin.actuators.daq.DAQActuator"><code class="xref py py-class docutils literal notranslate"><span class="pre">actuators.daq.DAQActuator</span></code></a>. This can be
 a starting point for a very different implementation of an actuator.</p>
+<p>An interesting application of a custom actuator could be one that additionally to the framerate
+changes another parameter on the microscope. For this, the <code class="docutils literal notranslate"><span class="pre">call_action</span></code> function would be
+overwritten to add functionality.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pyqtSlot</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">call_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">):</span>
+    <span class="c1"># Do something intereseting</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Call the original function</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">call_action</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the <a class="reference internal" href="_autosummary/eda_plugin.actuators.pycromanager.PycroAcquisition.html#eda_plugin.actuators.pycromanager.PycroAcquisition" title="eda_plugin.actuators.pycromanager.PycroAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">PycroAcquisition</span></code></a> this behaviour could be even more intricate, as described in
+the documentation (<a class="reference external" href="https://pycro-manager.readthedocs.io/en/latest/">pycro-manager documentation</a>)</p>
 </div>
 <div class="section" id="analysers">
 <h2>Analysers<a class="headerlink" href="#analysers" title="Permalink to this headline">¶</a></h2>
@@ -173,7 +186,7 @@ demonstrated in <a class="reference internal" href="_autosummary/eda_plugin.exam
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="custom_loop.html" class="btn btn-neutral float-left" title="Custom Loop Compilation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api.html" class="btn btn-neutral float-right" title="api" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
