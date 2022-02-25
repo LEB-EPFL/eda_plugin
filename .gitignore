@@ -8,3 +8,5 @@ build/
 dist/
 eda_plugin/examples/data/*
 !eda_plugin/examples/data/*.py
+
+plt.plot([1,4,5,6])

@@ -29,7 +29,7 @@
             <a href="index.html" class="icon icon-home"> event-driven-acquisition
           </a>
               <div class="version">
-                0.2.15
+                0.2.17
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -86,17 +86,19 @@
 <h2>Based on <a class="reference external" href="https://github.com/micro-manager/pycro-manager">pycromanager</a><a class="headerlink" href="#based-on-pycromanager" title="Permalink to this headline">¶</a></h2>
 <p>If you are used to Micro-Magellan acquisitions, then the actuator implementation using pycromanagers
 <code class="docutils literal notranslate"><span class="pre">Acquisition</span></code> class to start a remote Micro-Magellan acquisition might be interesting for you:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">pyro</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>For this implementation no calibration is necessary as described in the basic example. However, all
-settings have to be done in the Micro-Magellan GUI: Plugins -&gt; Micro-Magellan.</p>
+<p>If you have tried the basic example before, please restart Micro-Manager, as Micro-Magellan does not
+work together well with the PythonEventServer used before.For this implementation no calibration is
+necessary as described in the basic example. However, all settings have to be done in the
+Micro-Magellan GUI: Plugins -&gt; Micro-Magellan.</p>
 </div>
 <div class="section" id="cuda">
 <h2>CUDA<a class="headerlink" href="#cuda" title="Permalink to this headline">¶</a></h2>
 <p>If you have CUDA, cuDNN and tensorflow installed you can run the analyser that uses the neural
 network for image analysis as described in the article.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">keras</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda_plugin</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">keras</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>To get an image that the neural network can process, use the ImageInjector plugin installed during
@@ -111,7 +113,7 @@ Attention: The ImageInjector has to be deactivated during calibration.</p>
 channels and no Z slices.</p>
 <p>As this only uses a different Analyser, it can just as well be used with the pycro-manager based
 actuator:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">pyro_keras</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eda</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">pyro_keras</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>In this example the actuator is modified as described in  <a class="reference internal" href="custom_components.html#custom-actuators"><span class="std std-ref">Custom Actuators</span></a> to allow for image

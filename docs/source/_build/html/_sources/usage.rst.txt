@@ -33,7 +33,7 @@ With Micro-Manager, the zmq server and PythonEventServer open, run the test envi
 examples:
 
 >>> import eda_plugin
->>> eda_plugin.examples.main.basic()
+>>> eda_plugin.examples.basic()
 
 
 Camera settings

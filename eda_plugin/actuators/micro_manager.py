@@ -425,8 +425,20 @@ class TimerMMAcquisition(MMAcquisition):
         return self.calibrated_wait_time
 
     def _ramp_calibration(self, wait_time, step, settings):
+
         custom_int = settings.custom_intervals_ms()
-        custom_int.clear()
+
+        try:
+            custom_int.clear()
+        except AttributeError:
+            warning_text = "Add any number of custom intervals in the MDA window -> Time Points -> Advanced and restart please"
+            log.warning(warning_text)
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(2)
+            msg.setText(warning_text)
+            msg.exec()
+            return wait_time
+
         custom_int.add(1500)
         custom_int.add(0)
         custom_int.add(0)

@@ -130,6 +130,7 @@ class KerasWorker(ImageAnalyserWorker):
         # The simple maximum decision parameter can be calculated without stiching
         decision_parameter = self.extract_decision_parameter(network_output)
         elapsed_time = round(time.time() * 1000) - self.start_time
+        log.info(f"timepoint {self.timepoint} KerasWorker -> Interpreter")
         self.signals.new_decision_parameter.emit(
             decision_parameter, elapsed_time / 1000, self.timepoint
         )

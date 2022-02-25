@@ -25,7 +25,7 @@ class KerasRescaleWorker(KerasWorker):
 
     def prepare_images(self, images: np.ndarray):
         """Subtract background and normalize image intensity."""
-        print(f"RescaleWorker Images incoming: {images.shape}")
+        # print(f"RescaleWorker Images incoming: {images.shape}")
         images = prepare_wo_tiling(images)
         images = images[:, :, :, 0]
         data = {"pixels": np.expand_dims(images, 0)}
@@ -36,7 +36,7 @@ class KerasRescaleWorker(KerasWorker):
 
     def post_process_output(self, data: np.ndarray, positions):
         """Strip off the dimensions that come from the network."""
-        print(data.shape)
+        # print(data.shape)
         return data[0, :, :, 0]
 
 
@@ -53,7 +53,9 @@ class KerasTilingWorker(KerasWorker):
 
     def post_process_output(self, network_output: np.ndarray, input_data) -> np.ndarray:
         """Stitch the images recevied from the network to an array with the same size as input."""
-        return stitchImage(network_output, input_data["positions"])
+        prep = stitchImage(network_output, input_data["positions"])
+        log.debug(f"timepoint {self.timepoint} images prepared")
+        return prep
 
     def extract_decision_parameter(self, network_output: np.ndarray):
         return np.max(network_output)

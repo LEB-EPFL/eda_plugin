@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eda_plugin",
-    version="0.2.15",
+    version="0.2.17",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -35,5 +35,5 @@ setup(
     ],
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",
-    python_requires=">=3.8",
+    python_requires=">=3.7",
 )

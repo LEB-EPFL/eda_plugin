@@ -41,6 +41,7 @@ class PycroAcquisition(MMAcquisition):
         """Set default settings, set up first acquisiton events connect signals."""
         super().__init__(event_bus)
         self.event_bus = event_bus
+        self.interval = start_interval
         self.dir = None
 
         if settings is None:
@@ -51,7 +52,6 @@ class PycroAcquisition(MMAcquisition):
         self.start_timepoints = self.settings["num_time_points"]
         self.channel_names = self.settings["channels"]
 
-        self.interval = start_interval
         self.stop_acq_condition = False
         self.last_arrival_time = None
         self.new_image.connect(self.event_bus.new_image_event)
@@ -192,6 +192,9 @@ class PycroAcquisition(MMAcquisition):
                 "channel_group": self.magellan_settings.channels_.get_channel_group(),
                 "channels": self._get_magellan_channels(self.magellan_settings),
             }
+
+        if settings["time_interval_s"] == 0:
+            settings["time_interval_s"] = self.interval
         self.channels = self._get_magellan_channels(self.magellan_settings)
         self.event_bus.new_magellan_settings.emit(settings)
         return settings

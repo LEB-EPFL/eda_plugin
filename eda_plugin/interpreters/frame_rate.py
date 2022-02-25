@@ -69,7 +69,9 @@ class BinaryFrameRateInterpreter(QObject):
             self.new_interpretation.emit(self.interval)
 
         self._set_fast_count()
-        log.info(f"timepoint {timepoint} decision: {new_value}")
+        log.info(
+            f"timepoint {timepoint} decision: {new_value} -> {self.interval} interval"
+        )
 
     def _define_imaging_speed(self, new_value: float):
         new_interval = self.interval
