@@ -60,11 +60,14 @@ class KerasAnalyser(ImageAnalyser):
     def new_settings(self, new_settings):
         """Load and initialize model so first predict is fast(er)."""
         self.model_path = new_settings["model"]
-        self.model = keras.models.load_model(self.model_path, compile=True)
-        self.model_channels = self.model.layers[0].input_shape[0][3]
-        self.worker = new_settings["worker"]
-        self._init_model()
-        self._compare_model_mda()
+        try:
+            self.model = keras.models.load_model(self.model_path, compile=True)
+            self.model_channels = self.model.layers[0].input_shape[0][3]
+            self.worker = new_settings["worker"]
+            self._init_model()
+            self._compare_model_mda()
+        except OSError:
+            log.warning("Model not found at this location")
 
     def _init_model(self):
         if self.model.layers[0].input_shape[0][1] is None:

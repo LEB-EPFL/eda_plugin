@@ -82,10 +82,14 @@ def keras():
     analyser = KerasAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
+    gui.add_dock_widget(actuator.gui)
+    gui.add_dock_widget(interpreter.gui)
+    gui.add_dock_widget(analyser.gui)
+
     gui.show()
-    actuator.gui.show()
-    interpreter.gui.show()
-    analyser.gui.show()
+    # actuator.gui.show()
+    # interpreter.gui.show()
+    # analyser.gui.show()
 
     sys.exit(app.exec_())
 

@@ -9,7 +9,7 @@ from qimage2ndarray import gray2qimage
 
 from .data_structures import ParameterSet
 from .event_bus import EventBus
-from .qt_classes import QWidgetRestore
+from .qt_classes import QMainWindowRestore, QWidgetRestore
 import qdarkstyle
 
 
@@ -23,7 +23,7 @@ QtWidgets.QApplication.setAttribute(
 )
 
 
-class EDAMainGUI(QWidgetRestore):
+class EDAMainGUI(QMainWindowRestore):
     """Assemble different Widgets to have a main window for the GUI."""
 
     def __init__(self, event_bus: EventBus, viewer: bool = False):
@@ -31,19 +31,34 @@ class EDAMainGUI(QWidgetRestore):
         super().__init__()
         self.setWindowTitle("MainGUI")
         self.plot = EDAPlot()
+        self.central_widget = QtWidgets.QWidget()
+        self.central_widget.setLayout(QtWidgets.QVBoxLayout())
 
-        self.setLayout(QtWidgets.QVBoxLayout())
         if viewer:
             self.viewer = NetworkImageViewer()
-            self.layout().addWidget(self.viewer)
+            self.central_widget.layout().addWidget(self.viewer)
             event_bus.new_network_image.connect(self.viewer.add_network_image)
 
-        self.layout().addWidget(self.plot)
+        self.central_widget.layout().addWidget(self.plot)
+        self.setCentralWidget(self.central_widget)
+        self.dock_widgets = []
+
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
+
+        # Make docking to this window possible
+        # self.dockers = QtWidgets.QDockWidget("Dockable", self)
+        # self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dockers)
+
         # Establish communication between the different parts
         event_bus.acquisition_started_event.connect(self.plot._reset_plot)
         event_bus.new_decision_parameter.connect(self.plot.add_datapoint)
         event_bus.new_parameters.connect(self.plot._set_thr_lines)
+
+    def add_dock_widget(self, widget: QWidgetRestore):
+        dock_widget = QtGui.QDockWidget(self)
+        dock_widget.setWidget(widget)
+        self.dock_widgets.append(dock_widget)
+        self.addDockWidget(QtCore.Qt.DockWidgetArea(1), dock_widget)
 
 
 class EDAPlot(pg.PlotWidget):

@@ -54,7 +54,6 @@ class KerasTilingWorker(KerasWorker):
     def post_process_output(self, network_output: np.ndarray, input_data) -> np.ndarray:
         """Stitch the images recevied from the network to an array with the same size as input."""
         prep = stitchImage(network_output, input_data["positions"])
-        log.debug(f"timepoint {self.timepoint} images prepared")
         return prep
 
     def extract_decision_parameter(self, network_output: np.ndarray):
@@ -64,4 +63,5 @@ class KerasTilingWorker(KerasWorker):
         """Background subtraction, resize, intensity normalization and tiling."""
         tiles, positions = prepareNNImages(images[:, :, 0], images[:, :, 1], self.model)
         data = {"pixels": tiles, "positions": positions}
+        log.debug(f"timepoint {self.timepoint} images prepared")
         return data

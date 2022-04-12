@@ -14,6 +14,7 @@ import copy
 import queue
 import logging
 from PyQt5.QtCore import pyqtSignal
+from PyQt5 import QtWidgets
 
 from eda_plugin.utility.data_structures import PyImage
 from eda_plugin.actuators.micro_manager import MMAcquisition
@@ -67,6 +68,7 @@ class PycroAcquisition(MMAcquisition):
             image_process_fn=self.receive_image,
             show_display=True,
         )
+
         self.acquisition.acquire(self.events)
 
     def stop_acq(self):

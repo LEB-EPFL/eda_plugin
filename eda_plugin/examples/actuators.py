@@ -23,7 +23,7 @@ class InjectedPycroAcquisition(PycroAcquisition):
         """Make a short starting sequence and load the tif file into memory."""
 
         super().__init__(*args, **kwargs)
-        tif_file = "C:/Users/stepp/Documents/02_Raw/SmartMito/180420_120_compo.tif"
+        tif_file = "/data/small.tif"
         try:
             self.tif = tifffile.imread(tif_file)
         except FileNotFoundError:
