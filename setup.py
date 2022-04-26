@@ -32,6 +32,8 @@ setup(
         "tifffile",
         "zenodo_get",
         "docstring_inheritance",
+        "zarr",
+        "ome_zarr",
     ],
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",
