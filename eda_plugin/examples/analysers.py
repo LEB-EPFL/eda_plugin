@@ -12,6 +12,7 @@ from eda_plugin.utility.image_processing import (
 from skimage import exposure, filters, transform
 
 import logging
+import time
 
 log = logging.getLogger("EDA")
 
