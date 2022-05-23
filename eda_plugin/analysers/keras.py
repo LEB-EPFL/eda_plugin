@@ -68,6 +68,7 @@ class KerasAnalyser(ImageAnalyser):
             self._compare_model_mda()
         except OSError:
             log.warning("Model not found at this location")
+            log.info(self.model_path)
 
     def _init_model(self):
         if self.model.layers[0].input_shape[0][1] is None:
@@ -76,11 +77,7 @@ class KerasAnalyser(ImageAnalyser):
             size = self.model.layers[0].input_shape[0][1]
         model_channels, model_slices = self._inspect_model(self.model)
         if model_slices > 1:
-            self.model(
-                np.random.randint(
-                    10, size=[1, size, size, model_channels, model_slices]
-                )
-            )
+            self.model(np.random.randint(10, size=[1, size, size, model_channels, model_slices]))
         else:
             self.model(np.random.randint(10, size=[1, size, size, model_channels]))
         log.info("New model initialised")
@@ -139,9 +136,7 @@ class KerasWorker(ImageAnalyserWorker):
         )
         # Also construct the image so it can be displayed
         network_output = self.post_process_output(network_output, network_input)
-        log.debug(
-            f"Sending new_network_image {network_output.shape} at timepoint {self.timepoint}"
-        )
+        log.debug(f"Sending new_network_image {network_output.shape} at timepoint {self.timepoint}")
         self.signals.new_network_image.emit(network_output, (self.timepoint, 0))
 
     def prepare_images(self, images: np.ndarray):
@@ -183,6 +178,11 @@ class KerasSettingsGUI(QWidgetRestore):
 
         self.model_label = QtWidgets.QLabel("Model")
         self.model = QtWidgets.QLineEdit(self.keras_settings["model"])
+        if not os.path.isfile(self.keras_settings["model"]):
+            corrected_path = os.path.join(
+                os.path.dirname(np.__path__[0]), self.keras_settings["model"]
+            )
+            self._select_model(corrected_path)
         self.model_select = QtWidgets.QPushButton("Select")
         self.model_select.clicked.connect(self._select_model)
 
@@ -204,18 +204,18 @@ class KerasSettingsGUI(QWidgetRestore):
             module = importlib.import_module(module)
             workers = inspect.getmembers(
                 module,
-                lambda member: inspect.isclass(member)
-                and member.__module__ == module.__name__,
+                lambda member: inspect.isclass(member) and member.__module__ == module.__name__,
             )
             # for worker in workers:
             #     importlib.import_module(worker[1])
             available_workers = available_workers + workers
         return available_workers
 
-    def _select_model(self):
-        new_model = QtWidgets.QFileDialog().getOpenFileName(
-            directory=self.model_load_dir
-        )[0]
+    def _select_model(self, model_path=None):
+        if model_path is None or type(model_path) == bool:
+            new_model = QtWidgets.QFileDialog().getOpenFileName(directory=self.model_load_dir)[0]
+        else:
+            new_model = model_path
         self.model_load_dir = os.path.dirname(new_model)
         self.keras_settings["model"] = new_model
         self.model.setText(new_model)

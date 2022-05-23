@@ -3,7 +3,7 @@
         "actuators": {
             "micro_manager": {
                 "channel_switch_time_ms": 50,
-                "calibration": 324.87
+                "calibration": 347.61458333333337
             }
         },
         "analysers": {
@@ -11,7 +11,7 @@
                 "worker_modules": [
                     "eda_plugin.examples.analysers"
                 ],
-                "model": "../../utility/models/model1_rescale.h5"
+                "model": "eda_plugin/utility/models/model1_rescale.h5"
             },
             "image": {
                 "channels": 2,
