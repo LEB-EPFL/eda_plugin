@@ -122,16 +122,23 @@ def pyro_keras():
 def main_isim():
     """EDA loop used on the iSIM."""
     from eda_plugin.actuators.daq import DAQActuator
-    from eda_plugin.analysers.image import ImageAnalyser
+    from eda_plugin.analysers.keras import KerasAnalyser
 
     eda_plugin.utility.settings.setup_logging()
     app = QtWidgets.QApplication(sys.argv)
 
     event_bus = EventBus()
     gui = EDAMainGUI(event_bus, viewer=True)
+
     actuator = DAQActuator(event_bus)
-    analyser = ImageAnalyser(event_bus)
+    analyser = KerasAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
+
+    # gui.add_dock_widget(actuator.gui)
+    gui.add_dock_widget(interpreter.gui)
+    gui.add_dock_widget(analyser.gui)
+
+
 
     gui.show()
     # actuator.gui.show()
@@ -139,4 +146,4 @@ def main_isim():
 
 
 if __name__ == "__main__":
-    keras()
+    main_isim()

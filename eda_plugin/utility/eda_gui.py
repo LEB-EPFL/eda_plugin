@@ -2,6 +2,7 @@
 
 from typing import Tuple
 from PyQt5 import QtWidgets, QtCore, QtGui
+import PyQt5
 import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
@@ -55,7 +56,7 @@ class EDAMainGUI(QMainWindowRestore):
         event_bus.new_parameters.connect(self.plot._set_thr_lines)
 
     def add_dock_widget(self, widget: QWidgetRestore):
-        dock_widget = QtGui.QDockWidget(self)
+        dock_widget = QtWidgets.QDockWidget(self)
         dock_widget.setWidget(widget)
         self.dock_widgets.append(dock_widget)
         self.addDockWidget(QtCore.Qt.DockWidgetArea(1), dock_widget)

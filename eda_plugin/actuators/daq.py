@@ -35,6 +35,7 @@ class DAQActuator(QObject):
         self.sampling_rate = 500
 
         self.event_bus = event_bus
+        self.core = self.event_bus.event_thread.bridge.get_core()
         settings = (
             self.event_bus.event_thread.bridge.get_studio()
             .acquisitions()
@@ -49,6 +50,7 @@ class DAQActuator(QObject):
         self.stage = Stage(self)
         self.camera = Camera(self)
         self.aotf = AOTF(self)
+
 
         self.task = self._init_task()
         self.acq = EDAAcquisition(self, self.settings)
@@ -182,10 +184,10 @@ class EDAAcquisition(QObject):
         super().__init__()
         self.settings = settings
         self.ni = ni
-        self.interval = 5
+        self.interval = 3
         self.interval_fast = 0
         self.daq_data_fast = None
-        self.interval_slow = 5
+        self.interval_slow = 3
         self.daq_data_slow = None
         self.make_daq_data()
         self.update_settings(self.settings)
