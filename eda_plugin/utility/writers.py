@@ -6,6 +6,7 @@ https://www.nature.com/articles/s41592-021-01326-w
 import logging
 import os
 import numpy as np
+import re
 
 import tifffile
 import glob
@@ -184,6 +185,9 @@ class Writer(QObject):
             tif_file = glob.glob(self.orig_save_path + "/*.ome.tif")[0]
             with tifffile.TiffFile(tif_file) as tif:
                 xml_metadata = tif.ome_metadata
+
+        # xml_re = re.compile(r"<.*encoding>(<OME.*</OME>)")
+        # xml_metadata = xml_re.search(xml_metadata).group(2)
 
         # This might be to naive, bioformats2raw does some more things here.
         ome_path = os.path.join(self.ome_root.store.path, metadata_file)
