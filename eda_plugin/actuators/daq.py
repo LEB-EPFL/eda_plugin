@@ -10,12 +10,13 @@ from __future__ import annotations
 
 import copy
 import logging
+import time
 
 import nidaqmx
 import nidaqmx.stream_writers
 import numpy as np
 from eda_plugin.utility.event_bus import EventBus
-from eda_plugin.utility.data_structures import MMSettings
+from eda_plugin.utility.data_structures import MMSettings, ParameterSet
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 
@@ -42,6 +43,7 @@ class DAQActuator(QObject):
             .get_acquisition_settings()
         )
         self.settings = MMSettings(settings)
+        self.eda_params = None
 
         self.sampling_rate = 500
         self._update_settings(self.settings)
@@ -51,15 +53,22 @@ class DAQActuator(QObject):
         self.camera = Camera(self)
         self.aotf = AOTF(self)
 
-
-        self.task = self._init_task()
-        self.acq = EDAAcquisition(self, self.settings)
+        self._init_task()
+        self.acq = EDAAcquisition(self, self.settings, self.eda_params)
+        self.eda = False
 
         # self.event_bus.mda_settings_event.connect(self.new_settings)
+        self._connect_events()
+
+    def _connect_events(self):
         self.event_bus.configuration_settings_event.connect(self.configuration_settings)
+        self.event_bus.new_parameters.connect(self.update_intervals)
         self.event_bus.acquisition_started_event.connect(self.run_acquisition_task)
         self.event_bus.acquisition_ended_event.connect(self.acq_done)
         self.event_bus.new_interpretation.connect(self.call_action)
+
+    def _disconnect_events(self):
+        self.blockSignals()
 
     def _init_task(self):
         try:
@@ -91,12 +100,24 @@ class DAQActuator(QObject):
         self.settings = new_settings
         log.info("NI settings set")
 
+    def update_intervals(self, params: ParameterSet):
+        self.acq.interval_slow = params.slow_interval
+        self.acq.interval_fast = params.fast_interval
+        self.acq.interval = params.slow_interval
+        self.eda_params = params
+        self.acq = EDAAcquisition(self, self.settings, self.eda_params)
+
     @pyqtSlot(object)
     def run_acquisition_task(self, _):
         """Run the acquisition by forwarding the pyqtSignal to the Acquisition instance."""
         # self.event_thread.mda_settings_event.disconnect(self.new_settings)
-        # time.sleep(0.5)
-        self.task.start()
+        time.sleep(1)
+        try:
+            self.task.start()
+        except nidaqmx.errors.DaqError:
+            self._init_task()
+            self.acq = EDAAcquisition(self, self.settings, self.eda_params)
+            self.task.start()
 
     @pyqtSlot(object)
     def acq_done(self, _):
@@ -111,7 +132,7 @@ class DAQActuator(QObject):
     def call_action(self, new_interval):
         """Interpreter has emitted a new interval to use, adapt the acquisition instance."""
         self.acq.interval = new_interval
-        log.info(f"=== New interval: {new_interval}===")
+        log.info(f"=== New interval: {new_interval} ===")
 
     @pyqtSlot(object)
     def new_settings(self, new_settings: MMSettings):
@@ -138,6 +159,11 @@ class DAQActuator(QObject):
         elif device == "EDA" and prop == "Label":
             eda = self.core.get_property("EDA", "Label")
             self.eda = False if eda == "Off" else True
+            if self.eda:
+                self.blockSignals(False)
+            else:
+                self.blockSignals(True)
+                self.task.close()
 
         if device in ["561_AOTF", "488_AOTF", "exposure"]:
             self.live.make_daq_data()
@@ -179,15 +205,21 @@ class EDAAcquisition(QObject):
     main class, but to keep things consistent it will remain in its own class.
     """
 
-    def __init__(self, ni: DAQActuator, settings: MMSettings):
+    def __init__(self, ni: DAQActuator, settings: MMSettings, eda_params: ParameterSet = None):
         """Initialize with the standard settings."""
         super().__init__()
         self.settings = settings
         self.ni = ni
-        self.interval = 3
-        self.interval_fast = 0
+        if eda_params is None:
+            self.interval = 3
+            self.interval_fast = 0
+            self.interval_slow = 3
+        else:
+            log.info("Parameter from eda_params")
+            self.interval_slow = eda_params.slow_interval
+            self.interval_fast = eda_params.fast_interval
+            self.interval = eda_params.slow_interval
         self.daq_data_fast = None
-        self.interval_slow = 3
         self.daq_data_slow = None
         self.make_daq_data()
         self.update_settings(self.settings)
@@ -219,9 +251,11 @@ class EDAAcquisition(QObject):
         """
         log.info(self.interval)
         if self.interval == self.interval_fast:
-            self.ni.stream.write_many_sample(self.daq_data_fast)
+            timeout = max(self.interval_fast - 10, 10)
+            self.ni.stream.write_many_sample(self.daq_data_fast, timeout=timeout)
         elif self.interval == self.interval_slow:
-            self.ni.stream.write_many_sample(self.daq_data_slow)
+            timeout = max(self.interval_slow - 10, 10)
+            self.ni.stream.write_many_sample(self.daq_data_slow, timeout=timeout)
         else:
             log.warning("Intervals have changes please restart the acquisition")
         return 0

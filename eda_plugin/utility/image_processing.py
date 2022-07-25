@@ -158,6 +158,103 @@ def prepare_wo_tiling(images: np.ndarray):
     return prep_images
 
 
+def prepare_1c(images: np.ndarray):
+    sig = 121.5 / 81
+    out_range = (0, 255)
+    resize_param = 56 / 81  # no unit
+
+    for z_slice in range(images.shape[-1]):
+        image = images[:, :, 0, z_slice]
+        image = filters.gaussian(image, sig)
+        # image = transform.rescale(image, resize_param)
+        in_range = (image.mean(), image.max())
+        image = exposure.rescale_intensity(image, in_range, out_range=out_range)
+
+        crop_pixels = (
+            image.shape[0] - image.shape[0] % 4,
+            image.shape[1] - image.shape[1] % 4,
+        )
+        image = image[: crop_pixels[0], : crop_pixels[1]]
+
+        if z_slice == 0:
+            prep_images = np.empty(
+                [image.shape[0], image.shape[1], images.shape[-1]]
+            )
+        prep_images[:, :, z_slice] = image
+    return prep_images
+
+def prepare_ftsw(bact_img, ftsz_img, model):
+    """Special function to handle the cytosolic background in ftsw bacteria."""
+    bacteria = True
+    pixelCalib = 56  # nm per pixel
+    sig = 121.5 / 81  # in pixel
+    resizeParam = pixelCalib / 81  # no unit
+    nnImageSize = model.layers[0].input_shape[0][1]
+
+    # Rescale
+    ftsz_img = transform.rescale(ftsz_img, resizeParam)
+    bact_img = transform.rescale(bact_img, resizeParam)
+
+    # Setup tiling
+    positions = getTilePositionsV2(ftsz_img, 128)
+    contrastMax = 255
+
+    # Special proceduure for ftsw with cytosolic background
+    foci_blur = filters.gaussian(ftsz_img, sigma=1.2)
+    mask = filters.threshold_local(foci_blur, block_size=3, method="gaussian")
+    masked = foci_blur - mask
+    masked[masked < 0] = 0
+    diff = np.max(masked) - np.min(masked)
+    thresh = np.max(masked) - diff*0.6
+
+    masked[masked < thresh] = 0
+
+    #If there is too much signal in the frame, there is probably no peak, so ignore
+    print(len(masked[masked > 0])/len(masked.flatten()))
+    if len(masked[masked > 0])/len(masked.flatten()) > 0.001:
+        ftsz_img = np.zeros_like(masked)
+    else:
+        ftsz_img = masked
+        ftsz_img = exposure.rescale_intensity(
+            ftsz_img, (np.min(ftsz_img), np.max(ftsz_img)), out_range=(0, contrastMax)
+        )
+
+    # prep bacteria channel
+    bact_img = filters.gaussian(bact_img, sig, preserve_range=True)
+    bact_otsu = filters.threshold_li(bact_img)
+    bact_img = exposure.rescale_intensity(
+        bact_img, (bact_otsu, np.max(bact_img)), out_range=(0, contrastMax)
+    )
+
+    # Put into format for the network
+
+    ftsz_img = ftsz_img.reshape(1, ftsz_img.shape[0], ftsz_img.shape[0], 1)
+    bact_img = bact_img.reshape(1, bact_img.shape[0], bact_img.shape[0], 1)
+    inputDataFull = np.concatenate((bact_img, ftsz_img), axis=3)
+
+    # Cycle through these tiles and make one array for everything
+    i = 0
+    inputData = np.zeros(
+        (positions["n"] ** 2, nnImageSize, nnImageSize, 2), dtype=np.uint8()
+    )
+    for position in positions["px"]:
+        inputData[i, :, :, :] = inputDataFull[
+            :, position[0] : position[2], position[1] : position[3], :
+        ]
+        if bacteria:
+            diff = np.max(inputData[i, :, :, 1]) - np.median(inputData[i, :, :, 1])
+
+        inputData[i, :, :, 0] = exposure.rescale_intensity(
+            inputData[i, :, :, 0],
+            (0, np.max(inputData[i, :, :, 0])),
+            out_range=(0, 255),
+        )
+        i = i + 1
+    inputData = inputData.astype("uint8")
+
+    return inputData, positions
+
+
 def getTilePositionsV2(image, targetSize=128):
     """Generate tuples with the positions of tiles to split up an image withan overlap.
 

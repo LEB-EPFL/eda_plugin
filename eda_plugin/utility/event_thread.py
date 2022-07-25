@@ -53,7 +53,8 @@ class EventThread(QObject):
 
         self.thread_stop = False
 
-        self.topics = ["StandardEvent", "GUIRefreshEvent", "ImageEvent"]
+        self.topics = ["StandardEvent", "GUIRefreshEvent", "LiveMode", "Acquisition", "GUI",
+                       "Hardware", "Settings", "NewImage"]
         for topic in self.topics:
             self.socket.setsockopt_string(zmq.SUBSCRIBE, topic)
 

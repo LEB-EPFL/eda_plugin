@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eda_plugin",
-    version="0.2.20",
+    version="0.2.21",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",

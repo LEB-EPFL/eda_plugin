@@ -14,16 +14,16 @@
                 "model": "../../utility/models/model1_rescale.h5"
             },
             "image": {
-                "channels": 2,
+                "channels": 1,
                 "z_slices": 1
             }
         },
         "interpreters": {
             "frame_rate": {
-                "slow_interval": 3,
+                "slow_interval": 2,
                 "fast_interval": 0,
-                "lower_threshold": 2000,
-                "upper_threshold": 3000
+                "lower_threshold": 0.3,
+                "upper_threshold": 0.48
             }
         }
     }

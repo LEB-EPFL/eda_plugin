@@ -61,7 +61,8 @@ class KerasAnalyser(ImageAnalyser):
         """Load and initialize model so first predict is fast(er)."""
         self.model_path = new_settings["model"]
         try:
-            self.model = keras.models.load_model(self.model_path, compile=True)
+            # self.model = keras.models.load_model(self.model_path, compile=True)
+            self.model = keras.models.load_model(self.model_path)
             self.model_channels = self.model.layers[0].input_shape[0][3]
             self.worker = new_settings["worker"]
             self._init_model()
@@ -129,7 +130,8 @@ class KerasWorker(ImageAnalyserWorker):
         Specific implementations can be found in examples.analysers.keras
         """
         network_input = self.prepare_images(self.local_images)
-        network_output = self.model.predict_on_batch(network_input["pixels"])
+        log.warning(network_input["pixels"].dtype)
+        network_output = self.model.predict(network_input["pixels"])
         # The simple maximum decision parameter can be calculated without stiching
         decision_parameter = self.extract_decision_parameter(network_output)
         elapsed_time = round(time.time() * 1000) - self.start_time
@@ -143,6 +145,7 @@ class KerasWorker(ImageAnalyserWorker):
             f"Sending new_network_image {network_output.shape} at timepoint {self.timepoint}"
         )
         self.signals.new_network_image.emit(network_output, (self.timepoint, 0))
+        # self.signals.new_network_image.emit(network_input["pixels"][0, :, :], (self.timepoint, 0))
 
     def prepare_images(self, images: np.ndarray):
         """To be implemented by subclass if necessary for the specific model."""
