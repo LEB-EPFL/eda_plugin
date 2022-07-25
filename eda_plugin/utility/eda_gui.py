@@ -19,9 +19,7 @@ import logging
 log = logging.getLogger("EDA")
 
 # Adjust for different screen sizes
-QtWidgets.QApplication.setAttribute(
-    QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-)
+QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 
 
 class EDAMainGUI(QMainWindowRestore):
@@ -30,7 +28,7 @@ class EDAMainGUI(QMainWindowRestore):
     def __init__(self, event_bus: EventBus, viewer: bool = False):
         """Set up GUI and establish communication with the EventBus."""
         super().__init__()
-        self.setWindowTitle("MainGUI")
+        self.setWindowTitle("Event Driven Acquisition")
         self.plot = EDAPlot()
         self.central_widget = QtWidgets.QWidget()
         self.central_widget.setLayout(QtWidgets.QVBoxLayout())
@@ -43,6 +41,7 @@ class EDAMainGUI(QMainWindowRestore):
         self.central_widget.layout().addWidget(self.plot)
         self.setCentralWidget(self.central_widget)
         self.dock_widgets = []
+        self.widgets = []
 
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
 
@@ -55,11 +54,16 @@ class EDAMainGUI(QMainWindowRestore):
         event_bus.new_decision_parameter.connect(self.plot.add_datapoint)
         event_bus.new_parameters.connect(self.plot._set_thr_lines)
 
-    def add_dock_widget(self, widget: QWidgetRestore):
-        dock_widget = QtWidgets.QDockWidget(self)
+    def add_dock_widget(self, widget: QWidgetRestore, name=None):
+        dock_widget = QtGui.QDockWidget(name, self)
         dock_widget.setWidget(widget)
         self.dock_widgets.append(dock_widget)
+        self.widgets.append(widget)
         self.addDockWidget(QtCore.Qt.DockWidgetArea(1), dock_widget)
+
+    def closeEvent(self, e):
+        for widget in self.widgets:
+            widget.closeEvent(e)
 
 
 class EDAPlot(pg.PlotWidget):
@@ -152,9 +156,7 @@ class NapariImageViewer(QtWidgets.QWidget):
         try:
             import napari
         except:
-            log.warning(
-                "Napari was most likely not installed in this environment, please install"
-            )
+            log.warning("Napari was most likely not installed in this environment, please install")
 
         super().__init__()
         self.viewer = napari.Viewer()

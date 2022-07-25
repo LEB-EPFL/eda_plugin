@@ -7,6 +7,7 @@ from eda_plugin.actuators.micro_manager import TimerMMAcquisition
 from eda_plugin.interpreters.frame_rate import BinaryFrameRateInterpreter
 from eda_plugin.utility.eda_gui import EDAMainGUI
 from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility.writers import Writer
 from PyQt5 import QtWidgets
 
 
@@ -81,10 +82,12 @@ def keras():
     actuator = MMActuator(event_bus)
     analyser = KerasAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
+    writer = Writer(event_bus)
 
-    gui.add_dock_widget(actuator.gui)
-    gui.add_dock_widget(interpreter.gui)
-    gui.add_dock_widget(analyser.gui)
+    gui.add_dock_widget(actuator.gui, "Actuator")
+    gui.add_dock_widget(interpreter.gui, "Interpreter")
+    gui.add_dock_widget(analyser.gui, "Analyser")
+    gui.add_dock_widget(writer.gui, "Save Data")
 
     gui.show()
     # actuator.gui.show()
