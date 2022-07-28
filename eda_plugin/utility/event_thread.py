@@ -10,6 +10,7 @@ import json
 import logging
 import re
 import time
+import numpy as np
 
 import zmq
 from pycromanager import Bridge
@@ -17,7 +18,7 @@ from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 from eda_plugin.utility.data_structures import MMSettings
 
-from .data_structures import PyImage
+from eda_plugin.utility.data_structures import PyImage
 
 log = logging.getLogger("EDA")
 SOCKET = "5556"
@@ -40,7 +41,7 @@ class EventThread(QObject):
         self.event_sockets = []
         self.num_sockets = 5
         for socket in range(self.num_sockets):
-            socket_provider = self.bridge._construct_java_object(
+            socket_provider = self.bridge.construct_java_object(
                 "org.micromanager.Studio", new_socket=True
             )
             self.event_sockets.append(socket_provider._socket)
@@ -53,16 +54,22 @@ class EventThread(QObject):
 
         self.thread_stop = False
 
-        self.topics = ["StandardEvent", "GUIRefreshEvent", "LiveMode", "Acquisition", "GUI",
-                       "Hardware", "Settings", "NewImage"]
+        self.topics = [
+            "StandardEvent",
+            "GUIRefreshEvent",
+            "LiveMode",
+            "Acquisition",
+            "GUI",
+            "Hardware",
+            "Settings",
+            "NewImage",
+        ]
         for topic in self.topics:
             self.socket.setsockopt_string(zmq.SUBSCRIBE, topic)
 
         # Set up the main listener Thread
         self.thread = QThread()
-        self.listener = EventListener(
-            self.socket, self.event_sockets, self.bridge, self.thread
-        )
+        self.listener = EventListener(self.socket, self.event_sockets, self.bridge, self.thread)
         self.listener.moveToThread(self.thread)
         self.thread.started.connect(self.listener.start)
         self.listener.stop_thread_event.connect(self.stop)
@@ -110,6 +117,7 @@ class EventListener(QObject):
         self.last_stage_position = time.perf_counter()
         self.blockZ = False
         self.blockImages = False
+        self.timeouts = 0
 
     @pyqtSlot()
     def start(self):
@@ -126,22 +134,38 @@ class EventListener(QObject):
             instance = instance + 1 if instance < 100 else 0
             try:
                 #  Get the reply.
+
                 reply = str(self.socket.recv())
                 # topic = re.split(' ', reply)[0][2:]
 
                 # Translate the event to a shadow object
-                message = json.loads(re.split(" ", reply)[1][0:-1])
-                socket_num = instance % len(self.event_sockets)
-                pre_evt = self.bridge._class_factory.create(message)
+                try:
+                    message = json.loads(re.split(" ", reply)[1][0:-1])
+                    socket_num = instance % len(self.event_sockets)
 
-                evt = pre_evt(
-                    socket=self.event_sockets[socket_num],
-                    serialized_object=message,
-                    bridge=self.bridge,
-                )
-
-                eventString = message["class"].split(r".")[-1]
-                log.info(eventString)
+                    eventString = message["class"].split(r".")[-1]
+                    log.info(eventString)
+                    pre_evt = self.bridge._class_factory.create(message)
+                    evt = pre_evt(
+                        socket=self.event_sockets[socket_num],
+                        serialized_object=message,
+                        bridge=self.bridge,
+                    )
+                except json.decoder.JSONDecodeError:
+                    print("ImageEvent")
+                    image_bit = str(self.socket.recv())
+                    # TODO: Maybe this should also be done for other bitdepths?!
+                    image_depth = np.uint16 if image_bit == "b'2'" else np.uint8
+                    image = np.frombuffer(self.socket.recv(), dtype=image_depth)
+                    image_params = re.split("NewImage ", reply)[1]
+                    image_params = re.split(", ", image_params[1:-2])
+                    image_params = [float(x) for x in image_params]
+                    py_image = PyImage(
+                        image.reshape([int(image_params[0]), int(image_params[1])]),
+                        *image_params[2:]
+                    )
+                    self.new_image_event.emit(py_image)
+                print(eventString)
                 if "DefaultAcquisitionStartedEvent" in eventString:
                     if time.perf_counter() - self.last_acq_started > 0.2:
                         self.acquisition_started_event.emit(evt)
@@ -151,20 +175,20 @@ class EventListener(QObject):
                 elif "DefaultAcquisitionEndedEvent" in eventString:
                     self.acquisition_ended_event.emit(evt)
                 elif "DefaultNewImageEvent" in eventString:
+
                     if self.blockImages:
                         return
-                    image = evt.get_image()
-                    py_image = PyImage(
-                        image.get_raw_pixels().reshape(
-                            [image.get_width(), image.get_height()]
-                        ),
-                        image.get_coords().get_t(),
-                        image.get_coords().get_c(),
-                        image.get_coords().get_z(),
-                        image.get_metadata().get_elapsed_time_ms(),
-                    )
+                    print(message)
+                    # image = evt.get_image()
+                    # py_image = PyImage(
+                    #     image.get_raw_pixels().reshape([image.get_width(), image.get_height()]),
+                    #     image.get_coords().get_t(),
+                    #     image.get_coords().get_c(),
+                    #     image.get_coords().get_z(),
+                    #     image.get_metadata().get_elapsed_time_ms(),
+                    # )
                     #  0) # no elapsed time
-                    self.new_image_event.emit(py_image)
+                    # self.new_image_event.emit(py_image)
 
                 elif "CustomSettingsEvent" in eventString:
                     self.configuration_settings_event.emit(
@@ -178,6 +202,8 @@ class EventListener(QObject):
                     self.last_custom_mda = time.perf_counter()
 
             except zmq.error.Again:
+                self.timeouts += 1
+                # print("Server timeout", self.timeouts)
                 pass
 
     @pyqtSlot()

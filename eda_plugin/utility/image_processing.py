@@ -169,6 +169,7 @@ def prepare_1c(images: np.ndarray):
         # image = transform.rescale(image, resize_param)
         in_range = (image.mean(), image.max())
         image = exposure.rescale_intensity(image, in_range, out_range=out_range)
+        image = transform.rescale(image, resize_param)
 
         crop_pixels = (
             image.shape[0] - image.shape[0] % 4,

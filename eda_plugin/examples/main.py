@@ -141,12 +141,10 @@ def main_isim():
     gui.add_dock_widget(interpreter.gui)
     gui.add_dock_widget(analyser.gui)
 
-
-
     gui.show()
     # actuator.gui.show()
     sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
-    main_isim()
+    keras()
