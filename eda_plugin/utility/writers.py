@@ -8,6 +8,7 @@ import os
 import numpy as np
 import re
 
+import numcodecs
 import tifffile
 import glob
 from ome_zarr import io, writer
@@ -17,7 +18,7 @@ import json
 
 from qtpy.QtCore import QObject
 from qtpy import QtWidgets
-from eda_plugin.utility.data_structures import MMSettings, PyImage
+from eda_plugin.utility.data_structures import MMSettings, ParameterSet, PyImage
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.qt_classes import QWidgetRestore
 
@@ -41,6 +42,7 @@ class Writer(QObject):
         self.gui = WriterGUI(self)
 
         self.event_bus.new_decision_parameter.connect(self.save_decision_parameter)
+        self.event_bus.new_parameters.connect(self.update_parameters)
         self.event_bus.acquisition_started_event.connect(self.new_save_location)
         self.event_bus.new_image_event.connect(self.save_image)
         self.event_bus.new_network_image.connect(self.save_network_image)
@@ -49,6 +51,7 @@ class Writer(QObject):
         self.store = None
         self.root = None
         self.local_image_store = None
+        self.params = None
 
     def new_save_location(self, event):
         """A new acquisition was started leading to a new path for saving"""
@@ -61,6 +64,9 @@ class Writer(QObject):
 
         self.eda_root = self._zarr_group(writer_path, "EDA")
         self.eda_root.create_dataset("analyser_output", shape=(1, 2))  # for analyser output
+        self.eda_root.create_dataset(
+            "parameters", shape=(1, 1), dtype=object, object_codec=numcodecs.JSON()
+        )
 
         self.ome_root = self._zarr_group(writer_path, "OME")
         self.metadata_root = self._zarr_group(writer_path, "Metadata")
@@ -68,6 +74,7 @@ class Writer(QObject):
 
         log.info("New writer path " + writer_path)
 
+        self.save_thresholds()
         self.save_mmacq_settings()
         self.save_mmdev_settings(event)
 
@@ -123,6 +130,15 @@ class Writer(QObject):
             return
         # TODO: be careful, might not get all the params!
         self.eda_root["analyser_output"].append([[timepoint, param]])
+
+    def update_parameters(self, params: ParameterSet):
+        self.params = params.to_dict()
+        log.info("Paramters updated")
+
+    def save_thresholds(self):
+        """New Acquisition is starting, save the thresholds used for this acquisition."""
+        print(json.dumps(self.params))
+        self.eda_root["parameters"] = json.dumps(self.params)
 
     def prepare_nn_image(self, image, dims):
         """Padding here, could be something else in a subclass.

@@ -50,6 +50,10 @@ class ParameterSet:
             self.lower_threshold = args[0]["lower_threshold"]
             self.upper_threshold = args[0]["upper_threshold"]
 
+    def to_dict(self):
+        return{"slow_interval": self.slow_interval, "fast_interval": self.fast_interval,
+               "lower_threshold": self.lower_threshold, "upper_threshold": self.upper_threshold}
+
 
 @dataclass
 class PyImage:
