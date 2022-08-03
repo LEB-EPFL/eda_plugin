@@ -157,9 +157,10 @@ class EventListener(QObject):
                     # TODO: Maybe this should also be done for other bitdepths?!
                     image_depth = np.uint16 if image_bit == "b'2'" else np.uint8
                     image = np.frombuffer(self.socket.recv(), dtype=image_depth)
+                    print("IMAGE TYPE:", image.dtype)
                     image_params = re.split("NewImage ", reply)[1]
                     image_params = re.split(", ", image_params[1:-2])
-                    image_params = [float(x) for x in image_params]
+                    image_params = [int(round(float(x))) for x in image_params]
                     py_image = PyImage(
                         image.reshape([int(image_params[0]), int(image_params[1])]),
                         *image_params[2:]
