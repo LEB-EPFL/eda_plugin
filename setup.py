@@ -2,12 +2,13 @@ from setuptools import setup, find_packages
 
 packages = find_packages()
 
+print(packages)
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name="eda_plugin",
-    version="0.2.21",
+    version="0.2.22",
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -34,6 +35,7 @@ setup(
         "docstring_inheritance",
         "zarr",
         "ome_zarr",
+        "pymm_eventserver",
     ],
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",

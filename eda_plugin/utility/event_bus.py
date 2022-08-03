@@ -7,7 +7,7 @@ PythonEventServer plugin provided.
 from PyQt5.QtCore import QObject, pyqtSignal
 from .data_structures import ParameterSet, PyImage
 
-from .event_thread import EventThread
+from pymm_eventserver.event_thread import EventThread
 import numpy as np
 
 
@@ -40,12 +40,8 @@ class EventBus(QObject):
 
         self.studio = self.event_thread.bridge.get_studio()
 
-        self.event_thread.listener.acquisition_started_event.connect(
-            self.acquisition_started_event
-        )
-        self.event_thread.listener.acquisition_ended_event.connect(
-            self.acquisition_ended_event
-        )
+        self.event_thread.listener.acquisition_started_event.connect(self.acquisition_started_event)
+        self.event_thread.listener.acquisition_ended_event.connect(self.acquisition_ended_event)
         self.event_thread.listener.new_image_event.connect(self.new_image_event)
 
         self.event_thread.listener.mda_settings_event.connect(self.mda_settings_event)
