@@ -152,6 +152,8 @@ class EventListener(QObject):
                         bridge=self.bridge,
                     )
                 except json.decoder.JSONDecodeError:
+                    if self.blockImages:
+                        return
                     print("ImageEvent")
                     image_bit = str(self.socket.recv())
                     # TODO: Maybe this should also be done for other bitdepths?!
@@ -175,22 +177,6 @@ class EventListener(QObject):
                     self.last_acq_started = time.perf_counter()
                 elif "DefaultAcquisitionEndedEvent" in eventString:
                     self.acquisition_ended_event.emit(evt)
-                elif "DefaultNewImageEvent" in eventString:
-
-                    if self.blockImages:
-                        return
-                    print(message)
-                    # image = evt.get_image()
-                    # py_image = PyImage(
-                    #     image.get_raw_pixels().reshape([image.get_width(), image.get_height()]),
-                    #     image.get_coords().get_t(),
-                    #     image.get_coords().get_c(),
-                    #     image.get_coords().get_z(),
-                    #     image.get_metadata().get_elapsed_time_ms(),
-                    # )
-                    #  0) # no elapsed time
-                    # self.new_image_event.emit(py_image)
-
                 elif "CustomSettingsEvent" in eventString:
                     self.configuration_settings_event.emit(
                         evt.get_device(), evt.get_property(), evt.get_value()
