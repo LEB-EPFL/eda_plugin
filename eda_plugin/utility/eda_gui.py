@@ -55,7 +55,7 @@ class EDAMainGUI(QMainWindowRestore):
         event_bus.new_parameters.connect(self.plot._set_thr_lines)
 
     def add_dock_widget(self, widget: QWidgetRestore, name=None):
-        dock_widget = QtGui.QDockWidget(name, self)
+        dock_widget = QtWidgets.QDockWidget(name, self)
         dock_widget.setWidget(widget)
         self.dock_widgets.append(dock_widget)
         self.widgets.append(widget)
