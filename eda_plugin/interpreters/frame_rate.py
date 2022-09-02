@@ -36,7 +36,7 @@ class BinaryFrameRateInterpreter(QObject):
         self.interval = self.params.slow_interval
 
         self.num_fast_frames = 0
-        self.min_fast_frames = 4
+        self.min_fast_frames = 30
 
         # Emitted signals register at event_bus
         self.new_interpretation.connect(event_bus.new_interpretation)

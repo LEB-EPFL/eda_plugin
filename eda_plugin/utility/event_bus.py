@@ -33,7 +33,7 @@ class EventBus(QObject):
     # Magellan Events
     new_magellan_settings = pyqtSignal(dict)
 
-    def __init__(self):
+    def __init__(self, subscribe_to: str = "all"):
         """Connect to Micro-Manager using the EventThread. Pass these signals through to subs."""
         super().__init__()
         self.event_thread = EventThread()
