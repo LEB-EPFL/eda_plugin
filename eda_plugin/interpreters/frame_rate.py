@@ -11,7 +11,7 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets
 import qdarkstyle
 
-from eda_plugin.utility.data_structures import ParameterSet
+from pymm_eventserver.data_structures import ParameterSet
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.qt_classes import QWidgetRestore
 from eda_plugin.utility import settings
@@ -69,9 +69,7 @@ class BinaryFrameRateInterpreter(QObject):
             self.new_interpretation.emit(self.interval)
 
         self._set_fast_count()
-        log.info(
-            f"timepoint {timepoint} decision: {new_value} -> {self.interval} interval"
-        )
+        log.info(f"timepoint {timepoint} decision: {new_value} -> {self.interval} interval")
 
     def _define_imaging_speed(self, new_value: float):
         new_interval = self.interval

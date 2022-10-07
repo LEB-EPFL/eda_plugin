@@ -11,7 +11,7 @@ import time
 
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable
 from eda_plugin.utility.event_bus import EventBus
-from eda_plugin.utility.data_structures import PyImage, MMSettings
+from pymm_eventserver.data_structures import PyImage, MMSettings
 from eda_plugin.utility import settings
 
 
