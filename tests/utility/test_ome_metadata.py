@@ -1,29 +1,10 @@
-from pymm_eventserver.data_structures import MMSettings
 from eda_plugin.utility.ome_metadata import OME
 import numpy as np
 import os
 import tifffile
 from pymm_eventserver.data_structures import PyImage
-from test_writers import test_clean_up
+# from tests.utility.test_writers import test_clean_up
 
-settings = MMSettings()
-config = "488"
-settings.channels[config] = {
-    "name": config,
-    "color": [255, 255, 255],
-    "use": True,
-    "exposure": 100,
-    "z_stack": False,
-}
-config = "561"
-settings.channels[config] = {
-    "name": config,
-    "color": [255, 0, 0],
-    "use": True,
-    "exposure": 100,
-    "z_stack": False,
-}
-settings.n_channels = 2
 
 
 def main():
@@ -31,16 +12,17 @@ def main():
         test_ome_from_settings()
         test_writing_data()
     finally:
-        test_clean_up()
+        pass
+        # test_clean_up()
 
 
-def test_ome_from_settings():
-    ome = OME(settings=settings)
+def test_ome_from_settings(MMSettings_mock):
+    ome = OME(settings=MMSettings_mock)
 
 
-def test_writing_data():
+def test_writing_data(MMSettings_mock):
     test_data = (np.random.random([50, 2, 512, 512]) * 255).astype(np.uint8)
-    ome = OME(settings=settings)
+    ome = OME(settings=MMSettings_mock)
     for timepoint, frames in enumerate(test_data):
         for channel, frame in enumerate(frames):
             time = timepoint * 300 + channel * 150

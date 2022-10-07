@@ -117,6 +117,7 @@ class OME:
         return instrument
 
     def channels_from_settings(self, channels: List[MMChannel]):
+        print(channels)
         ome_channels = []
         for idx, channel in enumerate(channels):
             ome_channel = ome_model.Channel(

@@ -23,6 +23,7 @@ from pymm_eventserver.data_structures import MMSettings, ParameterSet, PyImage
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.qt_classes import QWidgetRestore
 from eda_plugin.utility.ome_metadata import OME
+import copy
 
 
 log = logging.getLogger("EDA")
@@ -97,14 +98,17 @@ class Writer(QObject):
         self.ome.add_plane_from_image(py_image)
         self.local_image_store[0][py_image.channel][py_image.z_slice] = py_image.raw_image
 
+        print(f"MAX DATA {self.local_image_store.max()}")
         if (
             py_image.channel == self.settings.n_channels - 1
             and py_image.z_slice == self.settings.n_slices - 1
         ):
             if py_image.timepoint == 0:
-                self.image_root["0"] = self.local_image_store
+                self.image_root["0"] = copy.deepcopy(self.local_image_store)
             else:
                 self.image_root["0"].append(self.local_image_store)
+        print(self.image_root['0'][0, 0, 0, 0, 0:5])
+
 
     def save_network_image(self, image: np.ndarray, dims: tuple):
         """Save network image to zarr store"""

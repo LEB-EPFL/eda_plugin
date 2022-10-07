@@ -4,7 +4,6 @@ import pytest
 from pymm_eventserver.data_structures import MMSettings
 
 from eda_plugin.utility.event_bus import EventBus
-from test_mm_mocks import mock_datastore, datastore_save_path
 
 
 @pytest.fixture
@@ -14,23 +13,23 @@ def event_bus(qtbot):
 
 
 @pytest.fixture
-def java_settings_event(mock_datastore):
+def java_settings_event(mock_datastore, java_settings_mock):
     mockup = mock.MagicMock()
-    mockup.get_settings.return_value = None
+    mockup.get_settings.return_value = java_settings_mock
     mockup.get_datastore.return_value = mock_datastore
     yield mockup
 
 
 @pytest.fixture
-def java_settings_event_w_save_loc(datastore_save_path):
+def java_settings_event_w_save_loc(datastore_save_path, java_settings_mock):
     mockup = mock.MagicMock()
-    mockup.get_settings.return_value = None
+    mockup.get_settings.return_value = java_settings_mock
     mockup.get_datastore.return_value = datastore_save_path
     yield mockup
 
 
 def test_java_settings_event(java_settings_event):
-    assert java_settings_event.get_settings() is None
+    assert java_settings_event.get_settings() is not None
     assert isinstance(java_settings_event.get_datastore(), mock.MagicMock)
 
 
