@@ -145,10 +145,11 @@ def main_isim():
     # actuator.gui.show()
     sys.exit(app.exec_())
 
+
 flavours = {"pyro": pyro, "keras": keras, "pyro_keras": pyro_keras, "main_isim": main_isim}
 try:
     flavour = flavours[sys.argv[1]]
-except IndexError:
+except (IndexError, KeyError) as e:
     flavour = keras
 
 if __name__ == "__main__":
