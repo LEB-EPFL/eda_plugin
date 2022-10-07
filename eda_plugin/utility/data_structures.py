@@ -51,8 +51,12 @@ class ParameterSet:
             self.upper_threshold = args[0]["upper_threshold"]
 
     def to_dict(self):
-        return{"slow_interval": self.slow_interval, "fast_interval": self.fast_interval,
-               "lower_threshold": self.lower_threshold, "upper_threshold": self.upper_threshold}
+        return {
+            "slow_interval": self.slow_interval,
+            "fast_interval": self.fast_interval,
+            "lower_threshold": self.lower_threshold,
+            "upper_threshold": self.upper_threshold,
+        }
 
 
 @dataclass
@@ -96,13 +100,13 @@ class MMSettings:
     java_channels: Any = None
     use_channels = True
     channels: List[MMChannel] = None
-    n_channels: int = 0
+    n_channels: int = 1
 
     slices_start: float = None
     slices_end: float = None
     slices_step: float = None
     slices: List[float] = None
-    n_slices: int = None
+    n_slices: int = 1
     use_slices: bool = False
 
     save_path: Path = None
@@ -110,7 +114,11 @@ class MMSettings:
 
     sweeps_per_frame: int = 1
 
-    acq_order: str = None
+    acq_order: str = "XYZCT"
+
+    ome_metadata = None
+
+    microscope: object = iSIM()
 
     def __post_init__(self):
         """Take the settings from MM as a java object and get the settings are represented here.
@@ -128,7 +136,7 @@ class MMSettings:
         try:
             self.java_channels.size()
         except:
-            return
+            return self
 
         self.channels = {}
         self.n_channels = 0
