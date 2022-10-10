@@ -64,7 +64,6 @@ class OME:
             ifd=len(self.planes),
             plane_count=1,
         )
-        print(tiff)
         self.image_size = image.raw_image.shape
         self.max_indices = [
             max(self.max_indices[0], image.channel + 1),
