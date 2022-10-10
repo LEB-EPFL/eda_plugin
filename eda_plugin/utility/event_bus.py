@@ -5,7 +5,7 @@ PythonEventServer plugin provided.
 """
 
 from PyQt5.QtCore import QObject, pyqtSignal
-from .data_structures import ParameterSet, PyImage
+from pymm_eventserver.data_structures import ParameterSet, PyImage
 
 from pymm_eventserver.event_thread import EventThread
 import numpy as np
@@ -36,7 +36,8 @@ class EventBus(QObject):
     def __init__(self, subscribe_to: str = "all"):
         """Connect to Micro-Manager using the EventThread. Pass these signals through to subs."""
         super().__init__()
-        self.event_thread = EventThread()
+        topics = ["StandardEvent", "GUIRefreshEvent", "Acquisition", "GUI", "Settings", "NewImage"]
+        self.event_thread = event_thread(topics=topics)
 
         self.studio = self.event_thread.bridge.get_studio()
 
@@ -48,3 +49,22 @@ class EventBus(QObject):
         self.event_thread.listener.configuration_settings_event.connect(
             self.configuration_settings_event
         )
+
+        self.initialized = True
+        print("EventBus ready")
+        # self.mda_settings_event.emit(settings)
+
+
+def main():
+    import time
+
+    thread = EventThread
+    bus = EventBus(thread)
+    while True:
+        try:
+            time.sleep(0.01)
+        except KeyboardInterrupt:
+            bus.__dict__
+            thread.listener.stop()
+            print("Stopping")
+            break

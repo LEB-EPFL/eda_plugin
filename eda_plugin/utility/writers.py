@@ -2,35 +2,36 @@
 https://www.nature.com/articles/s41592-021-01326-w
 """
 
-
+import copy
+import glob
+import json
 import logging
 import os
-import numpy as np
 import re
+from pathlib import Path
+from typing import Union
 
 import numcodecs
+import numpy as np
 import tifffile
-import glob
-from ome_zarr import io, writer
 import zarr
-from typing import Union
-import json
-
-from qtpy.QtCore import QObject
-from qtpy import QtWidgets
-from eda_plugin.utility.data_structures import MMSettings, ParameterSet, PyImage
 from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility.ome_metadata import OME
 from eda_plugin.utility.qt_classes import QWidgetRestore
-
+from ome_zarr import io, writer
+from pymm_eventserver.data_structures import MMSettings, ParameterSet, PyImage
+from qtpy import QtWidgets
+from qtpy.QtCore import QObject
 
 log = logging.getLogger("EDA")
 
 
 class Writer(QObject):
-    """Writer that writes images, metadata and EDA specific data to have all information for an EDA
-    experiment in one place."""
+    """Writer that writes images, metadata and EDA specific data to have all information for EDA.
 
-    # TODO: Does this now save the images itself, or does it take the Micro-Manager output?
+    With this one everything will be written as OME_NGFF with some additional folders for additional
+    Metadata for both Micro-Manager and EDA specific information.
+    """
 
     def __init__(self, event_bus: EventBus):
         """Connect the necessary signals"""
@@ -52,14 +53,17 @@ class Writer(QObject):
         self.root = None
         self.local_image_store = None
         self.params = None
+        self.settings = None
+        self.ome = None
 
     def new_save_location(self, event):
         """A new acquisition was started leading to a new path for saving"""
+        if event is None:
+            return
         self.settings = MMSettings(event.get_settings())
-        self.orig_save_path = event.get_datastore().get_save_path()
-        writer_path = os.path.join(
-            self.gui.path.text(), os.path.basename(self.orig_save_path) + ".ome.zarr"
-        )
+
+        writer_path = self._set_possible_folder_name(event)
+
         self.root = self._zarr_group(writer_path)
 
         self.eda_root = self._zarr_group(writer_path, "EDA")
@@ -67,12 +71,13 @@ class Writer(QObject):
         self.eda_root.create_dataset(
             "parameters", shape=(1, 1), dtype=object, object_codec=numcodecs.JSON()
         )
-
         self.ome_root = self._zarr_group(writer_path, "OME")
         self.metadata_root = self._zarr_group(writer_path, "Metadata")
         self.image_root = self._zarr_group(writer_path, "Images")
 
         log.info("New writer path " + writer_path)
+
+        self.ome = OME(settings=self.settings)
 
         self.save_thresholds()
         self.save_mmacq_settings()
@@ -88,16 +93,20 @@ class Writer(QObject):
             self._fake_metadata(py_image.raw_image.shape, self.image_root, "0")
             self.local_image_store = np.ndarray(shape, "uint16")
 
+        self.ome.add_plane_from_image(py_image)
         self.local_image_store[0][py_image.channel][py_image.z_slice] = py_image.raw_image
 
+        print(f"MAX DATA {self.local_image_store.max()}")
         if (
             py_image.channel == self.settings.n_channels - 1
             and py_image.z_slice == self.settings.n_slices - 1
         ):
             if py_image.timepoint == 0:
-                self.image_root["0"] = self.local_image_store
+                self.image_root["0"] = copy.deepcopy(self.local_image_store)
             else:
                 self.image_root["0"].append(self.local_image_store)
+        print(self.image_root['0'][0, 0, 0, 0, 0:5])
+
 
     def save_network_image(self, image: np.ndarray, dims: tuple):
         """Save network image to zarr store"""
@@ -106,7 +115,7 @@ class Writer(QObject):
         # -> Put this into a function so we can adjust it when subclassing
         image = self.prepare_nn_image(image, dims)
 
-        if dims[0] == 0:
+        if "nn_images" not in self.eda_root:
             self.eda_root.create_dataset(
                 "nn_images", shape=(1, 1, 1, image.shape[0], image.shape[1])
             )
@@ -132,6 +141,7 @@ class Writer(QObject):
         self.eda_root["analyser_output"].append([[timepoint, param]])
 
     def update_parameters(self, params: ParameterSet):
+        """Update the parameters for the Interpreter used."""
         self.params = params.to_dict()
         log.info("Paramters updated")
 
@@ -151,15 +161,18 @@ class Writer(QObject):
         return image
 
     def save_mmdev_settings(self, event):
+        """Sace Micro-Manager settings"""
         file = "MM_state.txt"
         path = os.path.join(self.metadata_root.store.path, file)
         self.event_bus.studio.get_cmm_core().save_system_state(path)
 
     def save_mmacq_settings(self):
+        """Save acquisition settings but strip off the Java objects first."""
         settings_dict = self.settings.__dict__
         settings_dict["java_channels"] = None
         settings_dict["java_slices"] = None
         settings_dict["java_settings"] = None
+        settings_dict["microscope"] = None
         settings_json = json.dumps(settings_dict, indent=4, sort_keys=True)
         metadata_file = "MMSettings.json"
         path = os.path.join(self.metadata_root.store.path, metadata_file)
@@ -167,13 +180,19 @@ class Writer(QObject):
             f.write(settings_json)
 
     def save_metadata(self):
-        tif_file = glob.glob(self.orig_save_path + "/*.ome.tif")[0]
-        with tifffile.TiffFile(tif_file) as tif:
-            self.save_ome_metadata(tif)
-            self.save_imagej_metadata(tif)
+        """Save all the metadata once the acquisition is over."""
+        try:
+            tif_file = glob.glob(self.orig_save_path + "/*.ome.tif")[0]
+            with tifffile.TiffFile(tif_file) as tif:
+                self.save_ome_metadata(tif)
+                self.save_imagej_metadata(tif)
+        except IndexError:
+            self.ome.finalize_metadata()
+            self.save_ome_metadata(xml=self.ome.ome.to_xml())
 
     def save_imagej_metadata(self, tif: Union[tifffile.TiffFile, None] = None):
         """Get the ImageJ metadata from the original tiff file and save it"""
+        # Again, only works if micro-manager saved the tif in the first place
         if not self.gui.save_metadata.isChecked():
             return
         metadata_file = "imagej_metadata.json"
@@ -189,7 +208,7 @@ class Writer(QObject):
         with open(path, "w", encoding="utf-8") as f:
             f.write(data)
 
-    def save_ome_metadata(self, tif: Union[tifffile.TiffFile, None] = None):
+    def save_ome_metadata(self, tif: Union[tifffile.TiffFile, None] = None, xml: str = None):
         """Get the OME metadata from the original tiff file and save it"""
         if not self.gui.save_metadata.isChecked():
             return
@@ -197,6 +216,8 @@ class Writer(QObject):
 
         if tif is not None:
             xml_metadata = tif.ome_metadata
+        elif xml is not None:
+            xml_metadata = xml
         else:
             tif_file = glob.glob(self.orig_save_path + "/*.ome.tif")[0]
             with tifffile.TiffFile(tif_file) as tif:
@@ -224,6 +245,29 @@ class Writer(QObject):
         )
         datasets = [{"path": name, "coordinateTransformations": coordinate_transformations[0]}]
         writer.write_multiscales_metadata(group, datasets, writer.CurrentFormat(), axes)
+
+    def _set_possible_folder_name(self, event):
+        folder_number = 0
+        self.orig_save_path = event.get_datastore().get_save_path()
+
+        if self.orig_save_path is None:
+            self.orig_save_path = "mock/FOV"
+        writer_path = os.path.join(
+            self.gui.path.text(), os.path.basename(self.orig_save_path) + ".ome.zarr"
+        )
+
+        path_now = os.path.join(
+            self.gui.path.text(),
+            self.orig_save_path + "_" + str(folder_number).zfill(3) + ".ome.zarr",
+        )
+        while Path(path_now).is_dir():
+            folder_number += 1
+            path_now = os.path.join(
+                self.gui.path.text(),
+                self.orig_save_path + "_" + str(folder_number).zfill(3) + ".ome.zarr",
+            )
+        self.orig_save_path = self.orig_save_path + "_" + str(folder_number).zfill(3) + ".ome.zarr"
+        return path_now
 
 
 class WriterGUI(QWidgetRestore):
@@ -279,6 +323,7 @@ class WriterGUI(QWidgetRestore):
 
 
 class NumpyEncoder(json.JSONEncoder):
+    """Small custom encoder for numpy things"""
     def default(self, obj):
         if isinstance(obj, np.ndarray):
             return obj.tolist()

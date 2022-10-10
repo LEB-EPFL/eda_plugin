@@ -42,10 +42,10 @@ class KerasAnalyser(ImageAnalyser):
     def __init__(self, event_bus: EventBus):
         """Load and connect the GUI. Initialise settings from the GUI."""
         super().__init__(event_bus=event_bus)
+        self.event_bus = event_bus
         self.gui = KerasSettingsGUI()
         self.gui.new_settings.connect(self.new_settings)
         self.new_settings(self.gui.keras_settings)
-        self.event_bus = event_bus
 
     def connect_worker_signals(self, worker: QRunnable):
         """Connect the additional worker signals."""
