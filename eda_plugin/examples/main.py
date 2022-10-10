@@ -48,7 +48,7 @@ def basic():
 def pyro():
     """EDA loop thay can be used to test without a microscope and without CUDA installation."""
     from eda_plugin.actuators.micro_manager import MMActuator
-    from eda_plugin.actuators.pycromanager import PycroAcquisition
+    from eda_plugin.actuators.pycro import PycroAcquisition
     from eda_plugin.analysers.image import PycroImageAnalyser
 
     eda_plugin.utility.settings.setup_logging()

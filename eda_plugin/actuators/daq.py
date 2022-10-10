@@ -11,6 +11,7 @@ from __future__ import annotations
 import copy
 import logging
 import time
+from black import FileContent
 
 import nidaqmx
 import nidaqmx.stream_writers
@@ -30,7 +31,7 @@ class DAQActuator(QObject):
     new_daq_data = pyqtSignal(np.ndarray)
     start_acq_signal = pyqtSignal(np.ndarray)
 
-    def __init__(self, event_bus: EventBus):
+    def __init__(self, event_bus: EventBus, my_task = nidaqmx.Task):
         """Initialize the DAQ with the settings that are fixed for all modes."""
         super().__init__()
 
@@ -54,7 +55,10 @@ class DAQActuator(QObject):
         self.camera = Camera(self)
         self.aotf = AOTF(self)
 
+        self.my_task = my_task
         self._init_task()
+
+
         self.acq = EDAAcquisition(self, self.settings, self.eda_params)
         self.eda = False
 
@@ -67,16 +71,17 @@ class DAQActuator(QObject):
         self.event_bus.acquisition_started_event.connect(self.run_acquisition_task)
         self.event_bus.acquisition_ended_event.connect(self.acq_done)
         self.event_bus.new_interpretation.connect(self.call_action)
+        self.event_bus.mda_settings_event.connect(self.new_settings)
 
-    def _disconnect_events(self):
-        self.blockSignals()
+    def _disconnect_events(self, if_block:bool = True):
+        self.blockSignals(if_block)
 
     def _init_task(self):
         try:
             self.task.close()
         except:
             log.info("Task close failed")
-        self.task = nidaqmx.Task()
+        self.task = self.my_task()
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao0")  # galvo channel
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao1")  # z stage
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao2")  # camera channel
@@ -166,8 +171,8 @@ class DAQActuator(QObject):
                 self.blockSignals(True)
                 self.task.close()
 
-        if device in ["561_AOTF", "488_AOTF", "exposure"]:
-            self.live.make_daq_data()
+        # if device in ["561_AOTF", "488_AOTF", "exposure"]:
+        #     self.live.make_daq_data()
         log.info(f"{device}.{prop} -> {value}")
 
     def _generate_one_timepoint(self):
@@ -223,7 +228,11 @@ class EDAAcquisition(QObject):
         self.daq_data_fast = None
         self.daq_data_slow = None
         self.make_daq_data()
-        self.update_settings(self.settings)
+        try:
+            self.update_settings(self.settings)
+        except FileNotFoundError:
+            log.warning("DAQ might not be connected")
+
 
     def update_settings(self, new_settings):
         """Update the settings according to the daq_data that the acquisition has generated."""
@@ -236,10 +245,13 @@ class EDAAcquisition(QObject):
         self.ni.task.out_stream.regen_mode = (
             nidaqmx.constants.RegenerationMode.DONT_ALLOW_REGENERATION
         )
-        self.ni.stream = nidaqmx.stream_writers.AnalogMultiChannelWriter(
-            self.ni.task.out_stream, auto_start=False
-        )
-        self.ni.stream.write_many_sample(self.daq_data_fast)
+        try:
+            self.ni.stream = nidaqmx.stream_writers.AnalogMultiChannelWriter(
+                self.ni.task.out_stream, auto_start=False
+            )
+            self.ni.stream.write_many_sample(self.daq_data_fast)
+        except FileNotFoundError:
+            log.warning("DAQ not connected no data sent")
         self.ni.task.register_every_n_samples_transferred_from_buffer_event(
             self.daq_data_fast.shape[1], self.get_new_data
         )
