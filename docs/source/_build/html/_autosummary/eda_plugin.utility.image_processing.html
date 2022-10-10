@@ -18,7 +18,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="eda_plugin.utility.image_processing.calculatePixel" href="eda_plugin.utility.image_processing.calculatePixel.html" />
-    <link rel="prev" title="eda_plugin.utility.event_thread.EventThread" href="eda_plugin.utility.event_thread.EventThread.html" /> 
+    <link rel="prev" title="eda_plugin.utility.download_data.download_data" href="eda_plugin.utility.download_data.download_data.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -29,7 +29,7 @@
             <a href="../index.html" class="icon icon-home"> event-driven-acquisition
           </a>
               <div class="version">
-                0.2.17
+                0.2.19
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -48,19 +48,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../custom_components.html">Creating Custom components</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eda_plugin.actuators.html">eda_plugin.actuators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.analysers.html">eda_plugin.analysers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.interpreters.html">eda_plugin.interpreters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eda_plugin.examples.html">eda_plugin.examples</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="eda_plugin.utility.html">eda_plugin.utility</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.data_structures.html">eda_plugin.utility.data_structures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.download_data.html">eda_plugin.utility.download_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.eda_gui.html">eda_plugin.utility.eda_gui</a></li>
-<li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.event_bus.html">eda_plugin.utility.event_bus</a></li>
-<li class="toctree-l3"><a class="reference internal" href="eda_plugin.utility.event_thread.html">eda_plugin.utility.event_thread</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">eda_plugin.utility.image_processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.image_processing.calculatePixel.html">eda_plugin.utility.image_processing.calculatePixel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.image_processing.getTilePositionsV2.html">eda_plugin.utility.image_processing.getTilePositionsV2</a></li>
 <li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.image_processing.prepareNNImages.html">eda_plugin.utility.image_processing.prepareNNImages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.image_processing.prepare_1c.html">eda_plugin.utility.image_processing.prepare_1c</a></li>
+<li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.image_processing.prepare_ftsw.html">eda_plugin.utility.image_processing.prepare_ftsw</a></li>
 <li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.image_processing.prepare_wo_tiling.html">eda_plugin.utility.image_processing.prepare_wo_tiling</a></li>
 <li class="toctree-l4"><a class="reference internal" href="eda_plugin.utility.image_processing.stitchImage.html">eda_plugin.utility.image_processing.stitchImage</a></li>
 </ul>
@@ -119,6 +114,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="eda_plugin.utility.image_processing.prepareNNImages.html#eda_plugin.utility.image_processing.prepareNNImages" title="eda_plugin.utility.image_processing.prepareNNImages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepareNNImages</span></code></a>(bact_img, ftsz_img, model[, …])</p></td>
 <td><p>Preprocess raw iSIM images before running them throught the neural network.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="eda_plugin.utility.image_processing.prepare_1c.html#eda_plugin.utility.image_processing.prepare_1c" title="eda_plugin.utility.image_processing.prepare_1c"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_1c</span></code></a>(images)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="eda_plugin.utility.image_processing.prepare_ftsw.html#eda_plugin.utility.image_processing.prepare_ftsw" title="eda_plugin.utility.image_processing.prepare_ftsw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_ftsw</span></code></a>(bact_img, ftsz_img, model)</p></td>
+<td><p>Special function to handle the cytosolic background in ftsw bacteria.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="eda_plugin.utility.image_processing.prepare_wo_tiling.html#eda_plugin.utility.image_processing.prepare_wo_tiling" title="eda_plugin.utility.image_processing.prepare_wo_tiling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_wo_tiling</span></code></a>(images)</p></td>
 <td><p></p></td>
 </tr>
@@ -133,7 +134,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="eda_plugin.utility.event_thread.EventThread.html" class="btn btn-neutral float-left" title="eda_plugin.utility.event_thread.EventThread" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eda_plugin.utility.download_data.download_data.html" class="btn btn-neutral float-left" title="eda_plugin.utility.download_data.download_data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="eda_plugin.utility.image_processing.calculatePixel.html" class="btn btn-neutral float-right" title="eda_plugin.utility.image_processing.calculatePixel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -29,7 +29,7 @@
             <a href="index.html" class="icon icon-home"> event-driven-acquisition
           </a>
               <div class="version">
-                0.2.17
+                0.2.19
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -87,6 +87,7 @@ to run in.</p>
 <span class="kn">from</span> <span class="nn">eda_plugin.interpreters.frame_rate</span> <span class="kn">import</span> <span class="n">BinaryFrameRateInterpreter</span>
 <span class="kn">from</span> <span class="nn">eda_plugin.utility.eda_gui</span> <span class="kn">import</span> <span class="n">EDAMainGUI</span>
 <span class="kn">from</span> <span class="nn">eda_plugin.utility.event_bus</span> <span class="kn">import</span> <span class="n">EventBus</span>
+<span class="kn">from</span> <span class="nn">eda_plugin.utility.writers</span> <span class="kn">import</span> <span class="n">Writer</span>
 <span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtWidgets</span>
 
 
@@ -117,7 +118,6 @@ to run in.</p>
 
     <span class="c1"># Start the event loop</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
-
 </pre></div>
 </div>
 <p>The normal use case for custom situation will be to replace one of the main components, <cite>actuator</cite>,

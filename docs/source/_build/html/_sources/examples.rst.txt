@@ -41,7 +41,8 @@ actuator:
 >>> eda.examples.pyro_keras()
 
 In this example the actuator is modified as described in  :ref:`custom-actuators` to allow for image
-injection, as the Micro-Magellan plugins don't work with the on-the-fly processors.
+injection, as the Micro-Magellan plugins don't work with the on-the-fly processors. For image
+injection, the demo camera has to be set to the pixel size of the input tif file.
 
 .. _tensorflowinstall:
 

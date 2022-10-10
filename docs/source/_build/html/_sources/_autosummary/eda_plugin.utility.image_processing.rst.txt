@@ -17,6 +17,8 @@ eda\_plugin.utility.image\_processing
       calculatePixel
       getTilePositionsV2
       prepareNNImages
+      prepare_1c
+      prepare_ftsw
       prepare_wo_tiling
       stitchImage
    

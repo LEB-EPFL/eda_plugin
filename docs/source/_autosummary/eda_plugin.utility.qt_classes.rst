@@ -19,6 +19,7 @@ eda\_plugin.utility.qt\_classes
       :toctree:
       :template: custom_class.rst
    
+      QMainWindowRestore
       QWidgetRestore
    
    

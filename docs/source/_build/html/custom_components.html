@@ -29,7 +29,7 @@
             <a href="index.html" class="icon icon-home"> event-driven-acquisition
           </a>
               <div class="version">
-                0.2.17
+                0.2.19
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -85,11 +85,11 @@
 <span id="id1"></span><h2>Custom Actuators<a class="headerlink" href="#custom-actuators" title="Permalink to this headline">¶</a></h2>
 <p>Actuators are seperated into the main class for basic parameters and control and Acquisition classes
 responsible for a started acquisition. The actuator should at least be able to receive a signal from
-an interpreter, here normally implemented in the pyqtSlot <a class="reference internal" href="_autosummary/eda_plugin.actuators.daq.DAQActuator.html#eda_plugin.actuators.daq.DAQActuator.call_action" title="eda_plugin.actuators.daq.DAQActuator.call_action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">call_action()</span></code></a>. Depending on the
+an interpreter, here normally implemented in the pyqtSlot <code class="xref py py-meth docutils literal notranslate"><span class="pre">call_action()</span></code>. Depending on the
 implementation of image recording, it might also be responsible to hand new images over to the
-analyser. This is the case for example in the <a class="reference internal" href="_autosummary/eda_plugin.actuators.pycromanager.PycroAcquisition.html#eda_plugin.actuators.pycromanager.PycroAcquisition" title="eda_plugin.actuators.pycromanager.PycroAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">PycroAcquisition</span></code></a> class.
-The <a class="reference internal" href="_autosummary/eda_plugin.examples.actuators.InjectedPycroAcquisition.html#eda_plugin.examples.actuators.InjectedPycroAcquisition" title="eda_plugin.examples.actuators.InjectedPycroAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">InjectedPycroAcquisition</span></code></a> class used in the <code class="xref py py-meth docutils literal notranslate"><span class="pre">examples.main.pyro()</span></code> example is a subclass of the more basic
-<a class="reference internal" href="_autosummary/eda_plugin.actuators.pycromanager.PycroAcquisition.html#eda_plugin.actuators.pycromanager.PycroAcquisition" title="eda_plugin.actuators.pycromanager.PycroAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">actuators.pycromanager.PycroAcquisition</span></code></a> with the additional image injection.</p>
+analyser. This is the case for example in the <code class="xref py py-class docutils literal notranslate"><span class="pre">PycroAcquisition</span></code> class.
+The <code class="xref py py-class docutils literal notranslate"><span class="pre">InjectedPycroAcquisition</span></code> class used in the <code class="xref py py-meth docutils literal notranslate"><span class="pre">examples.main.pyro()</span></code> example is a subclass of the more basic
+<code class="xref py py-class docutils literal notranslate"><span class="pre">actuators.pycromanager.PycroAcquisition</span></code> with the additional image injection.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InjectedPycroAcquisition</span><span class="p">(</span><span class="n">PycroAcquisition</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -102,8 +102,8 @@ The <a class="reference internal" href="_autosummary/eda_plugin.examples.actuato
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tif_file</span><span class="si">}</span><span class="s2"> loaded with shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tif</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In this example, the function <a class="reference internal" href="_autosummary/eda_plugin.actuators.pycromanager.PycroAcquisition.html#eda_plugin.actuators.pycromanager.PycroAcquisition.receive_image" title="eda_plugin.actuators.pycromanager.PycroAcquisition.receive_image"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PycroAcquisition.receive_image()</span></code></a> of <a class="reference internal" href="_autosummary/eda_plugin.actuators.pycromanager.PycroAcquisition.html#eda_plugin.actuators.pycromanager.PycroAcquisition" title="eda_plugin.actuators.pycromanager.PycroAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">PycroAcquisition</span></code></a> is overwritten to inject the
-image. Later, the original <a class="reference internal" href="_autosummary/eda_plugin.actuators.pycromanager.PycroAcquisition.html#eda_plugin.actuators.pycromanager.PycroAcquisition.receive_image" title="eda_plugin.actuators.pycromanager.PycroAcquisition.receive_image"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PycroAcquisition.receive_image()</span></code></a> is called by <code class="docutils literal notranslate"><span class="pre">super().receive_image(image,</span> <span class="pre">metadata)</span></code>
+<p>In this example, the function <code class="xref py py-meth docutils literal notranslate"><span class="pre">PycroAcquisition.receive_image()</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">PycroAcquisition</span></code> is overwritten to inject the
+image. Later, the original <code class="xref py py-meth docutils literal notranslate"><span class="pre">PycroAcquisition.receive_image()</span></code> is called by <code class="docutils literal notranslate"><span class="pre">super().receive_image(image,</span> <span class="pre">metadata)</span></code>
 with the modified image.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">receive_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">):</span>
@@ -123,7 +123,7 @@ with the modified image.</p>
 </pre></div>
 </div>
 <p>Additionally to the actuators that are based on Micro-Manager controlling the microscope, we also
-implemented an actuator for our NI DAQ driven microscope <a class="reference internal" href="_autosummary/eda_plugin.actuators.daq.DAQActuator.html#eda_plugin.actuators.daq.DAQActuator" title="eda_plugin.actuators.daq.DAQActuator"><code class="xref py py-class docutils literal notranslate"><span class="pre">actuators.daq.DAQActuator</span></code></a>. This can be
+implemented an actuator for our NI DAQ driven microscope <code class="xref py py-class docutils literal notranslate"><span class="pre">actuators.daq.DAQActuator</span></code>. This can be
 a starting point for a very different implementation of an actuator.</p>
 <p>An interesting application of a custom actuator could be one that additionally to the framerate
 changes another parameter on the microscope. For this, the <code class="docutils literal notranslate"><span class="pre">call_action</span></code> function would be
@@ -136,23 +136,23 @@ overwritten to add functionality.</p>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">call_action</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In the <a class="reference internal" href="_autosummary/eda_plugin.actuators.pycromanager.PycroAcquisition.html#eda_plugin.actuators.pycromanager.PycroAcquisition" title="eda_plugin.actuators.pycromanager.PycroAcquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">PycroAcquisition</span></code></a> this behaviour could be even more intricate, as described in
+<p>In the <code class="xref py py-class docutils literal notranslate"><span class="pre">PycroAcquisition</span></code> this behaviour could be even more intricate, as described in
 the documentation (<a class="reference external" href="https://pycro-manager.readthedocs.io/en/latest/">pycro-manager documentation</a>)</p>
 </div>
 <div class="section" id="analysers">
 <h2>Analysers<a class="headerlink" href="#analysers" title="Permalink to this headline">¶</a></h2>
-<p>Analysers are seperated into a main QObject (e.g. <a class="reference internal" href="_autosummary/eda_plugin.analysers.image.ImageAnalyser.html#eda_plugin.analysers.image.ImageAnalyser" title="eda_plugin.analysers.image.ImageAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">analysers.image.ImageAnalyser</span></code></a>) for the main settings and the interaction with the other
+<p>Analysers are seperated into a main QObject (e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">analysers.image.ImageAnalyser</span></code>) for the main settings and the interaction with the other
 EDA components. They also start a QThreadpool, these threads are used to start asynchronous analysis
-of the recorded images in a QRunnable (e.g. <a class="reference internal" href="_autosummary/eda_plugin.analysers.image.ImageAnalyserWorker.html#eda_plugin.analysers.image.ImageAnalyserWorker" title="eda_plugin.analysers.image.ImageAnalyserWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">analysers.image.ImageAnalyserWorker</span></code></a>). The
+of the recorded images in a QRunnable (e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">analysers.image.ImageAnalyserWorker</span></code>). The
 implementation using a thread pool also ensures, that the analysis keeps up with the acquisition, as
 analysis tasks that can’t be handed to a free thread are skipped automatically.
 In this role, analysers should be able to receive images and are responsible to send a new result to
 the interpreter.</p>
-<p>The <a class="reference internal" href="_autosummary/eda_plugin.analysers.keras.KerasAnalyser.html#eda_plugin.analysers.keras.KerasAnalyser" title="eda_plugin.analysers.keras.KerasAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code></a> using the model that was reported in the original paper is a subclass of the very basic
-<a class="reference internal" href="_autosummary/eda_plugin.analysers.image.ImageAnalyser.html#eda_plugin.analysers.image.ImageAnalyser" title="eda_plugin.analysers.image.ImageAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageAnalyser</span></code></a>. It uses workers that are themselves subclasses of <a class="reference internal" href="_autosummary/eda_plugin.analysers.image.ImageAnalyserWorker.html#eda_plugin.analysers.image.ImageAnalyserWorker" title="eda_plugin.analysers.image.ImageAnalyserWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageAnalyserWorker</span></code></a>.
-<a class="reference internal" href="_autosummary/eda_plugin.examples.analysers.html#module-eda_plugin.examples.analysers" title="eda_plugin.examples.analysers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">examples.analysers</span></code></a> shows two workers that modify the pre and post processing of the images.
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code> using the model that was reported in the original paper is a subclass of the very basic
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ImageAnalyser</span></code>. It uses workers that are themselves subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">ImageAnalyserWorker</span></code>.
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">examples.analysers</span></code> shows two workers that modify the pre and post processing of the images.
 To accomodate workers with potentially different inputs and signals, the functions <code class="xref py py-meth docutils literal notranslate"><span class="pre">ImageAnalyser._get_worker_args()</span></code>
-and <a class="reference internal" href="_autosummary/eda_plugin.analysers.image.ImageAnalyser.html#eda_plugin.analysers.image.ImageAnalyser.connect_worker_signals" title="eda_plugin.analysers.image.ImageAnalyser.connect_worker_signals"><code class="xref py py-meth docutils literal notranslate"><span class="pre">connect_worker_signals()</span></code></a> can be overwritten seperately without having to rewrite the whole
+and <code class="xref py py-meth docutils literal notranslate"><span class="pre">connect_worker_signals()</span></code> can be overwritten seperately without having to rewrite the whole
 worker delivery logic.</p>
 <p>See also <a class="reference internal" href="custom_networks.html"><span class="doc">Custom Neural Networks</span></a>.</p>
 </div>
@@ -165,7 +165,7 @@ frame rate interpreter used in the examples to a continous one, that takes the v
 analyser and just scales it to a delay time before forwarding it to the actuator. This can be
 achieved by only overwritting the function that defines the new imaging speed from the value
 received from the analyser. The rest of the class stays the same. This is
-demonstrated in <a class="reference internal" href="_autosummary/eda_plugin.examples.interpreters.FrameRateInterpreter.html#eda_plugin.examples.interpreters.FrameRateInterpreter" title="eda_plugin.examples.interpreters.FrameRateInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameRateInterpreter</span></code></a>.</p>
+demonstrated in <code class="xref py py-class docutils literal notranslate"><span class="pre">FrameRateInterpreter</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eda_plugin.interpreters.frame_rate</span> <span class="kn">import</span> <span class="n">BinaryFrameRateInterpreter</span>
 <span class="kn">from</span> <span class="nn">eda_plugin.utility.event_bus</span> <span class="kn">import</span> <span class="n">EventBus</span>
 

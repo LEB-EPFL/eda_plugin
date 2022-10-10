@@ -32,9 +32,10 @@
    eda_plugin.utility.download_data
    eda_plugin.utility.eda_gui
    eda_plugin.utility.event_bus
-   eda_plugin.utility.event_thread
    eda_plugin.utility.image_processing
+   eda_plugin.utility.ome_metadata
    eda_plugin.utility.protocols
    eda_plugin.utility.qt_classes
    eda_plugin.utility.settings
+   eda_plugin.utility.writers
 

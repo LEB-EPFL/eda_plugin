@@ -1,4 +1,4 @@
-﻿eda\_plugin.utility.settings
+eda\_plugin.utility.settings
 ============================
 
 .. automodule:: eda_plugin.utility.settings

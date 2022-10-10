@@ -29,7 +29,7 @@
             <a href="index.html" class="icon icon-home"> event-driven-acquisition
           </a>
               <div class="version">
-                0.2.17
+                0.2.19
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -79,7 +79,7 @@
              
   <div class="section" id="custom-neural-networks">
 <h1>Custom Neural Networks<a class="headerlink" href="#custom-neural-networks" title="Permalink to this headline">¶</a></h1>
-<p>If you plan to use your own neural network with <a class="reference internal" href="_autosummary/eda_plugin.analysers.keras.KerasAnalyser.html#eda_plugin.analysers.keras.KerasAnalyser" title="eda_plugin.analysers.keras.KerasAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code></a>, consider the internal
+<p>If you plan to use your own neural network with <code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code>, consider the internal
 structure of the analysis pipeline.</p>
 <div class="mermaid">
             flowchart LR
@@ -90,17 +90,17 @@ structure of the analysis pipeline.</p>
     QRunnable1 -- Computation --&gt; Interpreter;
     QRunnable2 -- Computation --&gt; Interpreter;
     QRunnable3 -- Computation --&gt; Interpreter;
-        </div><p>The <a class="reference internal" href="_autosummary/eda_plugin.analysers.image.ImageAnalyser.html#eda_plugin.analysers.image.ImageAnalyser" title="eda_plugin.analysers.image.ImageAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageAnalyser</span></code></a> is responsible for collecting the necessary amount of images and only
-starting analysis if all images have been received. <a class="reference internal" href="_autosummary/eda_plugin.analysers.keras.KerasAnalyser.html#eda_plugin.analysers.keras.KerasAnalyser" title="eda_plugin.analysers.keras.KerasAnalyser"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code></a> will notify you if
+        </div><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">ImageAnalyser</span></code> is responsible for collecting the necessary amount of images and only
+starting analysis if all images have been received. <code class="xref py py-class docutils literal notranslate"><span class="pre">KerasAnalyser</span></code> will notify you if
 you load a model that does not fit the settings in the acquisition.
 These image stacks are forwarded to QRunnables in a QThreadpool that can concurrently analyse the
 images and send the results to the interpreter.</p>
 <div class="section" id="computation">
 <h2>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h2>
 <p>Depening on your neural network you might need a special QRunnable that allows for some
-functionality around the model. This can be subclassed from <a class="reference internal" href="_autosummary/eda_plugin.analysers.keras.KerasWorker.html#eda_plugin.analysers.keras.KerasWorker" title="eda_plugin.analysers.keras.KerasWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasWorker</span></code></a>. See examples
-in <a class="reference internal" href="_autosummary/eda_plugin.examples.analysers.html#module-eda_plugin.examples.analysers" title="eda_plugin.examples.analysers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">examples.analysers</span></code></a> like <a class="reference internal" href="_autosummary/eda_plugin.examples.analysers.KerasTilingWorker.html#eda_plugin.examples.analysers.KerasTilingWorker" title="eda_plugin.examples.analysers.KerasTilingWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasTilingWorker</span></code></a> and
-<a class="reference internal" href="_autosummary/eda_plugin.examples.analysers.KerasRescaleWorker.html#eda_plugin.examples.analysers.KerasRescaleWorker" title="eda_plugin.examples.analysers.KerasRescaleWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">KerasRescaleWorker</span></code></a>. The dataflow is visualized here:</p>
+functionality around the model. This can be subclassed from <code class="xref py py-class docutils literal notranslate"><span class="pre">KerasWorker</span></code>. See examples
+in <code class="xref py py-mod docutils literal notranslate"><span class="pre">examples.analysers</span></code> like <code class="xref py py-class docutils literal notranslate"><span class="pre">KerasTilingWorker</span></code> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">KerasRescaleWorker</span></code>. The dataflow is visualized here:</p>
 <div class="mermaid">
             flowchart TB
     ImageStack --&gt; prep[/prepare_images/] -- &quot;data['pixels']&quot; --&gt; Inference
