@@ -6,9 +6,11 @@ print(packages)
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+version = "0.2.24"
+
 setup(
     name="eda_plugin",
-    version="0.2.22",
+    version=version,
     description="Event-driven acquisition",
     long_description=long_description,
     long_description_content_type="text/markdown",
