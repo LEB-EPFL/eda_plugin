@@ -31,6 +31,7 @@ class OME:
             self.internal_channels = []
             self.channels = self.channels_from_settings(settings.channels)
 
+        self.settings = settings
         self.acquisition_date = datetime.now()
         self.image_size = [0, 0]
         self.max_indices = [1, 1, 1]
@@ -82,7 +83,7 @@ class OME:
         """Generate the Pixels instance after all images where acquired and received."""
         pixels = ome_model.Pixels(
             id="Pixels:0",
-            dimension_order=settings.acq_order,
+            dimension_order=self.settings.acq_order,
             size_c=self.max_indices[0],
             size_t=self.max_indices[1],
             size_z=self.max_indices[2],
@@ -104,6 +105,7 @@ class OME:
 
     def init_from_settings(self, settings: MMSettings):
         """Initialize OME from MMSettings translated from Micro-Manager settings from java."""
+        self.settings = settings
         self.ome.channels = self.ome_channels(settings.channels)
         self.ome.instrument = self.instrument_from_settings(settings.microscope)
 
