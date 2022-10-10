@@ -10,11 +10,12 @@ Custom Actuators
 ----------------
 Actuators are seperated into the main class for basic parameters and control and Acquisition classes
 responsible for a started acquisition. The actuator should at least be able to receive a signal from
-an interpreter, here normally implemented in the pyqtSlot :py:meth:`.call_action`. Depending on the
-implementation of image recording, it might also be responsible to hand new images over to the
-analyser. This is the case for example in the :py:class:`.PycroAcquisition` class.
-The :py:class:`.InjectedPycroAcquisition` class used in the :py:meth:`.examples.main.pyro` example is a subclass of the more basic
-:py:class:`.actuators.pycromanager.PycroAcquisition` with the additional image injection.
+an interpreter, here normally implemented in the pyqtSlot :py:meth:`MMActuator.call_action`.
+Depending on the implementation of image recording, it might also be responsible to hand new
+images over to the analyser. This is the case for example in the :py:class:`.PycroAcquisition`
+class. The :py:class:`.InjectedPycroAcquisition` class used in the :py:meth:`.examples.main.pyro`
+example is a subclass of the more basic :py:class:`.actuators.pycromanager.PycroAcquisition` with
+the additional image injection.
 
 .. code-block:: python
 
@@ -87,7 +88,7 @@ The :py:class:`.KerasAnalyser` using the model that was reported in the original
 :py:class:`.ImageAnalyser`. It uses workers that are themselves subclasses of :py:class:`.ImageAnalyserWorker`.
 :py:mod:`.examples.analysers` shows two workers that modify the pre and post processing of the images.
 To accomodate workers with potentially different inputs and signals, the functions :py:meth:`.ImageAnalyser._get_worker_args`
-and :py:meth:`.connect_worker_signals` can be overwritten seperately without having to rewrite the whole
+and :py:meth:`ImageAnalyser.connect_worker_signals` can be overwritten seperately without having to rewrite the whole
 worker delivery logic.
 
 See also :doc:`custom_networks`.

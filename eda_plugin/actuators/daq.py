@@ -16,7 +16,8 @@ import nidaqmx
 import nidaqmx.stream_writers
 import numpy as np
 from eda_plugin.utility.event_bus import EventBus
-from eda_plugin.utility.data_structures import MMSettings, ParameterSet
+from eda_plugin.utility.data_structures import ParameterSet
+from pymm_eventserver.data_structures import MMSettings
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 

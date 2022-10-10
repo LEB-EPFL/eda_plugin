@@ -2,38 +2,36 @@
 https://www.nature.com/articles/s41592-021-01326-w
 """
 
-
+import copy
+import glob
+import json
 import logging
 import os
-from pathlib import Path
-import numpy as np
 import re
+from pathlib import Path
+from typing import Union
 
 import numcodecs
+import numpy as np
 import tifffile
-import glob
-from ome_zarr import io, writer
 import zarr
-from typing import Union
-import json
-
-from qtpy.QtCore import QObject
-from qtpy import QtWidgets
-from pymm_eventserver.data_structures import MMSettings, ParameterSet, PyImage
 from eda_plugin.utility.event_bus import EventBus
-from eda_plugin.utility.qt_classes import QWidgetRestore
 from eda_plugin.utility.ome_metadata import OME
-import copy
-
+from eda_plugin.utility.qt_classes import QWidgetRestore
+from ome_zarr import io, writer
+from pymm_eventserver.data_structures import MMSettings, ParameterSet, PyImage
+from qtpy import QtWidgets
+from qtpy.QtCore import QObject
 
 log = logging.getLogger("EDA")
 
 
 class Writer(QObject):
-    """Writer that writes images, metadata and EDA specific data to have all information for an EDA
-    experiment in one place."""
+    """Writer that writes images, metadata and EDA specific data to have all information for EDA.
 
-    # TODO: Does this now save the images itself, or does it take the Micro-Manager output?
+    With this one everything will be written as OME_NGFF with some additional folders for additional
+    Metadata for both Micro-Manager and EDA specific information.
+    """
 
     def __init__(self, event_bus: EventBus):
         """Connect the necessary signals"""
@@ -143,6 +141,7 @@ class Writer(QObject):
         self.eda_root["analyser_output"].append([[timepoint, param]])
 
     def update_parameters(self, params: ParameterSet):
+        """Update the parameters for the Interpreter used."""
         self.params = params.to_dict()
         log.info("Paramters updated")
 
@@ -162,11 +161,13 @@ class Writer(QObject):
         return image
 
     def save_mmdev_settings(self, event):
+        """Sace Micro-Manager settings"""
         file = "MM_state.txt"
         path = os.path.join(self.metadata_root.store.path, file)
         self.event_bus.studio.get_cmm_core().save_system_state(path)
 
     def save_mmacq_settings(self):
+        """Save acquisition settings but strip off the Java objects first."""
         settings_dict = self.settings.__dict__
         settings_dict["java_channels"] = None
         settings_dict["java_slices"] = None
@@ -179,7 +180,7 @@ class Writer(QObject):
             f.write(settings_json)
 
     def save_metadata(self):
-        # This only works if micromanager actually saved the tif.
+        """Save all the metadata once the acquisition is over."""
         try:
             tif_file = glob.glob(self.orig_save_path + "/*.ome.tif")[0]
             with tifffile.TiffFile(tif_file) as tif:
@@ -322,6 +323,7 @@ class WriterGUI(QWidgetRestore):
 
 
 class NumpyEncoder(json.JSONEncoder):
+    """Small custom encoder for numpy things"""
     def default(self, obj):
         if isinstance(obj, np.ndarray):
             return obj.tolist()

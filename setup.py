@@ -6,7 +6,7 @@ print(packages)
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-version = "0.2.23"
+version = "0.2.24"
 
 setup(
     name="eda_plugin",
