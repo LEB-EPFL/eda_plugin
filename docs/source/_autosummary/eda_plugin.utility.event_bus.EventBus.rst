@@ -1,4 +1,4 @@
-﻿eda\_plugin.utility.event\_bus.EventBus
+eda\_plugin.utility.event\_bus.EventBus
 =======================================
 
 .. currentmodule:: eda_plugin.utility.event_bus

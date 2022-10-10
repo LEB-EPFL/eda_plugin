@@ -19,6 +19,8 @@ eda\_plugin.examples.analysers
       :toctree:
       :template: custom_class.rst
    
+      FtsWWorker
+      Keras1CWorker
       KerasRescaleWorker
       KerasTilingWorker
    

@@ -17,6 +17,7 @@ eda\_plugin.utility.eda\_gui.EDAMainGUI
    .. autosummary::
    
       ~EDAMainGUI.__init__
+      ~EDAMainGUI.add_dock_widget
       ~EDAMainGUI.closeEvent
    
    

@@ -1,4 +1,4 @@
-﻿eda\_plugin.actuators.daq
+eda\_plugin.actuators.daq
 =========================
 
 .. automodule:: eda_plugin.actuators.daq

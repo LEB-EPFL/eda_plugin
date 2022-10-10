@@ -21,7 +21,6 @@ eda\_plugin.utility.data\_structures
    
       EDAEvent
       MMChannel
-      MMSettings
       ParameterSet
       PyImage
    

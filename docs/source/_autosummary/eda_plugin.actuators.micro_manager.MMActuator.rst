@@ -1,4 +1,4 @@
-﻿eda\_plugin.actuators.micro\_manager.MMActuator
+eda\_plugin.actuators.micro\_manager.MMActuator
 ===============================================
 
 .. currentmodule:: eda_plugin.actuators.micro_manager

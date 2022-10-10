@@ -17,6 +17,7 @@ eda\_plugin.actuators.daq.DAQActuator
    .. autosummary::
    
       ~DAQActuator.__init__
+      ~DAQActuator.update_intervals
    
    
 

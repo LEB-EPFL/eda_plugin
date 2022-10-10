@@ -1,4 +1,4 @@
-﻿eda\_plugin.analysers.image
+eda\_plugin.analysers.image
 ===========================
 
 .. automodule:: eda_plugin.analysers.image

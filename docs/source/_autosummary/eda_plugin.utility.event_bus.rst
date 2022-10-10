@@ -9,6 +9,13 @@ eda\_plugin.utility.event\_bus
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      main
+   
    
 
    

@@ -4,7 +4,7 @@ __pycache__/
 *.code-workspace
 .vscode/
 build/
-_build/
+./docs/source/_build/
 _autosummary/
 *.egg*
 dist/

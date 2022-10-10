@@ -15,6 +15,7 @@ eda\_plugin.examples.main
       :toctree:
    
       basic
+      flavour
       keras
       main_isim
       pyro

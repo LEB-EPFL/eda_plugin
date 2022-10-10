@@ -17,6 +17,7 @@ eda\_plugin.utility.data\_structures.ParameterSet
    .. autosummary::
    
       ~ParameterSet.__init__
+      ~ParameterSet.to_dict
    
    
 

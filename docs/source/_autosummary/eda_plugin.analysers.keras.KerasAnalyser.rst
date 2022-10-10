@@ -1,4 +1,4 @@
-﻿eda\_plugin.analysers.keras.KerasAnalyser
+eda\_plugin.analysers.keras.KerasAnalyser
 =========================================
 
 .. currentmodule:: eda_plugin.analysers.keras

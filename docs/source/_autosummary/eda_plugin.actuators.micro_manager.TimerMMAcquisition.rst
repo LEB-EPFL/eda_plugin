@@ -1,4 +1,4 @@
-﻿eda\_plugin.actuators.micro\_manager.TimerMMAcquisition
+eda\_plugin.actuators.micro\_manager.TimerMMAcquisition
 =======================================================
 
 .. currentmodule:: eda_plugin.actuators.micro_manager
