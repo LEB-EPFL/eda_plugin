@@ -4,6 +4,8 @@ __pycache__/
 *.code-workspace
 .vscode/
 build/
+_build/
+_autosummary/
 *.egg*
 dist/
 eda_plugin/examples/data/*
