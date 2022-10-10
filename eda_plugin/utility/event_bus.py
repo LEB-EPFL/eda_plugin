@@ -9,6 +9,7 @@ from .data_structures import ParameterSet, PyImage
 
 from pymm_eventserver.event_thread import EventThread
 import numpy as np
+from typing import Union, List
 
 
 class EventBus(QObject):
@@ -33,10 +34,16 @@ class EventBus(QObject):
     # Magellan Events
     new_magellan_settings = pyqtSignal(dict)
 
-    def __init__(self):
+    def __init__(self, event_thread: EventThread = EventThread,
+                 subscribe_to: Union[str, List] = "all"):
         """Connect to Micro-Manager using the EventThread. Pass these signals through to subs."""
         super().__init__()
-        self.event_thread = EventThread()
+        if subscribe_to == "all":
+            topics = ["StandardEvent", "GUIRefreshEvent", "Acquisition", "GUI", "Settings",
+                      "NewImage"]
+        else:
+            topics = subscribe_to
+        self.event_thread = event_thread(topics=topics)
 
         self.studio = self.event_thread.bridge.get_studio()
 
