@@ -9,7 +9,7 @@ from pymm_eventserver.data_structures import MMSettings, PyImage, MMChannel
 
 ome_model = ome_types.model
 COLORS = ["white", "magenta", "green", "blue"]
-
+ACQ_ORDER_MODES = ['XYCZT', 'XYZCT']
 
 class OME:
     """OME Metadata class based on ome_types
@@ -83,7 +83,7 @@ class OME:
         """Generate the Pixels instance after all images where acquired and received."""
         pixels = ome_model.Pixels(
             id="Pixels:0",
-            dimension_order=self.settings.acq_order,
+            dimension_order=ACQ_ORDER_MODES[self.settings.acq_order_mode],
             size_c=self.max_indices[0],
             size_t=self.max_indices[1],
             size_z=self.max_indices[2],
@@ -120,7 +120,6 @@ class OME:
 
     def channels_from_settings(self, channels: List[MMChannel]):
         """Generate the channels from the channel information received from Micro-Manager."""
-        print(channels)
         ome_channels = []
         for idx, channel in enumerate(channels):
             ome_channel = ome_model.Channel(

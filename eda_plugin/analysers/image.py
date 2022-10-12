@@ -39,6 +39,7 @@ class ImageAnalyser(QObject):
 
         settings = event_bus.studio.acquisitions().get_acquisition_settings()
         settings = MMSettings(settings)
+        self.mda_settings = settings
         self.new_mda_settings(settings)
 
         # Attach the standard worker, subclasses can replace this.

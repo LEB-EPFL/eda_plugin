@@ -13,11 +13,13 @@ import time
 import numpy as np
 import importlib
 import inspect
+from collections import defaultdict
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, QRunnable, pyqtSignal
 import qdarkstyle
 
+from pymm_eventserver.data_structures import PyImage
 from tensorflow import keras
 from eda_plugin.analysers.image import ImageAnalyser, ImageAnalyserWorker
 
@@ -43,6 +45,8 @@ class KerasAnalyser(ImageAnalyser):
         """Load and connect the GUI. Initialise settings from the GUI."""
         super().__init__(event_bus=event_bus)
         self.event_bus = event_bus
+        self.model_path = None
+
         self.gui = KerasSettingsGUI()
         self.gui.new_settings.connect(self.new_settings)
         self.new_settings(self.gui.keras_settings)
@@ -57,8 +61,20 @@ class KerasAnalyser(ImageAnalyser):
         """For the KerasWorker, the model is passed as an additional parameter to the worker."""
         return {"model": self.model}
 
+    def gather_images(self, py_image: PyImage) -> bool:
+        """Limit the gathering to only the channels in channel_choosers and rearrange"""
+        image_channel_name = list(self.mda_settings.channels.keys())[py_image.channel]
+        if image_channel_name in self.keras_settings['channels_to_use']:
+            # print(f"Image channel before adjust {py_image.channel}")
+            py_image.channel = self.keras_settings['channels_to_use'].index(image_channel_name)
+            # print(f"Image channel after adjust  {py_image.channel}")
+            return super().gather_images(py_image)
+
     def new_settings(self, new_settings):
         """Load and initialize model so first predict is fast(er)."""
+        self.keras_settings = new_settings
+        if self.model_path == new_settings["model"]:
+            return
         self.model_path = new_settings["model"]
         try:
             # self.model = keras.models.load_model(self.model_path, compile=True)
@@ -95,12 +111,16 @@ class KerasAnalyser(ImageAnalyser):
         return self.model_channels, self.model_slices
 
     def _compare_model_mda(self):
-        """Compare the model and the MDA settings and give a warning if they don't match"""
-        model_channels, model_slices = self._inspect_model(self.model)
-        if not (model_channels, model_slices) == (self.channels, self.slices):
+        """Compare the model and the MDA settings and add info to GUI so the values can be chosen"""
+        self.model_channels, model_slices = self._inspect_model(self.model)
+        if  (self.model_channels, model_slices) == (self.channels, self.slices):
+            return
+        if self.model_channels < self.channels:
+            self.gui.add_channel_chooser(self.model_channels, self.mda_settings.channels)
+        else:
             warning_text = f"Model and MDA Settings don't match.<br> \
                       channels, slices<br>\
-                Model:          {model_channels},   {model_slices} <br>\
+                Model:          {self.model_channels},   {model_slices} <br>\
                 MDA  :          {self.channels},    {self.slices}<br>"
             log.warning(warning_text)
             msg = QtWidgets.QMessageBox()
@@ -196,6 +216,9 @@ class KerasSettingsGUI(QWidgetRestore):
         self.layout().addWidget(self.model_select)
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
 
+        self.channel_choosers_title = QtWidgets.QLabel("Choose Channels to use:")
+        self.channel_choosers = {}
+
         self.model_load_dir = os.path.join(
             os.path.abspath(os.path.join(__file__, "..", "..")), "utility", "models"
         )
@@ -228,6 +251,30 @@ class KerasSettingsGUI(QWidgetRestore):
         self.keras_settings["worker"] = self.worker.currentData()
         self.new_settings.emit(self.keras_settings)
 
+    def _reset_choosers(self):
+        self.layout().removeWidget(self.channel_choosers_title)
+        for channel_chooser in self.channel_choosers.values():
+            self.layout().removeWidget(channel_chooser['widget'])
+
+    def add_channel_chooser(self, n_channels, channels):
+        self._reset_choosers()
+        self.channel_choosers = defaultdict(lambda: defaultdict())
+        self.layout().addWidget(self.channel_choosers_title)
+        for idx in range(n_channels):
+            self.channel_choosers[idx]['widget']  = QtWidgets.QComboBox()
+            self.channel_choosers[idx]['widget'].currentIndexChanged.connect(
+                self._update_channels_to_use)
+            for channel in channels:
+                print(channel)
+                self.channel_choosers[idx]['widget'].addItem(channel)
+            self.layout().addWidget(self.channel_choosers[idx]['widget'])
+
+    def _update_channels_to_use(self, ):
+        self.keras_settings['channels_to_use'] = []
+        for channel_chooser in self.channel_choosers.values():
+           self.keras_settings['channels_to_use'].append(channel_chooser['widget'].currentText())
+        print(self.keras_settings['channels_to_use'])
+        self.new_settings.emit(self.keras_settings)
 
 def main():
     """Nothing here yet."""

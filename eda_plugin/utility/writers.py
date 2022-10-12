@@ -88,7 +88,7 @@ class Writer(QObject):
         if not self.gui.save_images.isChecked():
             return
         if all([py_image.timepoint == 0, py_image.channel == 0, py_image.z_slice == 0]):
-            shape = (1, 2, 1, py_image.raw_image.shape[-2], py_image.raw_image.shape[-1])
+            shape = (1, self.settings.n_channels, self.settings.n_slices, py_image.raw_image.shape[-2], py_image.raw_image.shape[-1])
             self.image_root.create_dataset("0", shape=shape, dtype="uint16")
             self._fake_metadata(py_image.raw_image.shape, self.image_root, "0")
             self.local_image_store = np.ndarray(shape, "uint16")
@@ -96,7 +96,6 @@ class Writer(QObject):
         self.ome.add_plane_from_image(py_image)
         self.local_image_store[0][py_image.channel][py_image.z_slice] = py_image.raw_image
 
-        print(f"MAX DATA {self.local_image_store.max()}")
         if (
             py_image.channel == self.settings.n_channels - 1
             and py_image.z_slice == self.settings.n_slices - 1
@@ -105,7 +104,7 @@ class Writer(QObject):
                 self.image_root["0"] = copy.deepcopy(self.local_image_store)
             else:
                 self.image_root["0"].append(self.local_image_store)
-        print(self.image_root['0'][0, 0, 0, 0, 0:5])
+
 
 
     def save_network_image(self, image: np.ndarray, dims: tuple):
@@ -147,7 +146,6 @@ class Writer(QObject):
 
     def save_thresholds(self):
         """New Acquisition is starting, save the thresholds used for this acquisition."""
-        print(json.dumps(self.params))
         self.eda_root["parameters"] = json.dumps(self.params)
 
     def prepare_nn_image(self, image, dims):
