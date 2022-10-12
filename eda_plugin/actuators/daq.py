@@ -227,6 +227,7 @@ class EDAAcquisition(QObject):
             self.interval = eda_params.slow_interval
         self.daq_data_fast = None
         self.daq_data_slow = None
+        self.daq_data_shape = None
         self.make_daq_data()
         try:
             self.update_settings(self.settings)
@@ -240,7 +241,7 @@ class EDAAcquisition(QObject):
         self.ni.task.timing.cfg_samp_clk_timing(
             rate=self.ni.smpl_rate,
             sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS,
-            samps_per_chan=self.daq_data_fast.shape[1],
+            samps_per_chan=self.daq_data_shape[1],
         )
         self.ni.task.out_stream.regen_mode = (
             nidaqmx.constants.RegenerationMode.DONT_ALLOW_REGENERATION
@@ -253,7 +254,7 @@ class EDAAcquisition(QObject):
         except FileNotFoundError:
             log.warning("DAQ not connected no data sent")
         self.ni.task.register_every_n_samples_transferred_from_buffer_event(
-            self.daq_data_fast.shape[1], self.get_new_data
+            self.daq_data_shape[1], self.get_new_data
         )
 
     def get_new_data(self, *_):
@@ -278,6 +279,7 @@ class EDAAcquisition(QObject):
         timepoint = self.ni._generate_one_timepoint()
         self.daq_data_fast = self.add_interval(timepoint, self.interval_fast * 1000)
         self.daq_data_slow = self.add_interval(timepoint, self.interval_slow * 1000)
+        self.daq_data_shape = self.daq_data_fast.shape
 
     def add_interval(self, timepoint, interval_ms):
         """Fastest timepoint possible, now add parking data to match the specified interval."""

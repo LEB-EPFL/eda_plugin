@@ -25,6 +25,7 @@ class EventBus(QObject):
     new_image_event = pyqtSignal(PyImage)
     mda_settings_event = pyqtSignal(object)
     configuration_settings_event = pyqtSignal(str, str, str)
+    exposure_changed_event = pyqtSignal(str, str, str)
 
     # Analyser Events
     new_decision_parameter = pyqtSignal(float, float, int)
@@ -55,6 +56,7 @@ class EventBus(QObject):
         self.event_thread.listener.configuration_settings_event.connect(
             self.configuration_settings_event
         )
+        self.event_thread.listener.exposure_changed_event.connect(self.exposure_changed_event)
 
         self.initialized = True
         print("EventBus ready")
