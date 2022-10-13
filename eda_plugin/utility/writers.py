@@ -85,17 +85,18 @@ class Writer(QObject):
 
     def save_image(self, py_image: PyImage):
         """Gather one timepoint for the original data and save it."""
-        if not self.gui.save_images.isChecked():
+        if not self.gui.save_images.isChecked() or py_image is None:
             return
-        if all([py_image.timepoint == 0, py_image.channel == 0, py_image.z_slice == 0]):
+        self.ome.add_plane_from_image(py_image)
+        # if all([py_image.timepoint == 0, py_image.channel == 0, py_image.z_slice == 0,
+        #         self.local_image_store is not None]) or
+        if self.local_image_store is None:
             shape = (1, self.settings.n_channels, self.settings.n_slices, py_image.raw_image.shape[-2], py_image.raw_image.shape[-1])
             self.image_root.create_dataset("0", shape=shape, dtype="uint16")
             self._fake_metadata(py_image.raw_image.shape, self.image_root, "0")
-            self.local_image_store = np.ndarray(shape, "uint16")
+            self.local_image_store = np.ndarray(shape, np.uint16)
 
-        self.ome.add_plane_from_image(py_image)
         self.local_image_store[0][py_image.channel][py_image.z_slice] = py_image.raw_image
-
         if (
             py_image.channel == self.settings.n_channels - 1
             and py_image.z_slice == self.settings.n_slices - 1
@@ -187,6 +188,8 @@ class Writer(QObject):
         except IndexError:
             self.ome.finalize_metadata()
             self.save_ome_metadata(xml=self.ome.ome.to_xml())
+        finally:
+            self.local_image_store = None
 
     def save_imagej_metadata(self, tif: Union[tifffile.TiffFile, None] = None):
         """Get the ImageJ metadata from the original tiff file and save it"""

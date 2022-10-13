@@ -37,6 +37,11 @@ class ImageAnalyser(QObject):
         self.images = None
         self.start_time = None
 
+        # Initialize counters
+        self.channels_gathered = 0
+        self.slices_gathered = 0
+        self.channels = 0
+
         settings = event_bus.studio.acquisitions().get_acquisition_settings()
         settings = MMSettings(settings)
         self.mda_settings = settings
@@ -99,11 +104,14 @@ class ImageAnalyser(QObject):
         except (ValueError, TypeError, IndexError):
             self._reset_shape(py_image)
             self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
-
-        self.time = py_image.timepoint
-        if py_image.channel < self.channels - 1 or py_image.z_slice < self.slices - 1:
+        print(self.images.shape)
+        self.channels_gathered += 1
+        self.slices_gathered += 1
+        if self.channels_gathered < self.channels - 1 or self.slices_gathered < self.slices - 1:
             return False
         else:
+            self.channels_gathered = 0
+            self.slices_gathered = 0
             return True
 
     def _get_worker_args(self, evt):

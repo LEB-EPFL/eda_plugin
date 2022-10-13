@@ -27,6 +27,7 @@ from eda_plugin.utility.qt_classes import QWidgetRestore
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility import settings
 from eda_plugin.analysers.image import ImageAnalyser
+from pymm_eventserver.data_structures import MMSettings
 
 log = logging.getLogger("EDA")
 
@@ -110,13 +111,22 @@ class KerasAnalyser(ImageAnalyser):
             self.model_slices = 1
         return self.model_channels, self.model_slices
 
+    def new_mda_settings(self, new_settings: MMSettings):
+        """Skip settting the number of slices or channels from the MDA settings."""
+        self.mda_settings = new_settings
+        pass
+
     def _compare_model_mda(self):
         """Compare the model and the MDA settings and add info to GUI so the values can be chosen"""
         self.model_channels, model_slices = self._inspect_model(self.model)
-        if  (self.model_channels, model_slices) == (self.channels, self.slices):
+        if  (self.model_channels == self.mda_settings.n_channels and
+             model_slices == self.mda_settings.n_slices):
             return
-        if self.model_channels < self.channels:
+        if self.model_channels < self.mda_settings.n_channels:
             self.gui.add_channel_chooser(self.model_channels, self.mda_settings.channels)
+            self.channels = self.model_channels
+            self.slices = model_slices
+            self.images = None
         else:
             warning_text = f"Model and MDA Settings don't match.<br> \
                       channels, slices<br>\
@@ -147,6 +157,8 @@ class KerasWorker(ImageAnalyserWorker):
         Specific implementations can be found in examples.analysers.keras
         """
         network_input = self.prepare_images(self.local_images)
+        print(self.local_images.shape)
+        print(self.local_images.max())
         log.warning(network_input["pixels"].dtype)
         network_output = self.model.predict(network_input["pixels"])
         # The simple maximum decision parameter can be calculated without stiching
@@ -265,7 +277,6 @@ class KerasSettingsGUI(QWidgetRestore):
             self.channel_choosers[idx]['widget'].currentIndexChanged.connect(
                 self._update_channels_to_use)
             for channel in channels:
-                print(channel)
                 self.channel_choosers[idx]['widget'].addItem(channel)
             self.layout().addWidget(self.channel_choosers[idx]['widget'])
 
@@ -273,7 +284,6 @@ class KerasSettingsGUI(QWidgetRestore):
         self.keras_settings['channels_to_use'] = []
         for channel_chooser in self.channel_choosers.values():
            self.keras_settings['channels_to_use'].append(channel_chooser['widget'].currentText())
-        print(self.keras_settings['channels_to_use'])
         self.new_settings.emit(self.keras_settings)
 
 def main():
