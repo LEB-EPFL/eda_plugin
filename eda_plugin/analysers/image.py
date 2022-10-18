@@ -40,7 +40,8 @@ class ImageAnalyser(QObject):
         # Initialize counters
         self.channels_gathered = 0
         self.slices_gathered = 0
-        self.channels = 0
+        self.channels = 1
+        self.slices = 1
 
         settings = event_bus.studio.acquisitions().get_acquisition_settings()
         settings = MMSettings(settings)
@@ -97,17 +98,18 @@ class ImageAnalyser(QObject):
         log.info(f"New settings: {self.channels} channels & {self.slices} slices")
 
     def gather_images(self, py_image: PyImage) -> bool:
-        """Gather the amount of images needed."""
-
+        """Gather the amount of images needed. Channels can be swapped by subclasses. So don't rely
+        on them coming in in the correct order."""
         try:
             self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
         except (ValueError, TypeError, IndexError):
             self._reset_shape(py_image)
             self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
-        print(self.images.shape)
+
         self.channels_gathered += 1
         self.slices_gathered += 1
-        if self.channels_gathered < self.channels - 1 or self.slices_gathered < self.slices - 1:
+        print(f"Channels to be gathered: {self.channels}, now {self.channels_gathered}")
+        if self.channels_gathered < self.channels or self.slices_gathered < self.slices:
             return False
         else:
             self.channels_gathered = 0
