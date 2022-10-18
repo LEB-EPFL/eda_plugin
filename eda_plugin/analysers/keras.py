@@ -66,9 +66,7 @@ class KerasAnalyser(ImageAnalyser):
         """Limit the gathering to only the channels in channel_choosers and rearrange"""
         image_channel_name = list(self.mda_settings.channels.keys())[py_image.channel]
         if image_channel_name in self.keras_settings['channels_to_use']:
-            # print(f"Image channel before adjust {py_image.channel}")
             py_image.channel = self.keras_settings['channels_to_use'].index(image_channel_name)
-            # print(f"Image channel after adjust  {py_image.channel}")
             return super().gather_images(py_image)
 
     def new_settings(self, new_settings):
@@ -119,10 +117,7 @@ class KerasAnalyser(ImageAnalyser):
     def _compare_model_mda(self):
         """Compare the model and the MDA settings and add info to GUI so the values can be chosen"""
         self.model_channels, model_slices = self._inspect_model(self.model)
-        if  (self.model_channels == self.mda_settings.n_channels and
-             model_slices == self.mda_settings.n_slices):
-            return
-        if self.model_channels < self.mda_settings.n_channels:
+        if self.model_channels <= self.mda_settings.n_channels:
             self.gui.add_channel_chooser(self.model_channels, self.mda_settings.channels)
             self.channels = self.model_channels
             self.slices = model_slices
@@ -157,8 +152,6 @@ class KerasWorker(ImageAnalyserWorker):
         Specific implementations can be found in examples.analysers.keras
         """
         network_input = self.prepare_images(self.local_images)
-        print(self.local_images.shape)
-        print(self.local_images.max())
         log.warning(network_input["pixels"].dtype)
         network_output = self.model.predict(network_input["pixels"])
         # The simple maximum decision parameter can be calculated without stiching
@@ -278,6 +271,7 @@ class KerasSettingsGUI(QWidgetRestore):
                 self._update_channels_to_use)
             for channel in channels:
                 self.channel_choosers[idx]['widget'].addItem(channel)
+            self.channel_choosers[idx]['widget'].setCurrentIndex(idx)
             self.layout().addWidget(self.channel_choosers[idx]['widget'])
 
     def _update_channels_to_use(self, ):

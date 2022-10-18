@@ -20,15 +20,16 @@ class PresetsInterpreter(QtCore.QObject):
     def __init__(self, event_bus: EventBus, gui: bool = True):
         """Load the default values, start the GUI and connect the events."""
         super().__init__()
-        self.gui = ParameterForm() if gui else None
-        self.gui.show()
-        self.gui.new_parameters.connect(self.update_parameters)
+        self.gui = ParameterForm("PresetsInterpreter") if gui else None
+        if gui:
+            self.gui.new_parameters.connect(self.update_parameters)
+            self.params = self.gui.params
+        else:
+            self.params = {}
 
-        # self.params = ParameterSet(settings.get_settings(self))
         # To keep the paramater sent numerical, 0: screen, 1:image
         self.mode = 0
-
-        self.num_fast_frames = 0
+        # self.num_fast_frames = 0
 
         # Emitted signals register at event_bus
         self.new_interpretation.connect(event_bus.new_interpretation)
@@ -37,7 +38,7 @@ class PresetsInterpreter(QtCore.QObject):
         # Incoming events
         event_bus.new_decision_parameter.connect(self.calculate_interpretation)
         self.new_parameters.emit(self.params)
-        self.new_interpretation.emit(self.interval)
+        self.new_interpretation.emit(self.mode)
 
     @QtCore.Slot(object)
     def update_parameters(self, new_params):
@@ -51,13 +52,13 @@ class PresetsInterpreter(QtCore.QObject):
         """Calculate the new interval. Emit if changed and increase/reset the fast image counter."""
         old_mode = self.mode
         self.mode = self._define_mode(new_value)
-        if not self.interval == old_mode:
-            self.new_interpretation.emit(self.interval)
+        if not self.mode == old_mode:
+            self.new_interpretation.emit(self.mode)
 
         self._set_fast_count()
-        log.info(f"timepoint {timepoint} decision: {new_value} -> {self.interval} interval")
+        log.info(f"timepoint {timepoint} decision: {new_value} -> {self.mode} interval")
 
-    def _define_imaging_speed(self, new_value: float):
+    def _define_mode(self, new_value: float):
         new_mode = self.mode
         # Only change interval if necessary
         if self.mode == 1:
@@ -112,6 +113,7 @@ class ParameterForm(QWidgetRestore):
             param_layout.addRow(key, self.rows[idx]['input'])
             self.rows[idx]['input'].editingFinished.connect(self._update_parameters)
 
+        self.new_parameters.emit(self.params)
         # self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
 
     def closeEvent(self, e):
@@ -120,7 +122,7 @@ class ParameterForm(QWidgetRestore):
 
     def _update_parameters(self):
         for idx in self.rows.keys():
-            self.params[self.rows[idx]['name']] = self.rows[idx]['input'].text()
+            self.params[self.rows[idx]['name']] = float(self.rows[idx]['input'].text())
         self.new_parameters.emit(self.params)
 
 

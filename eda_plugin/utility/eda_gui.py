@@ -1,6 +1,6 @@
 """QtWidgets that can be used as main GUI components for the EDA loop."""
 
-from typing import Tuple
+from typing import Tuple, Union
 from PyQt5 import QtWidgets, QtCore, QtGui
 import PyQt5
 import pyqtgraph as pg
@@ -111,10 +111,13 @@ class EDAPlot(pg.PlotWidget):
         self._refresh_plot()
 
     QtCore.pyqtSlot(ParameterSet)
-
-    def _set_thr_lines(self, params: ParameterSet):
-        self.thrLine1.setPos(params.lower_threshold)
-        self.thrLine2.setPos(params.upper_threshold)
+    def _set_thr_lines(self, params: Union[dict, ParameterSet]):
+        try:
+            self.thrLine1.setPos(params.lower_threshold)
+            self.thrLine2.setPos(params.upper_threshold)
+        except AttributeError:
+            self.thrLine1.setPos(params['lower_threshold'])
+            self.thrLine2.setPos(params['upper_threshold'])
 
 
 class NetworkImageViewer(QtWidgets.QGraphicsView):
