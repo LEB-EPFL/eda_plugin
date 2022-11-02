@@ -81,9 +81,13 @@ class OME:
 
     def pixels_after_acqusition(self) -> ome_model.Pixels:
         """Generate the Pixels instance after all images where acquired and received."""
+        if isinstance(self.settings.acq_order_mode, str):
+            dim_order = self.settings.acq_order_mode
+        else:
+            dim_order = ACQ_ORDER_MODES[self.settings.acq_order_mode]
         pixels = ome_model.Pixels(
             id="Pixels:0",
-            dimension_order=ACQ_ORDER_MODES[self.settings.acq_order_mode],
+            dimension_order=dim_order,
             size_c=self.max_indices[0],
             size_t=self.max_indices[1],
             size_z=self.max_indices[2],

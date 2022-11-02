@@ -53,6 +53,7 @@ class EDAMainGUI(QMainWindowRestore):
         event_bus.acquisition_started_event.connect(self.plot._reset_plot)
         event_bus.new_decision_parameter.connect(self.plot.add_datapoint)
         event_bus.new_parameters.connect(self.plot._set_thr_lines)
+        self.event_bus = event_bus
 
     def add_dock_widget(self, widget: QWidgetRestore, name=None):
         dock_widget = QtWidgets.QDockWidget(name, self)
