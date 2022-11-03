@@ -28,7 +28,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "pyqt5",
-        "pycromanager",
+        "pycromanager>0.19",
         "pyqtgraph",
         "qimage2ndarray",
         "qdarkstyle",
