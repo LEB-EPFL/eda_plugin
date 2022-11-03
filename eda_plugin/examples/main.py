@@ -185,8 +185,8 @@ def presets():
     sys.exit(app.exec_())
 
 
-flavours = {"pyro": pyro, "keras": keras, "pyro_keras": pyro_keras, "main_isim": main_isim,
-            "writer": writer, "presets": presets}
+flavours = {"basic": basic, "pyro": pyro, "keras": keras, "pyro_keras": pyro_keras,
+            "main_isim": main_isim, "writer": writer, "presets": presets}
 try:
     flavour = flavours[sys.argv[1]]
 except (IndexError, KeyError) as e:
