@@ -6,7 +6,7 @@ print(packages)
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-version = "0.2.24"
+version = "0.2.25"
 
 setup(
     name="eda_plugin",
@@ -38,6 +38,7 @@ setup(
         "zarr",
         "ome_zarr",
         "pymm_eventserver",
+        "ome_types",
     ],
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",
