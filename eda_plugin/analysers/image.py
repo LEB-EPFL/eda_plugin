@@ -26,7 +26,8 @@ class ImageAnalyser(QObject):
     value it calculated on to any expecting interpreters.
     """
 
-    new_decision_parameter = pyqtSignal(float, float, int)
+    # new_decision_parameter = pyqtSignal(float, float, int)  # decision_parameter, elapsed_time, self.timepoint
+    new_decision_parameter = pyqtSignal(object)
 
     def __init__(self, event_bus: EventBus):
         """Get settings from settings.json, set up the threadpool and connect signals."""
@@ -35,14 +36,17 @@ class ImageAnalyser(QObject):
         self.shape = None
         self.time = None
         self.images = None
-        self.start_time = None
+        self.start_time = round(time.time() * 1000)
+        self.channels = 1
+        self.slices = 1
+        self.event_bus = event_bus
 
-        settings = event_bus.studio.acquisitions().get_acquisition_settings()
-        settings = MMSettings(settings)
-        self.new_mda_settings(settings)
-
+        
         # Attach the standard worker, subclasses can replace this.
         self.worker = ImageAnalyserWorker
+
+        # Init settings in function, subclasses could replace this if necessary
+        self.init_settings(event_bus)
 
         # We will use a threadpool, this allows us to skip ahead if no thread is available
         # if acquisition is faster than analysis
@@ -55,11 +59,18 @@ class ImageAnalyser(QObject):
         # Connect incoming events
         self.connect_incoming_events(event_bus)
 
+    def init_settings(self, event_bus: EventBus):
+        """Initialize the settings from Micro-Manager."""
+        #TODO: Make this a composition thing, not inheritance
+        settings = event_bus.studio.acquisitions().get_acquisition_settings()
+        settings = MMSettings(settings)
+        self.new_mda_settings(settings)
+
     def connect_incoming_events(self, event_bus: EventBus) -> None:
         """Connect the events here, so subclasses can choose to not do so."""
+        event_bus.mda_settings_event.connect(self.new_mda_settings)
         event_bus.acquisition_started_event.connect(self._reset_time)
         event_bus.new_image_event.connect(self.start_analysis)
-        event_bus.mda_settings_event.connect(self.new_mda_settings)
 
     @pyqtSlot(PyImage)
     def start_analysis(self, evt: PyImage):
@@ -144,7 +155,8 @@ class ImageAnalyserWorker(QRunnable):
     class _Signals(QObject):
         """Signals have to be separate because QRunnable can't have its own."""
 
-        new_decision_parameter = pyqtSignal(float, float, int)
+        # new_decision_parameter = pyqtSignal(float, float, int)
+        new_decision_parameter = pyqtSignal(object)
 
 
 class PycroImageAnalyser(ImageAnalyser):
