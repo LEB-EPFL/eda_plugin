@@ -30,7 +30,7 @@ class EventBus(QObject):
     configuration_settings_event = pyqtSignal(str, str, str)
 
     # Analyser Events
-    new_decision_parameter = pyqtSignal(float, float, int)
+    new_decision_parameter = pyqtSignal(object)
     new_output_shape = pyqtSignal(tuple)
     new_network_image = pyqtSignal(np.ndarray, tuple)
 
@@ -53,6 +53,7 @@ class EventBus(QObject):
         if event_thread == EventThread:
             self.event_thread = event_thread(topics=topics)
         elif event_thread == ZenEventThread:
+            self.zen_id = topics
             self.event_thread = event_thread(self)
         
         # This will only work for the Micro-Manager event thread
@@ -72,12 +73,18 @@ class EventBus(QObject):
             self.event_thread.listener.configuration_settings_event.connect(
                 self.configuration_settings_event
             )
+            self.new_decision_parameter.connect(self.listen_events)
         except AttributeError:
             log.info("Some events could not be connected")
 
         self.initialized = True
         print("EventBus ready")
         # self.mda_settings_event.emit(settings)
+
+    def listen_events(self, evt):
+        logging.info("Event arrived in EventBus")
+        logging.info(evt)
+
 
 def main():
     import time

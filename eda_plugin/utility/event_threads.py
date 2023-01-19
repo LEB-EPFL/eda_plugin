@@ -3,10 +3,11 @@ from qtpy.QtWidgets import QApplication
 import numpy as np
 import time
 import re
-from pymm_eventserver.data_structures import PyImage
+from pymm_eventserver.data_structures import PyImage, MMSettings
 
-
+import pythoncom
 import win32com.client
+import pywintypes
 import clr
 import logging
 
@@ -15,27 +16,42 @@ log = logging.getLogger("EDA")
 
 class ZenEventThread(QObject):
     """Class to host a ZenEventListener and have it run in a separate thread."""
+    stop_thread = Signal()
 
-    def __init__(self, event_bus, topics = None):
+    def __init__(self, event_bus):
         super().__init__()
+        pythoncom.CoInitialize()
+
+
+        # self.zen_id = event_bus.zen_id
+        self.main_thread = QThread.currentThread()
         self.last_document = -1
+        self.listener = ZenEventListener(self.thread, self.last_document, self.main_thread)
+        self.listener.stop_thread_event.connect(self.stop)
+        self.listener.document_detected.connect(self.set_last_document)
+        self.stop_thread.connect(self.listener.stop_me)
         self.start_new_thread()
 
         self.event_bus = event_bus
         self.event_bus.reset_data.connect(self.reset_listener)
 
     def reset_listener(self):
-        self.listener.loop_stop = True
-        self.stop()
+        print("Reset Thread!")
+        old_thread = self.thread
+        self.stop_thread.emit()
+        self.thread.exit()
+        while not self.thread.isFinished():
+            print("thread not finished yet")
+            time.sleep(0.5)
         self.start_new_thread()
+        old_thread.quit()
 
     def start_new_thread(self):
+        print("Starting new thread")
         self.thread = QThread()
-        self.listener = ZenEventListener(self.thread, self.last_document)
+        self.listener.last_document = self.last_document
         self.listener.moveToThread(self.thread)
         self.thread.started.connect(self.listener.run)
-        self.listener.stop_thread_event.connect(self.stop)
-        self.listener.document_detected.connect(self.set_last_document)
         self.thread.start()
 
     def set_last_document(self, last_document: int):
@@ -51,16 +67,27 @@ class ZenEventListener(QObject):
     new_image_event = Signal(PyImage)
     document_detected = Signal(int)
     stop_thread_event = Signal()
+    mda_settings_event = Signal(MMSettings)
+    acquisition_started_event = Signal(object)
+    acquisition_ended_event = Signal(object)
 
-    def __init__(self, thread: QThread, last_document: int):
+    def __init__(self, thread: QThread, last_document: int, main_thread):
         super().__init__()
-        self.zen = win32com.client.GetActiveObject("Zeiss.Micro.Scripting.ZenWrapperLM")
+
         self.loop_stop = False
         self.last_document = last_document
+        self.main_thread = main_thread
         self.thread = thread
+
+    def stop_me(self):
+        self.loop_stop = True
+
+    def start_listening(self):
+        self.run()
 
     def run(self):
         self.loop_stop = False
+        pythoncom.CoInitialize()
         self.zen = win32com.client.GetActiveObject("Zeiss.Micro.Scripting.ZenWrapperLM")
 
         # Wait for the new experiment to have started in Zen
@@ -70,7 +97,7 @@ class ZenEventListener(QObject):
             extra_wait = True
             time.sleep(0.5)
         if extra_wait:
-            time.sleep(2)
+            time.sleep(3)
         self.last_document = self.zen.Application.Documents.Count - 1
         self.document_detected.emit(self.last_document)
 
@@ -82,6 +109,8 @@ class ZenEventListener(QObject):
             # Check if there is new data in Zen
             if int(meta.TimeSeriesCount) == last_time_count:
                 continue
+            self.mda_settings_event.emit(MMSettings(n_channels=int(meta.ChannelCount),
+                                                    n_slices=int(meta.ZStackCount)))
             last_time_count = int(meta.TimeSeriesCount)
             print(f"Timepoint {last_time_count}")
             # Get the data
@@ -91,17 +120,22 @@ class ZenEventListener(QObject):
             if time_search is not None:
                 time_ms = int(float(time_search.group(1))*1000)
             else:
-                log.warning("No time found, setting 0")
+                log.warning("No time found, setting None")
                 time_ms = None
 
             subsetString = "T(" + str(int(meta.TimeSeriesCount)) +")" #+ "|C(2)"
-            pixels = data_clone.CopyPixelsToArray(subsetString, meta.PixelType)
+            try:
+                pixels = data_clone.CopyPixelsToArray(subsetString, meta.PixelType)
+            except pywintypes.com_error:
+                logging.warning("Could not read image data")
+                pixels = np.zeros(int(meta.ChannelCount)*int(meta.Height)*int(meta.Width))
             #TODO: not set up for z_stacks yet
             image_array = np.reshape(np.asarray(pixels), [int(meta.ChannelCount)] + [int(np.sqrt(pixels.shape[0]//int(meta.ChannelCount)))]*2)
             for channel in range(image_array.shape[0]):
-                # print(f"Channel {channel}")
+                print(f"Channel {channel}")
                 py_image = PyImage(image_array[channel], int(last_time_count) - 1, channel, 0, time_ms)
                 self.new_image_event.emit(py_image)
+        self.moveToThread(self.main_thread)
 
     @Slot()
     def stop(self):

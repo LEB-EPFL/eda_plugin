@@ -11,7 +11,7 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt5 import QtWidgets
 import qdarkstyle
 
-from pymm_eventserver.data_structures import ParameterSet
+from pymm_eventserver.data_structures import ParameterSet, EDAEvent
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.qt_classes import QWidgetRestore
 from eda_plugin.utility import settings
@@ -29,14 +29,15 @@ class BinaryFrameRateInterpreter(QObject):
         """Load the default values, start the GUI and connect the events."""
         super().__init__()
         self.gui = BinaryFrameRateParameterForm() if gui else None
-        self.gui.show()
+        # self.gui.show()
         self.gui.new_parameters.connect(self.update_parameters)
 
         self.params = ParameterSet(settings.get_settings(self))
         self.interval = self.params.slow_interval
 
+        self.interval = 0
         self.num_fast_frames = 0
-        self.min_fast_frames = 30
+        self.min_fast_frames = 0
 
         # Emitted signals register at event_bus
         self.new_interpretation.connect(event_bus.new_interpretation)
@@ -44,6 +45,7 @@ class BinaryFrameRateInterpreter(QObject):
 
         # Incoming events
         event_bus.new_decision_parameter.connect(self.calculate_interpretation)
+        event_bus.acquisition_started_event.connect(self._reset)
         self.new_parameters.emit(self.params)
         self.new_interpretation.emit(self.interval)
 
@@ -60,20 +62,28 @@ class BinaryFrameRateInterpreter(QObject):
         self.new_interpretation.emit(self.interval)
         self.new_parameters.emit(self.params)
 
-    @pyqtSlot(float, float, int)
-    def calculate_interpretation(self, new_value: float, _, timepoint: int):
+    # @pyqtSlot(float, float, int)
+    def calculate_interpretation(self, evt: EDAEvent):
         """Calculate the new interval. Emit if changed and increase/reset the fast image counter."""
         old_interval = self.interval
-        self.interval = self._define_imaging_speed(new_value)
+        print("CURRENT INTERVAL", old_interval)
+        self.interval = self._define_imaging_speed(evt.probability)
         if not self.interval == old_interval:
             self.new_interpretation.emit(self.interval)
 
         self._set_fast_count()
-        log.info(f"timepoint {timepoint} decision: {new_value} -> {self.interval} interval")
+        log.info(f"timepoint {evt.timepoint} decision: {evt.probability} -> {self.interval} interval")
 
     def _define_imaging_speed(self, new_value: float):
         new_interval = self.interval
         # Only change interval if necessary
+        # print("DECISION")
+        # print(self.interval)
+        # print(self.params.fast_interval)
+        # print(new_value)
+        # print(self.params.lower_threshold)
+        # print(self.num_fast_frames)
+        # print(self.min_fast_frames)
         if self.interval == self.params.fast_interval:
             if all(
                 (
@@ -94,6 +104,10 @@ class BinaryFrameRateInterpreter(QObject):
             self.num_fast_frames += 1
         else:
             self.num_fast_frames = 0
+
+    def _reset(self, _):
+        if self.interval == self.params.fast_interval:
+            self.interval = self.params.slow_interval
 
 
 class BinaryFrameRateParameterForm(QWidgetRestore):
@@ -140,5 +154,10 @@ class BinaryFrameRateParameterForm(QWidgetRestore):
         self.param_set.fast_interval = float(str(self.fast_interval_input.text()))
         self.param_set.lower_threshold = float(str(self.lower_threshold_input.text()))
         self.param_set.upper_threshold = float(str(self.upper_threshold_input.text()))
-
         self.new_parameters.emit(self.param_set)
+
+    def new_external_parameters(self, params):
+        self.slow_interval_input.setText(str(params.slow_interval))
+        self.fast_interval_input.setText(str(params.fast_interval))
+        self.lower_threshold_input.setText(str(params.lower_threshold))
+        self.upper_threshold_input.setText(str(params.upper_threshold))

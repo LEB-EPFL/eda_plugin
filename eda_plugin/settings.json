@@ -20,10 +20,10 @@
         },
         "interpreters": {
             "frame_rate": {
-                "slow_interval": 2,
-                "fast_interval": 0,
-                "lower_threshold": 0.3,
-                "upper_threshold": 0.48
+                "slow_interval": 0,
+                "fast_interval": 1,
+                "lower_threshold": 80,
+                "upper_threshold": 250
             }
         }
     }
