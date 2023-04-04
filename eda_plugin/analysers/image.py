@@ -28,7 +28,7 @@ class ImageAnalyser(QObject):
 
     new_decision_parameter = pyqtSignal(float, float, int)
 
-    def __init__(self, event_bus: EventBus):
+    def __init__(self, event_bus: EventBus, worker = ImageAnalyserWorker):
         """Get settings from settings.json, set up the threadpool and connect signals."""
         super().__init__()
 
@@ -41,8 +41,8 @@ class ImageAnalyser(QObject):
         settings = MMSettings(settings)
         self.new_mda_settings(settings)
 
-        # Attach the standard worker, subclasses can replace this.
-        self.worker = ImageAnalyserWorker
+        # Attach the standard worker with composition
+        self.worker = worker
 
         # We will use a threadpool, this allows us to skip ahead if no thread is available
         # if acquisition is faster than analysis

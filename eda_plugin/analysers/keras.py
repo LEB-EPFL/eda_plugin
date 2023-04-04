@@ -127,7 +127,6 @@ class KerasWorker(ImageAnalyserWorker):
         Specific implementations can be found in examples.analysers.keras
         """
         network_input = self.prepare_images(self.local_images)
-        log.warning(network_input["pixels"].dtype)
         network_output = self.model.predict(network_input["pixels"])
         # The simple maximum decision parameter can be calculated without stiching
         decision_parameter = self.extract_decision_parameter(network_output)
