@@ -1,6 +1,7 @@
 """Main functions that assemble a full EDA pipeline."""
 
 import sys
+sys.coinit_flags = 0
 
 import eda_plugin.utility.settings
 # from eda_plugin.actuators.micro_manager import TimerMMAcquisition
@@ -9,6 +10,9 @@ from eda_plugin.utility.eda_gui import EDAMainGUI
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.writers import Writer
 from PyQt5 import QtWidgets
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def basic():
@@ -154,14 +158,34 @@ def main_isim():
 
 def zen():
     from unittest.mock import MagicMock
+    import pythoncom
+    import win32com
     from eda_plugin.actuators.zeiss import ZenActuator
+    from eda_plugin.analysers.position import PositionAnalyser
     from eda_plugin.utility.event_threads import ZenEventThread
+    from eda_plugin.interpreters.frame_rate import BinaryFrameRateInterpreter
+    from pymm_eventserver.data_structures import ParameterSet
+
     app = QtWidgets.QApplication(sys.argv)
 
-    event_bus = EventBus(event_thread=ZenEventThread)
+    # myStream = pythoncom.CreateStreamOnHGlobal()   
+    # zen_id =pythoncom.CoMarshalInterThreadInterfaceInStream(pythoncom.IID_IDispatch, zen)
+    pythoncom.CoInitialize()
+
+    event_bus = EventBus(event_thread=ZenEventThread, subscribe_to=zen)
     gui = EDAMainGUI(event_bus, viewer=True)
     actuator = ZenActuator(event_bus)
+    analyser = PositionAnalyser(event_bus)
+    interpreter = BinaryFrameRateInterpreter(event_bus)
+    params = ParameterSet(slow_interval = 0, fast_interval = 1, lower_threshold = 80, upper_threshold = 250)
+    interpreter.gui.new_external_parameters(params)
+    interpreter.min_fast_frames = 0
+    interpreter.update_parameters(params)
+    # from eda_plugin.analysers.fusion_focus import My_GUI
+    # gui.add_dock_widget(My_GUI())
+
     gui.add_dock_widget(actuator.gui)
+    gui.add_dock_widget(interpreter.gui)
     gui.show()
 
     sys.exit(app.exec_())
@@ -171,7 +195,7 @@ flavours = {"pyro": pyro, "keras": keras, "pyro_keras": pyro_keras, "main_isim":
 try:
     flavour = flavours[sys.argv[1]]
 except (IndexError, KeyError) as e:
-    flavour = keras
+    flavour = zen
 
 if __name__ == "__main__":
     flavour()

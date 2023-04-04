@@ -8,7 +8,7 @@ import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
 from qimage2ndarray import gray2qimage
 
-from pymm_eventserver.data_structures import ParameterSet
+from pymm_eventserver.data_structures import ParameterSet, EDAEvent
 from .event_bus import EventBus
 from .qt_classes import QMainWindowRestore, QWidgetRestore
 import qdarkstyle
@@ -93,11 +93,11 @@ class EDAPlot(pg.PlotWidget):
         self.x_data = []
         self.y_data = []
 
-    @QtCore.pyqtSlot(float, float, int)
-    def add_datapoint(self, y: float, x: float, _):
+    # @QtCore.pyqtSlot(float, float, int)
+    def add_datapoint(self, evt: EDAEvent):
         """Add a datapoint that is received from the analyser."""
-        self.x_data.append(x)
-        self.y_data.append(y)
+        self.x_data.append(evt.timepoint)
+        self.y_data.append(evt.probability)
         self._refresh_plot()
 
     def _refresh_plot(self):
