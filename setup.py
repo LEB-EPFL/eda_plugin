@@ -6,7 +6,7 @@ print(packages)
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-version = "0.2.24"
+version = "0.2.25"
 
 setup(
     name="eda_plugin",
@@ -28,7 +28,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "pyqt5",
-        "pycromanager",
+        "pycromanager<0.26",
         "pyqtgraph",
         "qimage2ndarray",
         "qdarkstyle",
