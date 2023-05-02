@@ -13,7 +13,7 @@ from .event_bus import EventBus
 from .qt_classes import QMainWindowRestore, QWidgetRestore
 import qdarkstyle
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 import logging
 
@@ -32,13 +32,8 @@ class EDAMainGUI(QMainWindowRestore):
         self.setWindowTitle("Event Driven Acquisition")
         self.plot = EDAPlot()
         self.central_widget = QtWidgets.QWidget()
-        self.central_widget.setLayout(QtWidgets.QVBoxLayout())
+        self.central_widget.setLayout(QtWidgets.QHBoxLayout())
 
-        if viewer:
-            self.viewer = NetworkImageViewer()
-            self.central_widget.layout().addWidget(self.viewer)
-            event_bus.new_network_image.connect(self.viewer.add_network_image)
-            event_bus.new_image_event.connect(self.viewer.add_image)
 
         self.central_widget.layout().addWidget(self.plot)
         self.setCentralWidget(self.central_widget)
@@ -47,6 +42,11 @@ class EDAMainGUI(QMainWindowRestore):
 
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
 
+        if viewer:
+            self.viewer = NetworkImageViewer()
+            self.add_dock_widget(self.viewer, "Viewer", 2)
+            event_bus.new_network_image.connect(self.viewer.add_network_image)
+            event_bus.new_image_event.connect(self.viewer.add_image)
         # Make docking to this window possible
         # self.dockers = QtWidgets.QDockWidget("Dockable", self)
         # self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dockers)
@@ -56,12 +56,13 @@ class EDAMainGUI(QMainWindowRestore):
         event_bus.new_decision_parameter.connect(self.plot.add_datapoint)
         event_bus.new_parameters.connect(self.plot._set_thr_lines)
 
-    def add_dock_widget(self, widget: QWidgetRestore, name=None):
+    def add_dock_widget(self, widget: QWidgetRestore, name = None, area: int = 1):
         dock_widget = QtWidgets.QDockWidget(name, self)
         dock_widget.setWidget(widget)
         self.dock_widgets.append(dock_widget)
         self.widgets.append(widget)
-        self.addDockWidget(QtCore.Qt.DockWidgetArea(1), dock_widget)
+        self.addDockWidget(QtCore.Qt.DockWidgetArea(area), dock_widget)
+
 
     def closeEvent(self, e):
         for widget in self.widgets:
@@ -134,7 +135,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.original_image = None
         self.network_image = None
         self.stacked = np.zeros((512, 512, 3), dtype=np.float16)
-        self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
+        self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
         self.red_lut = [QtGui.qRgb(i, 0, 0) for i in range(256)]
         self.gray_lut = [QtGui.qRgb(i, i, i) for i in range(256)]
 
@@ -175,8 +176,8 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.painter.end()
 
         self.image.setPixmap(self.pixmap)
-
         log.info(f"Screening took {time.perf_counter() - t0} seconds =======")
+        log.info(f"{norm_net_image.max()}")
 
     @QtCore.pyqtSlot(PyImage)
     def add_image(self, image: PyImage):
@@ -188,8 +189,10 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
 
     def screen_images(self):
         """Take both images and combine them into one false color image."""
-        norm_image = self.original_image / np.max(self.original_image)
-        norm_net_image = self.network_image / np.max(self.network_image)
+        norm_image = self.original_image - self.original_image.min()
+        norm_net_image = self.network_image - self.network_image.min()
+        norm_image = norm_image / np.max(norm_image)
+        norm_net_image = norm_net_image / np.max(norm_net_image)
 
         self.stacked[..., 0] = norm_net_image*10 # set the red channel to the second grayscale image
         self.stacked[..., 1] = norm_image # set the green channel to zero
