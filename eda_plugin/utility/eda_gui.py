@@ -2,17 +2,18 @@
 
 from typing import Tuple
 from PyQt5 import QtWidgets, QtCore, QtGui
-import PyQt5
 import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
-from qimage2ndarray import gray2qimage
+from qimage2ndarray import array2qimage
+import time
 
-from pymm_eventserver.data_structures import ParameterSet
+from pymm_eventserver.data_structures import ParameterSet, PyImage
 from .event_bus import EventBus
 from .qt_classes import QMainWindowRestore, QWidgetRestore
 import qdarkstyle
 
+import matplotlib.pyplot as plt
 
 import logging
 
@@ -37,6 +38,7 @@ class EDAMainGUI(QMainWindowRestore):
             self.viewer = NetworkImageViewer()
             self.central_widget.layout().addWidget(self.viewer)
             event_bus.new_network_image.connect(self.viewer.add_network_image)
+            event_bus.new_image_event.connect(self.viewer.add_image)
 
         self.central_widget.layout().addWidget(self.plot)
         self.setCentralWidget(self.central_widget)
@@ -125,7 +127,14 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         super(NetworkImageViewer, self).__init__(QtWidgets.QGraphicsScene())
         self.pixmap = QtGui.QPixmap(512, 512)
         self.setSceneRect(0, 0, 512, 512)
-        self.image = self.scene().addPixmap(self.pixmap)
+        image = np.random.randint(0, 255, (512, 512, 3), dtype=np.uint8)
+        # self.image = self.scene().addPixmap(self.pixmap)
+        image = array2qimage(image)
+        self.image = self.scene().addPixmap(QtGui.QPixmap.fromImage(image))
+        self.original_image = None
+        self.network_image = None
+        self.stacked = np.zeros((512, 512, 3), dtype=np.float16)
+        self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
 
     def _reset_scene_rect(self, shape: Tuple):
         self.setSceneRect(0, 0, *shape)
@@ -136,11 +145,42 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
     def add_network_image(self, image: np.ndarray, dims: tuple):
         """Translate the input image into a QImage and display in the scene."""
         log.debug(f"New image in ImageViewer with shape {image.shape}")
-        if dims[0] == 0:
-            self._reset_scene_rect(image.shape)
-        image = gray2qimage(image, normalize=True)
-        self.image.setPixmap(QtGui.QPixmap.fromImage(image))
-        self.update()
+        self.network_image = image
+        t0 = time.perf_counter()
+        qimage = self.screen_images()
+        log.info(f"Screening took {time.perf_counter() - t0} seconds")
+        self.image.setPixmap(QtGui.QPixmap.fromImage(qimage))
+
+    @QtCore.pyqtSlot(PyImage)
+    def add_image(self, image: PyImage):
+        """Translate the input image into a QImage and display in the scene."""
+        self.original_image = image.raw_image
+        if image.timepoint == 0:
+            self.stacked = np.zeros(self.original_image.shape + [3])
+            self._reset_scene_rect(self.original_image.shape)
+
+    def screen_images(self):
+        """Take both images and combine them into one false color image."""
+        norm_image = self.original_image / np.max(self.original_image)
+        norm_net_image = self.network_image / np.max(self.network_image)
+
+        self.stacked[..., 0] = norm_net_image*10 # set the red channel to the second grayscale image
+        self.stacked[..., 1] = norm_image # set the green channel to zero
+        false_color_image = (self.stacked * 255.0).astype(np.uint8)
+        log.info(f"False color image shape: {false_color_image.shape}")
+        return array2qimage(false_color_image)
+
+    def wheelEvent(self, event):
+        if event.modifiers() & QtCore.Qt.ControlModifier:
+            # zoom
+            anchor = self.transformationAnchor()
+            self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+            angle = event.angleDelta().y()
+            factor = 1.1 if angle > 0 else 0.9
+            self.scale(factor, factor)
+            self.setTransformationAnchor(anchor)
+        else:
+            QtWidgets.QGraphicsView.wheelEvent(self, event)
 
 
 class NapariImageViewer(QtWidgets.QWidget):
