@@ -11,7 +11,7 @@
                 "worker_modules": [
                     "eda_plugin.examples.analysers"
                 ],
-                "model": "eda_plugin/utility/models/model1_rescale.h5"
+                "model": "Y:/SHARED/_Lab members/Emily/training_data/20230411_1512/model.h5"
             },
             "image": {
                 "channels": 1,
