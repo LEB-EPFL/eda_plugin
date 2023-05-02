@@ -53,7 +53,8 @@ class Keras1CWorker(KerasWorker):
     def prepare_images(self, images: np.ndarray):
         """Subtract background and normalize image intensity."""
         # print(f"RescaleWorker Images incoming: {images.shape}")
-        images = prepare_1c(images)
+        # images = prepare_1c(images)
+        images = images.astype(np.float16)/images.max()
         images = images[:, :, 0]
         data = {"pixels": np.expand_dims(images, 0)}
         return data

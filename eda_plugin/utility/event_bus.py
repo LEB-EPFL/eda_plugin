@@ -45,7 +45,7 @@ class EventBus(QObject):
             topics = subscribe_to
         self.event_thread = event_thread(topics=topics)
 
-        self.studio = self.event_thread.bridge.get_studio()
+        self.studio = self.event_thread.listener.studio
 
         self.event_thread.listener.acquisition_started_event.connect(self.acquisition_started_event)
         self.event_thread.listener.acquisition_ended_event.connect(self.acquisition_ended_event)

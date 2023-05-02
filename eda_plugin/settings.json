@@ -11,7 +11,7 @@
                 "worker_modules": [
                     "eda_plugin.examples.analysers"
                 ],
-                "model": "eda_plugin/utility/models/model1_rescale.h5"
+                "model": "W:/deep_events/training_data/20230426_1119/20230426_1121_model.h5"
             },
             "image": {
                 "channels": 1,
