@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
-from qimage2ndarray import array2qimage
+from qimage2ndarray import array2qimage, gray2qimage
 import time
 
 from pymm_eventserver.data_structures import ParameterSet, PyImage
@@ -135,28 +135,55 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.network_image = None
         self.stacked = np.zeros((512, 512, 3), dtype=np.float16)
         self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
+        self.red_lut = [QtGui.qRgb(i, 0, 0) for i in range(256)]
+        self.gray_lut = [QtGui.qRgb(i, i, i) for i in range(256)]
+
 
     def _reset_scene_rect(self, shape: Tuple):
         self.setSceneRect(0, 0, *shape)
+        self.pixmap = QtGui.QPixmap(*shape)
         self.fitInView(0, 0, *shape, mode=QtCore.Qt.KeepAspectRatio)
         self.setBackgroundBrush(QtGui.QColor("#222222"))
 
     @QtCore.pyqtSlot(np.ndarray, tuple)
     def add_network_image(self, image: np.ndarray, dims: tuple):
         """Translate the input image into a QImage and display in the scene."""
-        log.debug(f"New image in ImageViewer with shape {image.shape}")
-        self.network_image = image
         t0 = time.perf_counter()
-        qimage = self.screen_images()
-        log.info(f"Screening took {time.perf_counter() - t0} seconds")
-        self.image.setPixmap(QtGui.QPixmap.fromImage(qimage))
+        self.network_image = image
+        # qimage = self.screen_images()
+        # self.image.setPixmap(QtGui.QPixmap.fromImage(qimage))
+
+
+        self.pixmap.fill(QtGui.QColor("transparent"))
+
+        self.painter = QtGui.QPainter()
+
+        # here the two images are drawn into the pixmap
+        self.painter.begin(self.pixmap)
+        self.painter.setCompositionMode(QtGui.QPainter.CompositionMode.CompositionMode_Screen)
+
+        norm_image = self.original_image / (np.max(self.original_image)/255)
+        norm_net_image = self.network_image / (np.max(self.network_image)/255)
+
+        # choose composition mode
+        qimage_1 = gray2qimage(norm_image.astype(np.uint8))
+        qimage_2 = gray2qimage(norm_net_image.astype(np.uint8))
+        qimage_1.setColorTable(self.gray_lut)
+        qimage_2.setColorTable(self.red_lut)
+        self.painter.drawImage(0,0, qimage_1)
+        self.painter.drawImage(0,0, qimage_2)
+        self.painter.end()
+
+        self.image.setPixmap(self.pixmap)
+
+        log.info(f"Screening took {time.perf_counter() - t0} seconds =======")
 
     @QtCore.pyqtSlot(PyImage)
     def add_image(self, image: PyImage):
         """Translate the input image into a QImage and display in the scene."""
         self.original_image = image.raw_image
         if image.timepoint == 0:
-            self.stacked = np.zeros(self.original_image.shape + [3])
+            self.stacked = np.zeros(list(self.original_image.shape) + [3], dtype=np.float16)
             self._reset_scene_rect(self.original_image.shape)
 
     def screen_images(self):
@@ -167,7 +194,6 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.stacked[..., 0] = norm_net_image*10 # set the red channel to the second grayscale image
         self.stacked[..., 1] = norm_image # set the green channel to zero
         false_color_image = (self.stacked * 255.0).astype(np.uint8)
-        log.info(f"False color image shape: {false_color_image.shape}")
         return array2qimage(false_color_image)
 
     def wheelEvent(self, event):
