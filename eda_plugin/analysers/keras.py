@@ -50,6 +50,7 @@ class KerasAnalyser(ImageAnalyser):
     def connect_worker_signals(self, worker: QRunnable):
         """Connect the additional worker signals."""
         worker.signals.new_network_image.connect(self.event_bus.new_network_image)
+        worker.signals.new_prepared_image.connect(self.event_bus.new_prepared_image)
         worker.signals.new_output_shape.connect(self.event_bus.new_output_shape)
         return super().connect_worker_signals(worker)
 
@@ -139,6 +140,7 @@ class KerasWorker(ImageAnalyserWorker):
         # Also construct the image so it can be displayed
         network_output = self.post_process_output(network_output, network_input)
         log.debug(f"Sending new_network_image {network_output.shape} at timepoint {self.timepoint}")
+        self.signals.new_prepared_image.emit(network_input['pixels'][0,:,:,0], self.timepoint)
         self.signals.new_network_image.emit(network_output, (self.timepoint, 0))
         # self.signals.new_network_image.emit(network_input["pixels"][0, :, :], (self.timepoint, 0))
 
@@ -154,7 +156,7 @@ class KerasWorker(ImageAnalyserWorker):
         new_output_shape = pyqtSignal(tuple)
         new_network_image = pyqtSignal(np.ndarray, tuple)
         new_decision_parameter = pyqtSignal(float, float, int)
-
+        new_prepared_image = pyqtSignal(np.ndarray, int)
 
 class KerasSettingsGUI(QWidgetRestore):
     """Specific GUI for the KerasAnalyser."""
