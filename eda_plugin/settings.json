@@ -22,8 +22,8 @@
             "frame_rate": {
                 "slow_interval": 2,
                 "fast_interval": 0,
-                "lower_threshold": 0.3,
-                "upper_threshold": 0.48
+                "lower_threshold": 200,
+                "upper_threshold": 500
             }
         }
     }
