@@ -12,6 +12,7 @@
                     "eda_plugin.examples.analysers"
                 ],
                 "model": "W:/deep_events/training_data/20230426_1119/20230426_1121_model.h5"
+
             },
             "image": {
                 "channels": 1,
@@ -22,8 +23,8 @@
             "frame_rate": {
                 "slow_interval": 2,
                 "fast_interval": 0,
-                "lower_threshold": 0.3,
-                "upper_threshold": 0.48
+                "lower_threshold": 200,
+                "upper_threshold": 500
             }
         }
     }

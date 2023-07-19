@@ -20,6 +20,7 @@ class EventBus(QObject):
     new_parameters = pyqtSignal(ParameterSet)
 
     # Events from micro-manager via EventThread
+    new_acquisition_started_event = pyqtSignal(object)
     acquisition_started_event = pyqtSignal(object)
     acquisition_ended_event = pyqtSignal(object)
     new_image_event = pyqtSignal(PyImage)
@@ -30,6 +31,7 @@ class EventBus(QObject):
     new_decision_parameter = pyqtSignal(float, float, int)
     new_output_shape = pyqtSignal(tuple)
     new_network_image = pyqtSignal(np.ndarray, tuple)
+    new_prepared_image = pyqtSignal(np.ndarray, int)
 
     # Magellan Events
     new_magellan_settings = pyqtSignal(dict)

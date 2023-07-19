@@ -11,6 +11,4 @@ eda_plugin/examples/data/*
 !eda_plugin/examples/data/*.py
 
 tests/data/
-
-.coverage
 local/

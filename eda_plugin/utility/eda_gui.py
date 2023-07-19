@@ -7,6 +7,8 @@ import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
 from qimage2ndarray import array2qimage, gray2qimage
 import time
+from pathlib import Path
+
 
 from pymm_eventserver.data_structures import ParameterSet, PyImage
 from .event_bus import EventBus
@@ -46,7 +48,8 @@ class EDAMainGUI(QMainWindowRestore):
             self.viewer = NetworkImageViewer()
             self.add_dock_widget(self.viewer, "Viewer", 2)
             event_bus.new_network_image.connect(self.viewer.add_network_image)
-            event_bus.new_image_event.connect(self.viewer.add_image)
+            event_bus.new_prepared_image.connect(self.viewer.add_image)
+
         # Make docking to this window possible
         # self.dockers = QtWidgets.QDockWidget("Dockable", self)
         # self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dockers)
@@ -136,8 +139,14 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.network_image = None
         self.stacked = np.zeros((512, 512, 3), dtype=np.float16)
         self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
-        self.red_lut = [QtGui.qRgb(i, 0, 0) for i in range(256)]
+        self.red_lut = self.inferno_colormap()
         self.gray_lut = [QtGui.qRgb(i, i, i) for i in range(256)]
+    
+    def inferno_colormap(self, n=256):
+        inferno = np.genfromtxt(Path(__file__).parent / "inferno.csv", delimiter=",")[1:,1:]
+        inferno = inferno.astype(np.uint8)
+        qt_inferno = [QtGui.qRgb(color[0], color[1], color[2]) for color in inferno]
+        return qt_inferno
 
 
     def _reset_scene_rect(self, shape: Tuple):
@@ -179,11 +188,13 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         log.info(f"Screening took {time.perf_counter() - t0} seconds =======")
         log.info(f"{norm_net_image.max()}")
 
-    @QtCore.pyqtSlot(PyImage)
-    def add_image(self, image: PyImage):
+
+    @QtCore.pyqtSlot(np.ndarray, int)
+    def add_image(self, image: np.ndarray, timepoint):
         """Translate the input image into a QImage and display in the scene."""
-        self.original_image = image.raw_image
-        if image.timepoint == 0:
+        self.original_image = image
+        print(image.shape)
+        if timepoint == 0:
             self.stacked = np.zeros(list(self.original_image.shape) + [3], dtype=np.float16)
             self._reset_scene_rect(self.original_image.shape)
 
