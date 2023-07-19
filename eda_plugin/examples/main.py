@@ -84,17 +84,14 @@ def keras():
     actuator = MMActuator(event_bus)
     analyser = KerasAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
-    writer = Writer(event_bus)
+    # writer = Writer(event_bus)
 
     gui.add_dock_widget(actuator.gui, "Actuator")
     gui.add_dock_widget(interpreter.gui, "Interpreter")
     gui.add_dock_widget(analyser.gui, "Analyser")
-    gui.add_dock_widget(writer.gui, "Save Data")
+    # gui.add_dock_widget(writer.gui, "Save Data")
 
     gui.show()
-    # actuator.gui.show()
-    # interpreter.gui.show()
-    # analyser.gui.show()
 
     sys.exit(app.exec_())
 

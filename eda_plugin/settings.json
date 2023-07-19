@@ -11,7 +11,8 @@
                 "worker_modules": [
                     "eda_plugin.examples.analysers"
                 ],
-                "model": "Y:/SHARED/_Lab members/Emily/training_data/20230411_1512/model.h5"
+                "model": "W:/deep_events/training_data/20230426_1119/20230426_1121_model.h5"
+
             },
             "image": {
                 "channels": 1,

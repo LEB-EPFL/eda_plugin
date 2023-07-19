@@ -9,6 +9,7 @@ from qimage2ndarray import array2qimage, gray2qimage
 import time
 from pathlib import Path
 
+
 from pymm_eventserver.data_structures import ParameterSet, PyImage
 from .event_bus import EventBus
 from .qt_classes import QMainWindowRestore, QWidgetRestore
@@ -48,6 +49,7 @@ class EDAMainGUI(QMainWindowRestore):
             self.add_dock_widget(self.viewer, "Viewer", 2)
             event_bus.new_network_image.connect(self.viewer.add_network_image)
             event_bus.new_prepared_image.connect(self.viewer.add_image)
+
         # Make docking to this window possible
         # self.dockers = QtWidgets.QDockWidget("Dockable", self)
         # self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dockers)
@@ -146,6 +148,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         qt_inferno = [QtGui.qRgb(color[0], color[1], color[2]) for color in inferno]
         return qt_inferno
 
+
     def _reset_scene_rect(self, shape: Tuple):
         self.setSceneRect(0, 0, *shape)
         self.pixmap = QtGui.QPixmap(*shape)
@@ -184,6 +187,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.image.setPixmap(self.pixmap)
         log.info(f"Screening took {time.perf_counter() - t0} seconds =======")
         log.info(f"{norm_net_image.max()}")
+
 
     @QtCore.pyqtSlot(np.ndarray, int)
     def add_image(self, image: np.ndarray, timepoint):

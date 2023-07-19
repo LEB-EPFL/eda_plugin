@@ -74,6 +74,7 @@ class Keras1CWorker(KerasWorker):
         # print(f"RescaleWorker Images incoming: {images.shape}")
         images = prepare_1c(images)
         # images = images[:, :, 0]
+
         data = {"pixels": np.expand_dims(images, 0)}
         return data
 
