@@ -9,7 +9,9 @@ import logging
 import numpy as np
 import time
 
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable
+from utility.qt_classes import QwidgetRestore
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable, QSettings
+from PyQt5 import QtWidgets
 from eda_plugin.utility.event_bus import EventBus
 from pymm_eventserver.data_structures import PyImage, MMSettings
 from eda_plugin.utility import settings
@@ -36,6 +38,7 @@ class ImageAnalyser(QObject):
         self.time = None
         self.images = None
         self.start_time = None
+        self.n_timepoints = 1
 
         settings = event_bus.studio.acquisitions().get_acquisition_settings()
         settings = MMSettings(settings)
@@ -177,3 +180,35 @@ class PycroImageAnalyser(ImageAnalyser):
         self.start_time = time.time()
         if self.images is not None:
             self._reset_shape(PyImage(self.images[0], 0, 0, 0, 0))
+
+
+class AnalyserGUI(QwidgetRestore):
+    """GUI to set number of timepoints to be analysed."""
+
+    new_settings = pyqtSignal(object)
+
+    def __init__(self):
+        """Set up GUI for the keras analyser.
+
+        Get the default settings from the settings file and set up the GUI
+        """
+        super().__init__()
+        self.setWindowTitle("AnalyserSettings")
+        self.settings_dir = QSettings("Analyser", self.__class__.__name__)
+        self.n_timepoints = self.settings_dir.value("n_timepoints", 1)
+
+        self.timepoints_input = QtWidgets.QSpinBox()
+        self.timepoints_input.valueChanged.connect(self._update_settings)
+
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.timepoints_input)
+
+    def _update_settings(self, value):
+        self.settings['n_timepoints'] = value
+        self.n_timepoints = value
+        self.new_settings.emit(self.settings)
+
+    def closeEvent(self, event):
+        """Save the settings to the settings file."""
+        self.settings_dir.setValue("n_timepoints", self.n_timepoints)
+        super().closeEvent(event)

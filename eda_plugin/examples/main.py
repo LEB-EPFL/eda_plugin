@@ -9,7 +9,6 @@ from eda_plugin.utility.eda_gui import EDAMainGUI
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.writers import Writer
 from PyQt5 import QtWidgets
-from eda_plugin.local.contrast import ContrastSwitcher
 
 def basic():
     """EDA loop that can be used to test without a microscope and without CUDA installation."""
@@ -27,15 +26,14 @@ def basic():
 
     # Call the main components of the EDA loop (TimerMMAcquisition is also the default)
     # actuator = MMActuator(event_bus, TimerMMAcquisition)
-    actuator = ContrastSwitcher(event_bus)
+    actuator = MMActuator(event_bus)
     analyser = ImageAnalyser(event_bus)
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
     # Start the main GUI showing the EDA plot and the controls for the specific components
-    gui = EDAMainGUI(event_bus, viewer=False)
+    gui = EDAMainGUI(event_bus, viewer=True)
+    gui.add_dock_widget(interpreter.gui, "Actuator")
     gui.show()
-    actuator.gui.show()
-    interpreter.gui.show()
 
     # Start the event loop
     sys.exit(app.exec_())
