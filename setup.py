@@ -1,3 +1,4 @@
+from traceback import extract_stack
 from setuptools import setup, find_packages
 
 packages = find_packages()
@@ -27,7 +28,7 @@ setup(
     package_data={"": ["settings.json", "utility/*.jar", "utility/models/*"]},
     include_package_data=True,
     install_requires=[
-        "pyqt5",
+        "qtpy",
         "pycromanager<0.26",
         "pyqtgraph",
         "qimage2ndarray",
@@ -38,7 +39,9 @@ setup(
         "zarr",
         "ome_zarr",
         "pymm_eventserver",
+        "ome-types",
     ],
+    extras_require={'pyqt5': ['PyQt5'], 'pyqt6': ['PyQt6']},
     author="Willi L. Stepp",
     author_email="willi.stepp@epfl.ch",
     python_requires=">=3.7",

@@ -17,6 +17,7 @@ import sys
 
 autodoc_mock_imports = [
     "PyQt5",
+    "PyQt6",
     "qtpy",
     "numpy",
     "tensorflow",

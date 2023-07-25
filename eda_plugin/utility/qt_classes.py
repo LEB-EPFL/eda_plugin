@@ -1,6 +1,6 @@
 """Customized Qt classes for overall GUI behaviour."""
 
-from PyQt5 import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore
 
 
 class QMainWindowRestore(QtWidgets.QMainWindow):

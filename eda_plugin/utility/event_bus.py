@@ -4,7 +4,7 @@ Also handles the connection to the EventThread that receives events from Micro-M
 PythonEventServer plugin provided.
 """
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, Signal
 from pymm_eventserver.data_structures import ParameterSet, PyImage
 
 from pymm_eventserver.event_thread import EventThread
@@ -16,25 +16,25 @@ class EventBus(QObject):
     """Mainly a hub for incoming events that can be subscribed to."""
 
     # Interpreter Events
-    new_interpretation = pyqtSignal(float)
-    new_parameters = pyqtSignal(ParameterSet)
+    new_interpretation = Signal(float)
+    new_parameters = Signal(ParameterSet)
 
     # Events from micro-manager via EventThread
-    new_acquisition_started_event = pyqtSignal(object)
-    acquisition_started_event = pyqtSignal(object)
-    acquisition_ended_event = pyqtSignal(object)
-    new_image_event = pyqtSignal(PyImage)
-    mda_settings_event = pyqtSignal(object)
-    configuration_settings_event = pyqtSignal(str, str, str)
+    new_acquisition_started_event = Signal(object)
+    acquisition_started_event = Signal(object)
+    acquisition_ended_event = Signal(object)
+    new_image_event = Signal(PyImage)
+    mda_settings_event = Signal(object)
+    configuration_settings_event = Signal(str, str, str)
 
     # Analyser Events
-    new_decision_parameter = pyqtSignal(float, float, int)
-    new_output_shape = pyqtSignal(tuple)
-    new_network_image = pyqtSignal(np.ndarray, tuple)
-    new_prepared_image = pyqtSignal(np.ndarray, int)
+    new_decision_parameter = Signal(float, float, int)
+    new_output_shape = Signal(tuple)
+    new_network_image = Signal(np.ndarray, tuple)
+    new_prepared_image = Signal(np.ndarray, int)
 
     # Magellan Events
-    new_magellan_settings = pyqtSignal(dict)
+    new_magellan_settings = Signal(dict)
 
     def __init__(self, event_thread: EventThread = EventThread,
                  subscribe_to: Union[str, List] = "all"):

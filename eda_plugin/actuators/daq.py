@@ -18,7 +18,7 @@ import numpy as np
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.data_structures import ParameterSet
 from pymm_eventserver.data_structures import MMSettings
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from qtpy.QtCore import QObject, Signal, Slot
 
 
 log = logging.getLogger("EDA")
@@ -27,8 +27,8 @@ log = logging.getLogger("EDA")
 class DAQActuator(QObject):
     """Deliver new data to the DAQ with the framerate as given by the FrameRateInterpreter."""
 
-    new_daq_data = pyqtSignal(np.ndarray)
-    start_acq_signal = pyqtSignal(np.ndarray)
+    new_daq_data = Signal(np.ndarray)
+    start_acq_signal = Signal(np.ndarray)
 
     def __init__(self, event_bus: EventBus):
         """Initialize the DAQ with the settings that are fixed for all modes."""
@@ -108,9 +108,9 @@ class DAQActuator(QObject):
         self.eda_params = params
         self.acq = EDAAcquisition(self, self.settings, self.eda_params)
 
-    @pyqtSlot(object)
+    @Slot(object)
     def run_acquisition_task(self, _):
-        """Run the acquisition by forwarding the pyqtSignal to the Acquisition instance."""
+        """Run the acquisition by forwarding the Signal to the Acquisition instance."""
         # self.event_thread.mda_settings_event.disconnect(self.new_settings)
         time.sleep(1)
         try:
@@ -120,7 +120,7 @@ class DAQActuator(QObject):
             self.acq = EDAAcquisition(self, self.settings, self.eda_params)
             self.task.start()
 
-    @pyqtSlot(object)
+    @Slot(object)
     def acq_done(self, _):
         """Acquisition was stopped, clean up."""
         # self.acq.set_z_position.emit(self.acq.orig_z_position)
@@ -129,13 +129,13 @@ class DAQActuator(QObject):
         self.task.stop()
         self.acq.update_settings(self.acq.settings)
 
-    @pyqtSlot(float)
+    @Slot(float)
     def call_action(self, new_interval):
         """Interpreter has emitted a new interval to use, adapt the acquisition instance."""
         self.acq.interval = new_interval
         log.info(f"=== New interval: {new_interval} ===")
 
-    @pyqtSlot(object)
+    @Slot(object)
     def new_settings(self, new_settings: MMSettings):
         """There are new settings, most likely in the MDA window in MM, adapt internal settings."""
         self.settings = new_settings
@@ -143,7 +143,7 @@ class DAQActuator(QObject):
         self.acq.update_settings(new_settings)
         log.info("NEW SETTINGS")
 
-    @pyqtSlot(str, str, str)
+    @Slot(str, str, str)
     def configuration_settings(self, device, prop, value):
         """Table settings in MM changed, adapt internal settings."""
         if device == "488_AOTF" and prop == r"Power (% of max)":

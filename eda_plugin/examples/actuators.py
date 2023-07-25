@@ -3,7 +3,7 @@
 import logging
 import time
 
-from PyQt5.QtWidgets import QFileDialog
+from qtpy.QtWidgets import QFileDialog
 import numpy as np
 import tifffile
 from eda_plugin.actuators.pycromanager import PycroAcquisition

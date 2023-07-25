@@ -9,7 +9,7 @@ import logging
 import numpy as np
 import time
 
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable
+from qtpy.QtCore import Signal, Slot, QThreadPool, QObject, QRunnable
 from eda_plugin.utility.event_bus import EventBus
 from pymm_eventserver.data_structures import PyImage, MMSettings
 from eda_plugin.utility import settings
@@ -26,7 +26,7 @@ class ImageAnalyser(QObject):
     value it calculated on to any expecting interpreters.
     """
 
-    new_decision_parameter = pyqtSignal(float, float, int)
+    new_decision_parameter = Signal(float, float, int)
 
     def __init__(self, event_bus: EventBus):
         """Get settings from settings.json, set up the threadpool and connect signals."""
@@ -61,7 +61,7 @@ class ImageAnalyser(QObject):
         event_bus.new_image_event.connect(self.start_analysis)
         event_bus.mda_settings_event.connect(self.new_mda_settings)
 
-    @pyqtSlot(PyImage)
+    @Slot(PyImage)
     def start_analysis(self, evt: PyImage):
         """Image arrived, see if all images were gathered and if so, start analysis."""
         ready = self.gather_images(evt)
@@ -144,7 +144,7 @@ class ImageAnalyserWorker(QRunnable):
     class _Signals(QObject):
         """Signals have to be separate because QRunnable can't have its own."""
 
-        new_decision_parameter = pyqtSignal(float, float, int)
+        new_decision_parameter = Signal(float, float, int)
 
 
 class PycroImageAnalyser(ImageAnalyser):

@@ -14,8 +14,8 @@ import numpy as np
 import importlib
 import inspect
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QObject, QRunnable, pyqtSignal
+from qtpy import QtWidgets
+from qtpy.QtCore import QObject, QRunnable, Signal
 import qdarkstyle
 
 from tensorflow import keras
@@ -36,8 +36,8 @@ class KerasAnalyser(ImageAnalyser):
     by the specific GUI to be displayed.
     """
 
-    new_network_image = pyqtSignal(np.ndarray, tuple)
-    new_output_shape = pyqtSignal(tuple)
+    new_network_image = Signal(np.ndarray, tuple)
+    new_output_shape = Signal(tuple)
 
     def __init__(self, event_bus: EventBus):
         """Load and connect the GUI. Initialise settings from the GUI."""
@@ -152,15 +152,15 @@ class KerasWorker(ImageAnalyserWorker):
         return data
 
     class _Signals(QObject):
-        new_output_shape = pyqtSignal(tuple)
-        new_network_image = pyqtSignal(np.ndarray, tuple)
-        new_decision_parameter = pyqtSignal(float, float, int)
-        new_prepared_image = pyqtSignal(np.ndarray, int)
+        new_output_shape = Signal(tuple)
+        new_network_image = Signal(np.ndarray, tuple)
+        new_decision_parameter = Signal(float, float, int)
+        new_prepared_image = Signal(np.ndarray, int)
 
 class KerasSettingsGUI(QWidgetRestore):
     """Specific GUI for the KerasAnalyser."""
 
-    new_settings = pyqtSignal(object)
+    new_settings = Signal(object)
 
     def __init__(self):
         """Set up GUI for the keras analyser.
