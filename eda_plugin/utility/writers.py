@@ -87,9 +87,9 @@ class Writer(QObject):
 
     def save_image(self, py_image: PyImage):
         """Gather one timepoint for the original data and save it."""
+        self.ome.add_plane_from_image(py_image)
         if not self.gui.save_images.isChecked() or py_image is None:
             return
-        self.ome.add_plane_from_image(py_image)
         # if all([py_image.timepoint == 0, py_image.channel == 0, py_image.z_slice == 0,
         #         self.local_image_store is not None]) or
         if self.local_image_store is None:
