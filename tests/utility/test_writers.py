@@ -3,19 +3,16 @@ import io
 import os
 import shutil
 import time
-from logging import root
-from multiprocessing import Event
 
 import numpy as np
 import ome_types
 import pytest
-from eda_plugin.utility.event_bus import EventBus
+
 from eda_plugin.utility.writers import Writer
 from ome_zarr.io import parse_url
 from ome_zarr.reader import Reader
-from pymm_eventserver.data_structures import MMSettings, PyImage
-from tests.utility.test_event_bus import (event_bus, java_settings_event,
-                                          java_settings_event_w_save_loc)
+from pymm_eventserver.data_structures import  PyImage
+
 
 
 @pytest.fixture

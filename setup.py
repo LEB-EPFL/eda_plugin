@@ -29,7 +29,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "qtpy",
-        "pycromanager<0.26",
+        "pycromanager >0.19, <0.26",
         "pyqtgraph",
         "qimage2ndarray",
         "qdarkstyle",

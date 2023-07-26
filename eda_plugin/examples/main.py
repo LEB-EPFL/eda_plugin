@@ -1,6 +1,7 @@
 """Main functions that assemble a full EDA pipeline."""
 
 import sys
+from eda_plugin.interpreters.presets import PresetsInterpreter
 
 import eda_plugin.utility.settings
 from eda_plugin.actuators.micro_manager import TimerMMAcquisition
@@ -49,7 +50,7 @@ def basic():
 def pyro():
     """EDA loop thay can be used to test without a microscope and without CUDA installation."""
     from eda_plugin.actuators.micro_manager import MMActuator
-    from eda_plugin.actuators.pycromanager import PycroAcquisition
+    from eda_plugin.actuators.pycro import PycroAcquisition
     from eda_plugin.analysers.image import PycroImageAnalyser
 
     eda_plugin.utility.settings.setup_logging()
@@ -69,6 +70,13 @@ def pyro():
 
     sys.exit(app.exec_())
 
+def writer():
+    """Just run the ome_ngff writer"""
+    app = QtWidgets.QApplication(sys.argv)
+    event_bus = EventBus()
+    writer = Writer(event_bus)
+    writer.gui.show()
+    sys.exit(app.exec_())
 
 def keras():
     """EDA loop using a neural network analyser that can be used for testing."""
@@ -146,8 +154,44 @@ def main_isim():
     # actuator.gui.show()
     sys.exit(app.exec_())
 
+def presets():
+    """Using the presets Actuator without DAQ."""
+    """EDA loop using a neural network analyser that can be used for testing."""
+    from eda_plugin.actuators.daq_presets import DAQPresetsActuator
+    from eda_plugin.analysers.keras import KerasAnalyser
+    from eda_plugin.analysers.image import ImageAnalyser
 
-flavours = {"pyro": pyro, "keras": keras, "pyro_keras": pyro_keras, "main_isim": main_isim}
+    eda_plugin.utility.settings.setup_logging()
+
+    app = QtWidgets.QApplication(sys.argv)
+    event_bus = EventBus()
+
+    gui = EDAMainGUI(event_bus, viewer=True)
+    print("Actuator")
+    actuator = DAQPresetsActuator(event_bus)
+    print("Analyser")
+    analyser = KerasAnalyser(event_bus)
+    print("Interpreter")
+    interpreter = PresetsInterpreter(event_bus)
+    # writer = Writer(event_bus)
+
+    print("Adding dock widgets")
+    gui.add_dock_widget(actuator.gui, "Actuator")
+    gui.add_dock_widget(interpreter.gui, "Interpreter")
+    gui.add_dock_widget(analyser.gui, "Analyser")
+    # gui.add_dock_widget(writer.gui, "Save Data")
+
+    print("Show GUI")
+    gui.show()
+    # actuator.gui.show()
+    # interpreter.gui.show()
+    # analyser.gui.show()
+
+    sys.exit(app.exec_())
+
+
+flavours = {"basic": basic, "pyro": pyro, "keras": keras, "pyro_keras": pyro_keras,
+            "main_isim": main_isim, "writer": writer, "presets": presets}
 try:
     flavour = flavours[sys.argv[1]]
 except (IndexError, KeyError) as e:

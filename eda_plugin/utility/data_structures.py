@@ -24,13 +24,13 @@ class EDAEvent:
 
 
 @dataclass
-class ParameterSet:
+class  ParameterSet:
     """Set of parameters for the BinaryFrameRateInterpreter."""
 
-    slow_interval: float
-    fast_interval: float
-    lower_threshold: int
-    upper_threshold: int
+    slow_interval: float = 1.
+    fast_interval: float = 0.
+    lower_threshold: int = 80
+    upper_threshold: int = 100
 
     def __init__(self, *args, **params: dict):
         """If parameters were passed in as a dict, translate."""

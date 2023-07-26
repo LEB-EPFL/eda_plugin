@@ -37,8 +37,15 @@ class ImageAnalyser(QObject):
         self.images = None
         self.start_time = None
 
+        # Initialize counters
+        self.channels_gathered = 0
+        self.slices_gathered = 0
+        self.channels = 1
+        self.slices = 1
+
         settings = event_bus.studio.acquisitions().get_acquisition_settings()
         settings = MMSettings(settings)
+        self.mda_settings = settings
         self.new_mda_settings(settings)
 
         # Attach the standard worker, subclasses can replace this.
@@ -91,18 +98,22 @@ class ImageAnalyser(QObject):
         log.info(f"New settings: {self.channels} channels & {self.slices} slices")
 
     def gather_images(self, py_image: PyImage) -> bool:
-        """Gather the amount of images needed."""
-
+        """Gather the amount of images needed. Channels can be swapped by subclasses. So don't rely
+        on them coming in in the correct order."""
         try:
             self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
         except (ValueError, TypeError, IndexError):
             self._reset_shape(py_image)
             self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
 
-        self.time = py_image.timepoint
-        if py_image.channel < self.channels - 1 or py_image.z_slice < self.slices - 1:
+        self.channels_gathered += 1
+        self.slices_gathered += 1
+        print(f"Channels to be gathered: {self.channels}, now {self.channels_gathered}")
+        if self.channels_gathered < self.channels or self.slices_gathered < self.slices:
             return False
         else:
+            self.channels_gathered = 0
+            self.slices_gathered = 0
             return True
 
     def _get_worker_args(self, evt):
@@ -138,8 +149,8 @@ class ImageAnalyserWorker(QRunnable):
         )
 
     def extract_decision_parameter(self, network_output: np.ndarray):
-        """Return the first value of the ndarray."""
-        return float(network_output.flatten()[0])
+        """Return the a value of the ndarray."""
+        return float(network_output.flatten()[5000])
 
     class _Signals(QObject):
         """Signals have to be separate because QRunnable can't have its own."""

@@ -64,7 +64,7 @@ def install_mm_plugins():
     )
     plugin_folder = os.path.join(mm_folder, "mmplugins")
     directory = os.path.dirname(__file__)
-    files = ["ImageInjector.jar", "PythonEventServer.jar"]
+    files = ["ImageInjector.jar"]
     for file in files:
         print("src: ", os.path.join(directory, file))
         print("dst: ", os.path.join(plugin_folder, file))

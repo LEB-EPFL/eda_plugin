@@ -12,3 +12,5 @@ eda_plugin/examples/data/*
 
 tests/data/
 local/
+
+.coverage

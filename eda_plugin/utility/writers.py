@@ -21,7 +21,9 @@ from eda_plugin.utility.qt_classes import QWidgetRestore
 from ome_zarr import io, writer
 from pymm_eventserver.data_structures import MMSettings, ParameterSet, PyImage
 from qtpy import QtWidgets
-from qtpy.QtCore import QObject
+from qtpy.QtCore import QObject, QTimer
+
+import pdb
 
 log = logging.getLogger("EDA")
 
@@ -85,27 +87,26 @@ class Writer(QObject):
 
     def save_image(self, py_image: PyImage):
         """Gather one timepoint for the original data and save it."""
-        if not self.gui.save_images.isChecked():
+        if not self.gui.save_images.isChecked() or py_image is None:
             return
-        if all([py_image.timepoint == 0, py_image.channel == 0, py_image.z_slice == 0]):
-            shape = (1, 2, 1, py_image.raw_image.shape[-2], py_image.raw_image.shape[-1])
+        self.ome.add_plane_from_image(py_image)
+        # if all([py_image.timepoint == 0, py_image.channel == 0, py_image.z_slice == 0,
+        #         self.local_image_store is not None]) or
+        if self.local_image_store is None:
+            shape = (1, self.settings.n_channels, self.settings.n_slices, py_image.raw_image.shape[-2], py_image.raw_image.shape[-1])
             self.image_root.create_dataset("0", shape=shape, dtype="uint16")
             self._fake_metadata(py_image.raw_image.shape, self.image_root, "0")
-            self.local_image_store = np.ndarray(shape, "uint16")
+            self.local_image_store = np.ndarray(shape, np.uint16)
+        self.local_image_store[0, py_image.channel, py_image.z_slice, :, :] = py_image.raw_image
 
-        self.ome.add_plane_from_image(py_image)
-        self.local_image_store[0][py_image.channel][py_image.z_slice] = py_image.raw_image
-
-        print(f"MAX DATA {self.local_image_store.max()}")
         if (
             py_image.channel == self.settings.n_channels - 1
             and py_image.z_slice == self.settings.n_slices - 1
         ):
             if py_image.timepoint == 0:
-                self.image_root["0"] = copy.deepcopy(self.local_image_store)
+                self.image_root[0] = copy.deepcopy(self.local_image_store)
             else:
-                self.image_root["0"].append(self.local_image_store)
-        print(self.image_root['0'][0, 0, 0, 0, 0:5])
+                self.image_root[0].append(self.local_image_store)
 
 
     def save_network_image(self, image: np.ndarray, dims: tuple):
@@ -125,6 +126,8 @@ class Writer(QObject):
 
         while dims[0] > self.eda_root["nn_images"].shape[0] - 1:
             # A frame was missed, lets add an empty frame
+            print(dims)
+            print(self.eda_root["nn_images"].shape)
             log.warning("Frame missed, saving empty nn image!")
             self.eda_root["nn_images"].append(np.zeros_like(image))
 
@@ -140,14 +143,16 @@ class Writer(QObject):
         # TODO: be careful, might not get all the params!
         self.eda_root["analyser_output"].append([[timepoint, param]])
 
-    def update_parameters(self, params: ParameterSet):
+    def update_parameters(self, params: Union[ParameterSet, dict]):
         """Update the parameters for the Interpreter used."""
-        self.params = params.to_dict()
+        if not isinstance(params, dict):
+            self.params = params.to_dict()
+        else:
+            self.params = params
         log.info("Paramters updated")
 
     def save_thresholds(self):
         """New Acquisition is starting, save the thresholds used for this acquisition."""
-        print(json.dumps(self.params))
         self.eda_root["parameters"] = json.dumps(self.params)
 
     def prepare_nn_image(self, image, dims):
@@ -189,6 +194,14 @@ class Writer(QObject):
         except IndexError:
             self.ome.finalize_metadata()
             self.save_ome_metadata(xml=self.ome.ome.to_xml())
+        finally:
+            # Delay this so that network images can be saved
+            self.reset_timer = QTimer()
+            self.reset_timer.singleShot(1000, self.reset_local_image_store)
+            self.reset_timer.start()
+
+    def reset_local_image_store(self):
+        self.local_image_store = None
 
     def save_imagej_metadata(self, tif: Union[tifffile.TiffFile, None] = None):
         """Get the ImageJ metadata from the original tiff file and save it"""
@@ -238,8 +251,8 @@ class Writer(QObject):
         return root
 
     def _fake_metadata(self, shape, group, name="0"):
-        axes = ["t", "c", "z", "x", "y"]
-        shapes = [[1, 2, 1, shape[-2], shape[-1]]]
+        axes = ["t", "c", "z", "y", "x"]
+        shapes = [[1, self.settings.n_channels, self.settings.n_slices, shape[-2], shape[-1]]]
         coordinate_transformations = writer.CurrentFormat().generate_coordinate_transformations(
             shapes
         )

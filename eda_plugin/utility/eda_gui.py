@@ -1,6 +1,6 @@
 """QtWidgets that can be used as main GUI components for the EDA loop."""
 
-from typing import Tuple
+from typing import Tuple, Union
 from qtpy import QtWidgets, QtCore, QtGui
 import pyqtgraph as pg
 import numpy as np
@@ -59,6 +59,7 @@ class EDAMainGUI(QMainWindowRestore):
         event_bus.acquisition_started_event.connect(self.plot._reset_plot)
         event_bus.new_decision_parameter.connect(self.plot.add_datapoint)
         event_bus.new_parameters.connect(self.plot._set_thr_lines)
+        self.event_bus = event_bus
 
     def add_dock_widget(self, widget: QWidgetRestore, name = None, area: int = 1):
         dock_widget = QtWidgets.QDockWidget(name, self)
@@ -118,10 +119,13 @@ class EDAPlot(pg.PlotWidget):
         self._refresh_plot()
 
     QtCore.Slot(ParameterSet)
-
-    def _set_thr_lines(self, params: ParameterSet):
-        self.thrLine1.setPos(params.lower_threshold)
-        self.thrLine2.setPos(params.upper_threshold)
+    def _set_thr_lines(self, params: Union[dict, ParameterSet]):
+        try:
+            self.thrLine1.setPos(params.lower_threshold)
+            self.thrLine2.setPos(params.upper_threshold)
+        except AttributeError:
+            self.thrLine1.setPos(params['lower_threshold'])
+            self.thrLine2.setPos(params['upper_threshold'])
 
 
 class NetworkImageViewer(QtWidgets.QGraphicsView):
@@ -142,7 +146,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
         self.red_lut = self.inferno_colormap()
         self.gray_lut = [QtGui.qRgb(i, i, i) for i in range(256)]
-    
+
     def inferno_colormap(self, n=256):
         inferno = np.genfromtxt(Path(__file__).parent / "inferno.csv", delimiter=",")[1:,1:]
         inferno = inferno.astype(np.uint8)
