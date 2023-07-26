@@ -10,8 +10,12 @@ import win32com.client
 import pywintypes
 import clr
 import logging
+try:
+    clr.AddReference("C:/Program Files/Carl Zeiss/ZEN 2/ZEN 2 (blue edition)/Zeiss.Micro.Scripting.dll")
+except Exception as e:
+    print(e)
+    print("ZEN Software not installed? Else, change the path to the Zeiss.Micro.Scripting.dll")
 
-clr.AddReference("C:/Program Files/Carl Zeiss/ZEN 2/ZEN 2 (blue edition)/Zeiss.Micro.Scripting.dll")
 log = logging.getLogger("EDA")
 
 class ZenEventThread(QObject):
@@ -60,7 +64,7 @@ class ZenEventThread(QObject):
     def stop(self):
         self.thread.exit()
         while self.thread.isRunning():
-            time.sleep(0.05)     
+            time.sleep(0.05)
 
 class ZenEventListener(QObject):
     """An event thread that gets information and images from the Zeiss Zen software"""

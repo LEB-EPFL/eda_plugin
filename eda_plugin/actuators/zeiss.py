@@ -19,14 +19,21 @@ from pymm_eventserver.data_structures import MMSettings, EDAEvent
 
 import logging
 import clr
-clr.AddReference("C:/Program Files/Carl Zeiss/ZEN 2/ZEN 2 (blue edition)/Zeiss.Micro.Scripting.dll")
+try:
+    clr.AddReference("C:/Program Files/Carl Zeiss/ZEN 2/ZEN 2 (blue edition)/Zeiss.Micro.Scripting.dll")
+except Exception as e:
+    print(e)
+    print("ZEN Software not installed? Else, change the path to the Zeiss.Micro.Scripting.dll")
+
+
+
 log = logging.getLogger("EDA")
 
 class ZenActuator(QObject):
     """Zen based actuator.
-    
+
     Interacts with the ZEN software via the COM interface to run a special version of EDA. This version
-    switches between two presets upon a signal from the interpreter. Communication will have to be 
+    switches between two presets upon a signal from the interpreter. Communication will have to be
     established in a special way to get images from the software to analyze etc.
     See https://inquisitive-top-fc1.notion.site/KISS-da33af96378d44b08ac44d9f72f7cd84
     """
@@ -148,7 +155,7 @@ class ZenActuator(QObject):
         start_position = (stage.ActualPositionX, stage.ActualPositionY)
         for i in range(steps):
             print("Moving Stage...")
-            stage.moveTo(start_position[0] + (i+1)*offset[0]/steps, 
+            stage.moveTo(start_position[0] + (i+1)*offset[0]/steps,
                         start_position[1] + (i+1)*offset[1]/steps)
             time.sleep(0.5)
         print("Stage in Position")
@@ -207,12 +214,12 @@ class ZenActuatorGUI(QWidgetRestore):
         self.screen_select.currentTextChanged.connect(self.new_screen_exp)
         #TODO: Make this search for experiments in Zen at some point. Set defaults for now.
         self.screen_select.addItem('smart_screen')
-        
+
         self.image_label = QLabel("Image")
         self.image_select = QComboBox()
         self.image_select.currentTextChanged.connect(self.new_image_exp)
         self.image_select.addItem('smart_imaging')
-                
+
         self.layout.addWidget(self.screen_label)
         self.layout.addWidget(self.screen_select)
         self.layout.addWidget(self.image_label)
