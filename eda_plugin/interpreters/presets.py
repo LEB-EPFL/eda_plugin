@@ -5,7 +5,7 @@ from typing import Union
 from qtpy import QtCore, QtWidgets
 import qdarkstyle
 from eda_plugin.utility.qt_classes import QWidgetRestore
-
+from eda_plugin.utility.data_structures import ParameterSet
 from eda_plugin.utility.event_bus import EventBus
 
 log = logging.getLogger("EDA")
@@ -20,7 +20,9 @@ class PresetsInterpreter(QtCore.QObject):
     def __init__(self, event_bus: EventBus, gui: bool = True):
         """Load the default values, start the GUI and connect the events."""
         super().__init__()
-        self.gui = ParameterForm("PresetsInterpreter") if gui else None
+        params = ParameterSet().to_dict()
+        params['min_image_frames'] =  20
+        self.gui = ParameterForm("PresetsInterpreter", params=params) if gui else None
         if gui:
             self.gui.new_parameters.connect(self.update_parameters)
             self.params = self.gui.params
@@ -29,7 +31,7 @@ class PresetsInterpreter(QtCore.QObject):
 
         # To keep the paramater sent numerical, 0: screen, 1:image
         self.mode = 0
-        # self.num_fast_frames = 0
+        self.num_fast_frames = 0
 
         # Emitted signals register at event_bus
         self.new_interpretation.connect(event_bus.new_interpretation)

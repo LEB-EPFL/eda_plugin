@@ -149,8 +149,8 @@ class ImageAnalyserWorker(QRunnable):
         )
 
     def extract_decision_parameter(self, network_output: np.ndarray):
-        """Return the first value of the ndarray."""
-        return float(network_output.flatten()[0])
+        """Return the a value of the ndarray."""
+        return float(network_output.flatten()[5000])
 
     class _Signals(QObject):
         """Signals have to be separate because QRunnable can't have its own."""

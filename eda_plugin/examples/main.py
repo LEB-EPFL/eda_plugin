@@ -158,8 +158,9 @@ def main_isim():
 def presets():
     """Using the presets Actuator without DAQ."""
     """EDA loop using a neural network analyser that can be used for testing."""
-    from eda_plugin.actuators.micro_manager import MMActuator
+    from eda_plugin.actuators.daq_presets import DAQPresetsActuator
     from eda_plugin.analysers.keras import KerasAnalyser
+    from eda_plugin.analysers.image import ImageAnalyser
 
     eda_plugin.utility.settings.setup_logging()
 
@@ -167,16 +168,21 @@ def presets():
     event_bus = EventBus()
 
     gui = EDAMainGUI(event_bus, viewer=True)
-    actuator = MMActuator(event_bus)
+    print("Actuator")
+    actuator = DAQPresetsActuator(event_bus)
+    print("Analyser")
     analyser = KerasAnalyser(event_bus)
+    print("Interpreter")
     interpreter = PresetsInterpreter(event_bus)
-    writer = Writer(event_bus)
+    # writer = Writer(event_bus)
 
+    print("Adding dock widgets")
     gui.add_dock_widget(actuator.gui, "Actuator")
     gui.add_dock_widget(interpreter.gui, "Interpreter")
     gui.add_dock_widget(analyser.gui, "Analyser")
-    gui.add_dock_widget(writer.gui, "Save Data")
+    # gui.add_dock_widget(writer.gui, "Save Data")
 
+    print("Show GUI")
     gui.show()
     # actuator.gui.show()
     # interpreter.gui.show()

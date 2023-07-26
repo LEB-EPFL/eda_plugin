@@ -11,7 +11,6 @@ from __future__ import annotations
 import copy
 import logging
 import time
-from black import FileContent
 
 import nidaqmx
 import nidaqmx.stream_writers
@@ -20,7 +19,8 @@ from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.data_structures import ParameterSet
 from pymm_eventserver.data_structures import MMSettings
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-
+from isimgui.hardware.nidaq_components.devices import Camera, Galvo, Twitcher, LED, AOTF, Stage
+from isimgui.hardware.nidaq_components.settings import NIDAQSettings
 
 log = logging.getLogger("EDA")
 
@@ -47,13 +47,15 @@ class DAQActuator(QObject):
         self.settings = MMSettings(settings)
         self.eda_params = None
 
-        self.sampling_rate = 500
+        self.sampling_rate = 9600
+        self.ni_settings = NIDAQSettings(self.sampling_rate)
         self._update_settings(self.settings)
 
         self.galvo = Galvo(self)
         self.stage = Stage(self)
         self.camera = Camera(self)
         self.aotf = AOTF(self)
+        self.twitcher = Twitcher(self.ni_settings)
 
         self.my_task = my_task
         self._init_task()
@@ -81,13 +83,14 @@ class DAQActuator(QObject):
             self.task.close()
         except:
             log.info("Task close failed")
-        self.task = self.my_task()
+        self.task = self.my_task("EDA_nidaq")
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao0")  # galvo channel
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao1")  # z stage
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao2")  # camera channel
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao3")  # aotf blanking channel
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao4")  # aotf 488 channel
         self.task.ao_channels.add_ao_voltage_chan("Dev1/ao5")  # aotf 561 channel
+        self.task.ao_channels.add_ao_voltage_chan("Dev1/ao7")  # twitcher channel
 
     def _update_settings(self, new_settings):
         # Some change needed here when different exposure times would be implemented for channels
@@ -100,6 +103,9 @@ class DAQActuator(QObject):
             * self.sweeps_per_frame
             * self.sweeps_per_frame
         )
+        self.ni_settings.camera_readout_time = float(self.core.get_property("PrimeB_Camera",
+                                                                      "Timing-ReadoutTimeNs"))*1E-9
+        self.ni_settings.cycle_time = new_settings.channels['488']["exposure"]
         self.n_points = self.sampling_rate * self.sweeps_per_frame
         # settings for all pulses:
         self.duty_cycle = 10 / self.n_points
@@ -107,10 +113,16 @@ class DAQActuator(QObject):
         log.info("NI settings set")
 
     def update_intervals(self, params: ParameterSet):
-        self.acq.interval_slow = params.slow_interval
-        self.acq.interval_fast = params.fast_interval
-        self.acq.interval = params.slow_interval
-        self.eda_params = params
+        if isinstance(params, dict):
+            self.acq.interval_slow = params["slow_interval"]
+            self.acq.interval_fast = params["fast_interval"]
+            self.acq.interval = params["slow_interval"]
+            self.eda_params = ParameterSet(params)
+        else:
+            self.acq.interval_slow = params.slow_interval
+            self.acq.interval_fast = params.fast_interval
+            self.acq.interval = params.slow_interval
+            self.eda_params = params
         self.acq = EDAAcquisition(self, self.settings, self.eda_params)
 
     @pyqtSlot(object)
@@ -181,8 +193,9 @@ class DAQActuator(QObject):
         iter_slices_rev = copy.deepcopy(iter_slices)
         iter_slices_rev.reverse()
 
-        galvo = self.galvo.one_frame(self.settings)
-        camera = self.camera.one_frame(self.settings)
+        galvo = self.galvo.one_frame(self.ni_settings)
+        camera = self.camera.one_frame(self.ni_settings)
+        twitcher = self.twitcher.one_frame(self.ni_settings)
 
         z_iter = 0
         channels_data = []
@@ -191,10 +204,10 @@ class DAQActuator(QObject):
                 slices_data = []
                 slices = iter_slices if not np.mod(z_iter, 2) else iter_slices_rev
                 for sli in slices:
-                    aotf = self.aotf.one_frame(self.settings, channel)
+                    aotf = self.aotf.one_frame(self.ni_settings, channel)
                     offset = sli - self.settings.slices[0]
-                    stage = self.stage.one_frame(self.settings, offset)
-                    data = np.vstack((galvo, stage, camera, aotf))
+                    stage = self.stage.one_frame(self.ni_settings, offset)
+                    data = np.vstack((galvo, stage, camera, aotf, twitcher))
                     slices_data.append(data)
                 z_iter += 1
                 data = np.hstack(slices_data)
@@ -233,15 +246,17 @@ class EDAAcquisition(QObject):
             self.update_settings(self.settings)
         except FileNotFoundError:
             log.warning("DAQ might not be connected")
+        except AttributeError:
+            log.warning("No data to write yet.")
 
 
-    def update_settings(self, new_settings):
+    def update_settings(self, new_settings, write=True):
         """Update the settings according to the daq_data that the acquisition has generated."""
         self.ni._init_task()
         self.ni.task.timing.cfg_samp_clk_timing(
             rate=self.ni.smpl_rate,
             sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS,
-            samps_per_chan=self.daq_data_shape[1],
+            samps_per_chan=self.daq_data_shape[0],
         )
         self.ni.task.out_stream.regen_mode = (
             nidaqmx.constants.RegenerationMode.DONT_ALLOW_REGENERATION
@@ -250,7 +265,8 @@ class EDAAcquisition(QObject):
             self.ni.stream = nidaqmx.stream_writers.AnalogMultiChannelWriter(
                 self.ni.task.out_stream, auto_start=False
             )
-            self.ni.stream.write_many_sample(self.daq_data_fast)
+            if write:
+                self.ni.stream.write_many_sample(self.daq_data_fast)
         except FileNotFoundError:
             log.warning("DAQ not connected no data sent")
         self.ni.task.register_every_n_samples_transferred_from_buffer_event(
@@ -287,9 +303,7 @@ class EDAAcquisition(QObject):
             missing_samples = round(
                 self.ni.smpl_rate * interval_ms / 1000 - timepoint.shape[1]
             )
-            galvo = np.ones(missing_samples) * self.ni.galvo.parking_voltage
-            rest = np.zeros((timepoint.shape[0] - 1, missing_samples))
-            delay = np.vstack([galvo, rest])
+            delay = np.repeat(timepoint[:,-1][..., None], missing_samples, axis=1)
             timepoint = np.hstack([timepoint, delay])
         print("INTERVAL: ", interval_ms)
         return timepoint
@@ -303,172 +317,174 @@ def make_pulse(ni, start, end, offset):
     return pulse
 
 
-class Galvo:
-    """This represents the Galvo mirror, with it's DAQ logic and some default parameters."""
+# class Galvo:
+#     """This represents the Galvo mirror, with it's DAQ logic and some default parameters."""
 
-    def __init__(self, ni: DAQActuator):
-        """Initialize default settings.
+#     def __init__(self, ni: DAQActuator):
+#         """Initialize default settings.
 
-        offset is due to the not perfectly centralized position that the mirror is put into the
-        setup. The Amplitude is set to make the swing big enough to make one grid iteration overlap.
-        The parking voltage should put the mirror somewhere where we get the least amount of light
-        the camera.
-        """
-        self.ni = ni
-        self.offset_0 = -0.15
-        self.amp_0 = 0.75
-        self.parking_voltage = -3
+#         offset is due to the not perfectly centralized position that the mirror is put into the
+#         setup. The Amplitude is set to make the swing big enough to make one grid iteration overlap.
+#         The parking voltage should put the mirror somewhere where we get the least amount of light
+#         the camera.
+#         """
+#         self.ni = ni
+#         self.offset_0 = -0.15
+#         self.amp_0 = 0.75
+#         self.parking_voltage = -3
 
-    def one_frame(self, settings: MMSettings) -> np.ndarray:
-        """Generate one frame with the sawtooth pattern according to the settings passed."""
-        self.n_points = self.ni.sampling_rate * settings.sweeps_per_frame
-        down1 = np.linspace(
-            0, -self.amp_0, round(self.n_points / (4 * settings.sweeps_per_frame))
-        )
-        up = np.linspace(
-            -self.amp_0,
-            self.amp_0,
-            round(self.n_points / (2 * settings.sweeps_per_frame)),
-        )
-        down2 = np.linspace(
-            self.amp_0,
-            0,
-            round(self.n_points / settings.sweeps_per_frame)
-            - round(self.n_points / (4 * settings.sweeps_per_frame))
-            - round(self.n_points / (2 * settings.sweeps_per_frame)),
-        )
-        galvo_frame = np.concatenate((down1, up, down2))
-        galvo_frame = np.tile(galvo_frame, settings.sweeps_per_frame)
-        galvo_frame = galvo_frame + self.offset_0
-        galvo_frame = galvo_frame[0 : self.n_points]
-        galvo_frame = self._add_delays(galvo_frame, settings)
-        return galvo_frame
+#     def one_frame(self, settings: MMSettings) -> np.ndarray:
+#         """Generate one frame with the sawtooth pattern according to the settings passed."""
+#         self.n_points = self.ni.sampling_rate * settings.sweeps_per_frame
+#         down1 = np.linspace(
+#             0, -self.amp_0, round(self.n_points / (4 * settings.sweeps_per_frame))
+#         )
+#         up = np.linspace(
+#             -self.amp_0,
+#             self.amp_0,
+#             round(self.n_points / (2 * settings.sweeps_per_frame)),
+#         )
+#         down2 = np.linspace(
+#             self.amp_0,
+#             0,
+#             round(self.n_points / settings.sweeps_per_frame)
+#             - round(self.n_points / (4 * settings.sweeps_per_frame))
+#             - round(self.n_points / (2 * settings.sweeps_per_frame)),
+#         )
+#         galvo_frame = np.concatenate((down1, up, down2))
+#         galvo_frame = np.tile(galvo_frame, settings.sweeps_per_frame)
+#         galvo_frame = galvo_frame + self.offset_0
+#         galvo_frame = galvo_frame[0 : self.n_points]
+#         galvo_frame = self._add_delays(galvo_frame, settings)
+#         return galvo_frame
 
-    def _add_delays(self, frame, settings):
-        if settings.post_delay > 0:
-            delay = (
-                np.ones(round(self.ni.smpl_rate * settings.post_delay))
-                * self.parking_voltage
-            )
-            frame = np.hstack([frame, delay])
+#     def _add_delays(self, frame, settings):
+#         if settings.post_delay > 0:
+#             delay = (
+#                 np.ones(round(self.ni.smpl_rate * settings.post_delay))
+#                 * self.parking_voltage
+#             )
+#             frame = np.hstack([frame, delay])
 
-        if settings.pre_delay > 0:
-            delay = (
-                np.ones(round(self.ni.smpl_rate * settings.pre_delay))
-                * self.parking_voltage
-            )
-            frame = np.hstack([delay, frame])
+#         if settings.pre_delay > 0:
+#             delay = (
+#                 np.ones(round(self.ni.smpl_rate * settings.pre_delay))
+#                 * self.parking_voltage
+#             )
+#             frame = np.hstack([delay, frame])
 
-        return frame
-
-
-class Stage:
-    """Represents the Z-Stage with logic and default parameters."""
-
-    def __init__(self, ni: DAQActuator):
-        """Initialize the default parameters.
-
-        Calibration is the maximum position in um that the stage can reach. It will be used together
-        with the maximal voltage that can be applied to scale the voltage output to the desired
-        position in um.
-        """
-        self.ni = ni
-        self.calibration = 202.161
-        self.max_v = 10
-
-    def one_frame(self, settings, height_offset):
-        """Translate the height_offset to a voltage and make a simple constant output signal."""
-        height_offset = self.convert_z(height_offset)
-        stage_frame = make_pulse(self.ni, height_offset, height_offset, 0)
-        stage_frame = self._add_delays(stage_frame, settings)
-        return stage_frame
-
-    def convert_z(self, z_um):
-        """Convert um to the corresponding voltage."""
-        return (z_um / self.calibration) * self.max_v
-
-    def _add_delays(self, frame, settings):
-        delay = np.ones(round(self.ni.smpl_rate * settings.post_delay))
-        delay = delay * frame[-1]
-        if settings.post_delay > 0:
-            frame = np.hstack([frame, delay])
-
-        if settings.pre_delay > 0:
-            frame = np.hstack([delay, frame])
-
-        return frame
+#         return frame
 
 
-class Camera:
-    """Triggering logic for the camera being in EdgeTrigger mode."""
+# class Stage:
+#     """Represents the Z-Stage with logic and default parameters."""
 
-    def __init__(self, ni: DAQActuator):
-        """Pulse voltage expected as a camera trigger."""
-        self.ni = ni
-        self.pulse_voltage = 5
+#     def __init__(self, ni: DAQActuator):
+#         """Initialize the default parameters.
 
-    def one_frame(self, settings):
-        """Pulse to trigger the exposure in the camera as set in MM with the exposure setting."""
-        camera_frame = make_pulse(self.ni, 5, 0, 0)
-        camera_frame = self._add_delays(camera_frame, settings)
-        return camera_frame
+#         Calibration is the maximum position in um that the stage can reach. It will be used together
+#         with the maximal voltage that can be applied to scale the voltage output to the desired
+#         position in um.
+#         """
+#         self.ni = ni
+#         self.calibration = 202.161
+#         self.max_v = 10
 
-    def _add_delays(self, frame, settings):
-        """Why is pre delay after camera trigger?."""
-        if settings.post_delay > 0:
-            delay = np.zeros(round(self.ni.smpl_rate * settings.post_delay))
-            frame = np.hstack([frame, delay])
+#     def one_frame(self, settings, height_offset):
+#         """Translate the height_offset to a voltage and make a simple constant output signal."""
+#         height_offset = self.convert_z(height_offset)
+#         stage_frame = make_pulse(self.ni, height_offset, height_offset, 0)
+#         stage_frame = self._add_delays(stage_frame, settings)
+#         return stage_frame
 
-        if settings.pre_delay > 0:
-            delay = np.zeros(round(self.ni.smpl_rate * settings.pre_delay))
-            # TODO Why is pre delay after camera trigger?
-            # Maybe because the camera 'stores' the trigger?
-            frame = np.hstack([frame, delay])
+#     def convert_z(self, z_um):
+#         """Convert um to the corresponding voltage."""
+#         return (z_um / self.calibration) * self.max_v
 
-        return frame
+#     def _add_delays(self, frame, settings):
+#         delay = np.ones(round(self.ni.smpl_rate * settings.post_delay))
+#         delay = delay * frame[-1]
+#         if settings.post_delay > 0:
+#             frame = np.hstack([frame, delay])
+
+#         if settings.pre_delay > 0:
+#             frame = np.hstack([delay, frame])
+
+#         return frame
 
 
-class AOTF:
-    """Bundles the different DAQ channels used for the AOTF."""
+# class Camera:
+#     """Triggering logic for the camera being in EdgeTrigger mode."""
 
-    def __init__(self, ni: DAQActuator):
-        """Initialize the default settings and the settings as set in MM at the moment.
+#     def __init__(self, ni: DAQActuator):
+#         """Pulse voltage expected as a camera trigger."""
+#         self.ni = ni
+#         self.pulse_voltage = 5
 
-        The devices 488_AOTF and 561_AOTF have to exist in MM for this. This can be dummy devices.
-        The intensities of the lasers will be set from here by adjusting the pass through of the
-        AOTF. Attention, the set point setting of the lasers can be set independently in MM, so the
-        intensity here is just a relative value, nothing absolute.
-        """
-        self.ni = ni
-        self.blank_voltage = 10
-        core = self.ni.event_bus.event_thread.bridge.get_core()
-        self.power_488 = float(core.get_property("488_AOTF", r"Power (% of max)"))
-        self.power_561 = float(core.get_property("561_AOTF", r"Power (% of max)"))
+#     def one_frame(self, settings):
+#         """Pulse to trigger the exposure in the camera as set in MM with the exposure setting."""
+#         camera_frame = make_pulse(self.ni, 5, 0, 0)
+#         camera_frame = self._add_delays(camera_frame, settings)
+#         return camera_frame
 
-    def one_frame(self, settings: MMSettings, channel: dict):
-        """Make the elongated pulse for the laser that spans the exposure time of the camera."""
-        blank = make_pulse(self.ni, 0, self.blank_voltage, 0)
-        if channel["name"] == "488":
-            aotf_488 = make_pulse(self.ni, 0, self.power_488 / 10, 0)
-            aotf_561 = make_pulse(self.ni, 0, 0, 0)
-        elif channel["name"] == "561":
-            aotf_488 = make_pulse(self.ni, 0, 0, 0)
-            aotf_561 = make_pulse(self.ni, 0, self.power_561 / 10, 0)
-        aotf = np.vstack((blank, aotf_488, aotf_561))
-        aotf = self._add_delays(aotf, settings)
-        return aotf
+#     def _add_delays(self, frame, settings):
+#         """Why is pre delay after camera trigger?."""
+#         if settings.post_delay > 0:
+#             delay = np.zeros(round(self.ni.smpl_rate * settings.post_delay))
+#             frame = np.hstack([frame, delay])
 
-    def _add_delays(self, frame: np.ndarray, settings: MMSettings):
-        if settings.post_delay > 0:
-            delay = np.zeros(
-                (frame.shape[0], round(self.ni.smpl_rate * settings.post_delay))
-            )
-            frame = np.hstack([frame, delay])
+#         if settings.pre_delay > 0:
+#             delay = np.zeros(round(self.ni.smpl_rate * settings.pre_delay))
+#             # TODO Why is pre delay after camera trigger?
+#             # Maybe because the camera 'stores' the trigger?
+#             frame = np.hstack([frame, delay])
 
-        if settings.pre_delay > 0:
-            delay = np.zeros(
-                (frame.shape[0], round(self.ni.smpl_rate * settings.pre_delay))
-            )
-            frame = np.hstack([delay, frame])
+#         return frame
 
-        return frame
+
+# class AOTF:
+#     """Bundles the different DAQ channels used for the AOTF."""
+
+#     def __init__(self, ni: DAQActuator):
+#         """Initialize the default settings and the settings as set in MM at the moment.
+
+#         The devices 488_AOTF and 561_AOTF have to exist in MM for this. This can be dummy devices.
+#         The intensities of the lasers will be set from here by adjusting the pass through of the
+#         AOTF. Attention, the set point setting of the lasers can be set independently in MM, so the
+#         intensity here is just a relative value, nothing absolute.
+#         """
+#         self.ni = ni
+#         self.blank_voltage = 10
+#         core = self.ni.event_bus.event_thread.bridge.get_core()
+#         self.power_488 = float(core.get_property("488_AOTF", r"Power (% of max)"))
+#         self.power_561 = float(core.get_property("561_AOTF", r"Power (% of max)"))
+#         print(f"INITIAL POWER 488 {self.power_488}")
+
+#     def one_frame(self, settings: MMSettings, channel: dict):
+#         """Make the elongated pulse for the laser that spans the exposure time of the camera."""
+#         blank = make_pulse(self.ni, 0, self.blank_voltage, 0)
+#         if channel["name"] == "488":
+#             print(f"POWER 488 {self.power_488}")
+#             aotf_488 = make_pulse(self.ni, 0, self.power_488 / 10, 0)
+#             aotf_561 = make_pulse(self.ni, 0, 0, 0)
+#         elif channel["name"] == "561":
+#             aotf_488 = make_pulse(self.ni, 0, 0, 0)
+#             aotf_561 = make_pulse(self.ni, 0, self.power_561 / 10, 0)
+#         aotf = np.vstack((blank, aotf_488, aotf_561))
+#         aotf = self._add_delays(aotf, settings)
+#         return aotf
+
+#     def _add_delays(self, frame: np.ndarray, settings: MMSettings):
+#         if settings.post_delay > 0:
+#             delay = np.zeros(
+#                 (frame.shape[0], round(self.ni.smpl_rate * settings.post_delay))
+#             )
+#             frame = np.hstack([frame, delay])
+
+#         if settings.pre_delay > 0:
+#             delay = np.zeros(
+#                 (frame.shape[0], round(self.ni.smpl_rate * settings.pre_delay))
+#             )
+#             frame = np.hstack([delay, frame])
+
+#         return frame
