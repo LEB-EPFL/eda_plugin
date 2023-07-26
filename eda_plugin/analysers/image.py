@@ -9,7 +9,7 @@ import logging
 import numpy as np
 import time
 
-from utility.qt_classes import QwidgetRestore
+from eda_plugin.utility.qt_classes import QWidgetRestore
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable, QSettings
 from PyQt5 import QtWidgets
 from eda_plugin.utility.event_bus import EventBus
@@ -38,7 +38,11 @@ class ImageAnalyser(QObject):
         self.time = None
         self.images = None
         self.start_time = None
-        self.n_timepoints = 1
+        self.current_n_timepoints = 0
+        self.timepoint = 0
+        self.last_timepoint = 0
+        self.gui = AnalyserGUI()
+        self.n_timepoints = self.gui.settings["n_timepoints"]
 
         settings = event_bus.studio.acquisitions().get_acquisition_settings()
         settings = MMSettings(settings)
@@ -63,6 +67,8 @@ class ImageAnalyser(QObject):
         event_bus.acquisition_started_event.connect(self._reset_time)
         event_bus.new_image_event.connect(self.start_analysis)
         event_bus.mda_settings_event.connect(self.new_mda_settings)
+        self.gui.new_settings.connect(self.new_gui_settings)
+
 
     @pyqtSlot(PyImage)
     def start_analysis(self, evt: PyImage):
@@ -88,6 +94,9 @@ class ImageAnalyser(QObject):
         """Connect worker signals in extra method, so that this can be overwritten independently."""
         worker.signals.new_decision_parameter.connect(self.new_decision_parameter)
 
+    def new_gui_settings(self, new_settings: dict):
+        self.n_timepoints = new_settings['n_timepoints']
+
     def new_mda_settings(self, new_settings: MMSettings):
         self.channels = new_settings.n_channels
         self.slices = new_settings.n_slices
@@ -97,15 +106,27 @@ class ImageAnalyser(QObject):
         """Gather the amount of images needed."""
 
         try:
-            self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
+            self.images[:, :, py_image.channel, py_image.z_slice, self.timepoint] = py_image.raw_image
         except (ValueError, TypeError, IndexError):
             self._reset_shape(py_image)
-            self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
+            self.images[:, :, py_image.channel, py_image.z_slice, self.timepoint] = py_image.raw_image
+
+        print(self.last_timepoint)
+        print("TIMEPOINT ", self.timepoint)
+        print(py_image.timepoint)
+        if py_image.timepoint != self.last_timepoint:
+            self.last_timepoint = py_image.timepoint
+            self.timepoint = min(self.n_timepoints - 1, self.timepoint + 1)
+
 
         self.time = py_image.timepoint
-        if py_image.channel < self.channels - 1 or py_image.z_slice < self.slices - 1:
+        if any([py_image.channel < self.channels - 1,
+                py_image.z_slice < self.slices - 1,
+                self.timepoint < self.n_timepoints - 1]):
             return False
         else:
+            if self.n_timepoints > 1:
+                self.images[..., :-1] = self.images[..., 1:]
             return True
 
     def _get_worker_args(self, evt):
@@ -113,11 +134,13 @@ class ImageAnalyser(QObject):
 
     def _reset_shape(self, image: PyImage):
         self.shape = image.raw_image.shape
-        self.images = np.ndarray([*self.shape, self.channels, self.slices])
+        self.images = np.ndarray([*self.shape, self.channels, self.slices, self.n_timepoints])
 
     def _reset_time(self):
         log.debug(f"start_time reset in {self.__class__.__name__}")
         self.start_time = round(time.time() * 1000)
+        self.timepoint = 0
+        self.last_timepoint = 0
 
 
 class ImageAnalyserWorker(QRunnable):
@@ -182,7 +205,7 @@ class PycroImageAnalyser(ImageAnalyser):
             self._reset_shape(PyImage(self.images[0], 0, 0, 0, 0))
 
 
-class AnalyserGUI(QwidgetRestore):
+class AnalyserGUI(QWidgetRestore):
     """GUI to set number of timepoints to be analysed."""
 
     new_settings = pyqtSignal(object)
@@ -194,14 +217,20 @@ class AnalyserGUI(QwidgetRestore):
         """
         super().__init__()
         self.setWindowTitle("AnalyserSettings")
-        self.settings_dir = QSettings("Analyser", self.__class__.__name__)
-        self.n_timepoints = self.settings_dir.value("n_timepoints", 1)
+        default_settings = {"n_timepoints": 1}
+        self.settings = QSettings("Analyser", self.__class__.__name__).value("settings",
+                                                                             default_settings)
+        self.n_timepoints = self.settings["n_timepoints"]
 
         self.timepoints_input = QtWidgets.QSpinBox()
+        self.timepoints_input.setMinimum(1)
+        self.timepoints_input.setValue(self.n_timepoints)
         self.timepoints_input.valueChanged.connect(self._update_settings)
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().addWidget(self.timepoints_input)
+
+        self.new_settings.emit(self.settings)
 
     def _update_settings(self, value):
         self.settings['n_timepoints'] = value
@@ -210,5 +239,6 @@ class AnalyserGUI(QwidgetRestore):
 
     def closeEvent(self, event):
         """Save the settings to the settings file."""
-        self.settings_dir.setValue("n_timepoints", self.n_timepoints)
+        QSettings("Analyser", self.__class__.__name__).setValue("settings", self.settings)
+        print("SETTINGS SAVED ", self.settings)
         super().closeEvent(event)

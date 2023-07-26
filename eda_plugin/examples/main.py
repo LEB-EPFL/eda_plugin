@@ -33,6 +33,7 @@ def basic():
     # Start the main GUI showing the EDA plot and the controls for the specific components
     gui = EDAMainGUI(event_bus, viewer=True)
     gui.add_dock_widget(interpreter.gui, "Actuator")
+    gui.add_dock_widget(analyser.gui, "Analyser")
     gui.show()
 
     # Start the event loop
@@ -145,11 +146,12 @@ def main_isim():
     sys.exit(app.exec_())
 
 
-flavours = {"pyro": pyro, "keras": keras, "pyro_keras": pyro_keras, "main_isim": main_isim}
+flavours = {"basic": basic, "pyro": pyro, "keras": keras, "pyro_keras": pyro_keras,
+            "main_isim": main_isim}
 try:
     flavour = flavours[sys.argv[1]]
 except (IndexError, KeyError) as e:
-    flavour = keras
+    flavour = basic
 
 if __name__ == "__main__":
     flavour()
