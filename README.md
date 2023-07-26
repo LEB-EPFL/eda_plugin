@@ -27,7 +27,7 @@ decisions from an interpreter to the ongoing acquisition.
 ## Installing Event-driven acquisition
 
 1) Install the latest version of [micro-manager2.0](https://micro-manager.org/wiki/Micro-Manager_Nightly_Builds)
-2) `pip install eda_plugin`
+2) `pip install eda_plugin[pyqt5]`
 3) Install the Micro-Manager plugins:
    1) `>>> import eda_plugin`
    2) `>>> eda_plugin.install_mm_plugins()`
@@ -46,7 +46,7 @@ eda_plugin.examples.pyro()
 Or construct your own EDA loop e.g.
 ```python
     import sys
-    from PyQt5 import QtWidgets
+    from qtpy import QtWidgets
 
     from eda_plugin.utility.event_bus import EventBus
     import eda_plugin.utility.settings

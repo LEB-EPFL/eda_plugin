@@ -35,7 +35,7 @@ in :py:mod:`.examples.analysers` like :py:class:`.KerasTilingWorker` and
     flowchart TB
         ImageStack --> prep[/prepare_images/] -- "data['pixels']" --> Inference
         data("data:<br> {'pixels': network_input,<br> 'e.g. tile_positions': xxx}")
-        event>pyqtSignal]
+        event>Signal]
         Inference --> extr[/extract_decision_parameter/] -->   ev1>"new_decision_parameter.emit()"]
         --EventBus --> Interpreter
         Inference --> post[/post_process_output/] --> ev2>"new_network_image.emit()"] --> GUI

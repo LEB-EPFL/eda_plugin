@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 from typing import List
 from pymm_eventserver.data_structures import MMSettings, PyImage, MMChannel
+from ome_types.model import simple_types
 
 
 ome_model = ome_types.model
@@ -89,14 +90,14 @@ class OME:
             size_z=self.max_indices[2],
             size_x=self.image_size[0],
             size_y=self.image_size[1],
-            type=ome_model.simple_types.PixelType("uint16"),
+            type=simple_types.PixelType("uint16"),
             big_endian=False,
             physical_size_x=1.0,
-            physical_size_x_unit=ome_model.simple_types.UnitsLength("µm"),
+            physical_size_x_unit=simple_types.UnitsLength("µm"),
             physical_size_y=1.0,
-            physical_size_y_unit=ome_model.simple_types.UnitsLength("µm"),
+            physical_size_y_unit=simple_types.UnitsLength("µm"),
             physical_size_z=0.5,
-            physical_size_z_unit=ome_model.simple_types.UnitsLength("µm"),
+            physical_size_z_unit=simple_types.UnitsLength("µm"),
             channels=self.channels,
             planes=self.planes,
             tiff_data_blocks=self.tiff_data,
@@ -126,7 +127,7 @@ class OME:
             ome_channel = ome_model.Channel(
                 id="Channel:0:" + str(idx),
                 name=channels[channel]["name"],
-                color=ome_model.simple_types.Color(
+                color=simple_types.Color(
                     channels[channel]["color"]
                 ),  # TODO implement to take colors over
                 samples_per_pixel=1,  # TODO check if this is correct

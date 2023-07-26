@@ -13,8 +13,7 @@ import pycromanager
 import copy
 import queue
 import logging
-from PyQt5.QtCore import pyqtSignal
-from PyQt5 import QtWidgets
+from qtpy.QtCore import Signal
 
 from eda_plugin.utility.data_structures import PyImage
 from eda_plugin.actuators.micro_manager import MMAcquisition
@@ -35,8 +34,8 @@ class PycroAcquisition(MMAcquisition):
     the interpreter.
     """
 
-    new_image = pyqtSignal(PyImage)
-    acquisition_started_event = pyqtSignal(object)
+    new_image = Signal(PyImage)
+    acquisition_started_event = Signal(object)
 
     def __init__(self, event_bus: EventBus, start_interval: float = 5.0, settings=None):
         """Set default settings, set up first acquisiton events connect signals."""

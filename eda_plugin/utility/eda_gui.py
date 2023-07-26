@@ -1,7 +1,7 @@
 """QtWidgets that can be used as main GUI components for the EDA loop."""
 
 from typing import Tuple
-from PyQt5 import QtWidgets, QtCore, QtGui
+from qtpy import QtWidgets, QtCore, QtGui
 import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.graphicsItems.PlotCurveItem import PlotCurveItem
@@ -22,7 +22,8 @@ import logging
 log = logging.getLogger("EDA")
 
 # Adjust for different screen sizes
-QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+# QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough, True)
 
 
 class EDAMainGUI(QMainWindowRestore):
@@ -99,7 +100,7 @@ class EDAPlot(pg.PlotWidget):
         self.x_data = []
         self.y_data = []
 
-    @QtCore.pyqtSlot(float, float, int)
+    @QtCore.Slot(float, float, int)
     def add_datapoint(self, y: float, x: float, _):
         """Add a datapoint that is received from the analyser."""
         self.x_data.append(x)
@@ -116,7 +117,7 @@ class EDAPlot(pg.PlotWidget):
         self.y_data = []
         self._refresh_plot()
 
-    QtCore.pyqtSlot(ParameterSet)
+    QtCore.Slot(ParameterSet)
 
     def _set_thr_lines(self, params: ParameterSet):
         self.thrLine1.setPos(params.lower_threshold)
@@ -155,7 +156,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.fitInView(0, 0, *shape, mode=QtCore.Qt.KeepAspectRatio)
         self.setBackgroundBrush(QtGui.QColor("#222222"))
 
-    @QtCore.pyqtSlot(np.ndarray, tuple)
+    @QtCore.Slot(np.ndarray, tuple)
     def add_network_image(self, image: np.ndarray, dims: tuple):
         """Translate the input image into a QImage and display in the scene."""
         t0 = time.perf_counter()
@@ -189,7 +190,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         log.info(f"{norm_net_image.max()}")
 
 
-    @QtCore.pyqtSlot(np.ndarray, int)
+    @QtCore.Slot(np.ndarray, int)
     def add_image(self, image: np.ndarray, timepoint):
         """Translate the input image into a QImage and display in the scene."""
         self.original_image = image
@@ -243,7 +244,7 @@ class NapariImageViewer(QtWidgets.QWidget):
         self.layer = None
         self.timepoints = 300
 
-    @QtCore.pyqtSlot(np.ndarray, tuple)
+    @QtCore.Slot(np.ndarray, tuple)
     def add_network_image(self, image, dims: tuple):
         """Add the image received to the respective layer, or make a new layer."""
         if dims[0] == 0 or self.layer is None:

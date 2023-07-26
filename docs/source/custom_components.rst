@@ -10,7 +10,7 @@ Custom Actuators
 ----------------
 Actuators are seperated into the main class for basic parameters and control and Acquisition classes
 responsible for a started acquisition. The actuator should at least be able to receive a signal from
-an interpreter, here normally implemented in the pyqtSlot :py:meth:`MMActuator.call_action`.
+an interpreter, here normally implemented in the Slot :py:meth:`MMActuator.call_action`.
 Depending on the implementation of image recording, it might also be responsible to hand new
 images over to the analyser. This is the case for example in the :py:class:`.PycroAcquisition`
 class. The :py:class:`.InjectedPycroAcquisition` class used in the :py:meth:`.examples.main.pyro`
@@ -62,7 +62,7 @@ overwritten to add functionality.
 
 .. code-block:: python
 
-    @pyqtSlot(float)
+    @Slot(float)
     def call_action(self, interval):
         # Do something intereseting
         self.core.set_position(0)

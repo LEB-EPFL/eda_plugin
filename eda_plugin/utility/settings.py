@@ -53,7 +53,7 @@ def setup_logging():
 
 def install_mm_plugins():
     """Transfer the .jar files to the folder in the Micro-Manager installation."""
-    from PyQt5 import QtWidgets
+    from qtpy import QtWidgets
     import shutil
     import sys
 
