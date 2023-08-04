@@ -13,6 +13,7 @@ from eda_plugin.utility.qt_classes import QWidgetRestore
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable, QSettings
 from PyQt5 import QtWidgets
 from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility.core_event_bus import CoreEventBus
 from pymm_eventserver.data_structures import PyImage, MMSettings
 from eda_plugin.utility import settings
 
@@ -30,7 +31,7 @@ class ImageAnalyser(QObject):
 
     new_decision_parameter = pyqtSignal(float, float, int)
 
-    def __init__(self, event_bus: EventBus):
+    def __init__(self, event_bus: EventBus|CoreEventBus):
         """Get settings from settings.json, set up the threadpool and connect signals."""
         super().__init__()
 
@@ -44,9 +45,13 @@ class ImageAnalyser(QObject):
         self.gui = AnalyserGUI()
         self.n_timepoints = self.gui.settings["n_timepoints"]
 
-        settings = event_bus.studio.acquisitions().get_acquisition_settings()
-        settings = MMSettings(settings)
-        self.new_mda_settings(settings)
+        try:
+            settings = event_bus.studio.acquisitions().get_acquisition_settings()
+            settings = MMSettings(settings)
+            self.new_mda_settings(settings)
+        except AttributeError:
+            log.warning("MDA settings init failed!")
+
 
         # Attach the standard worker, subclasses can replace this.
         self.worker = ImageAnalyserWorker
@@ -76,12 +81,13 @@ class ImageAnalyser(QObject):
         ready = self.gather_images(evt)
         if not ready:
             return
-
         # Get the worker arguments from a different function so only that can be overwritten by
         # subclasses
         worker_args = self._get_worker_args(evt)
 
         local_images = self.images.copy()
+        if self.n_timepoints == 1:
+            local_images = local_images[..., 0]
         worker = self.worker(
             local_images, evt.timepoint, self.start_time, **worker_args
         )
@@ -111,9 +117,7 @@ class ImageAnalyser(QObject):
             self._reset_shape(py_image)
             self.images[:, :, py_image.channel, py_image.z_slice, self.timepoint] = py_image.raw_image
 
-        print(self.last_timepoint)
-        print("TIMEPOINT ", self.timepoint)
-        print(py_image.timepoint)
+
         if py_image.timepoint != self.last_timepoint:
             self.last_timepoint = py_image.timepoint
             self.timepoint = min(self.n_timepoints - 1, self.timepoint + 1)

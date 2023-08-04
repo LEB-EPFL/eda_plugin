@@ -12,3 +12,6 @@ eda_plugin/examples/data/*
 
 tests/data/
 local/
+
+.venv/
+.venv2/

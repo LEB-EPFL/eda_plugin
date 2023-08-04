@@ -12,6 +12,7 @@ from pathlib import Path
 
 from pymm_eventserver.data_structures import ParameterSet, PyImage
 from .event_bus import EventBus
+from .core_event_bus import CoreEventBus
 from .qt_classes import QMainWindowRestore, QWidgetRestore
 import qdarkstyle
 
@@ -28,7 +29,7 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.P
 class EDAMainGUI(QMainWindowRestore):
     """Assemble different Widgets to have a main window for the GUI."""
 
-    def __init__(self, event_bus: EventBus, viewer: bool = False):
+    def __init__(self, event_bus: EventBus|CoreEventBus, viewer: bool = False):
         """Set up GUI and establish communication with the EventBus."""
         super().__init__()
         self.setWindowTitle("Event Driven Acquisition")
@@ -141,7 +142,7 @@ class NetworkImageViewer(QtWidgets.QGraphicsView):
         self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
         self.red_lut = self.inferno_colormap()
         self.gray_lut = [QtGui.qRgb(i, i, i) for i in range(256)]
-    
+
     def inferno_colormap(self, n=256):
         inferno = np.genfromtxt(Path(__file__).parent / "inferno.csv", delimiter=",")[1:,1:]
         inferno = inferno.astype(np.uint8)
