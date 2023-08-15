@@ -16,3 +16,4 @@ local/
 .coverage
 
 .venv/
+.venv2/

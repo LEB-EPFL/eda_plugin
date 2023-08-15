@@ -12,6 +12,7 @@ from pathlib import Path
 
 from pymm_eventserver.data_structures import ParameterSet, PyImage
 from .event_bus import EventBus
+from .core_event_bus import CoreEventBus
 from .qt_classes import QMainWindowRestore, QWidgetRestore
 import qdarkstyle
 
@@ -29,7 +30,7 @@ QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(QtCore.Qt.HighDpiScal
 class EDAMainGUI(QMainWindowRestore):
     """Assemble different Widgets to have a main window for the GUI."""
 
-    def __init__(self, event_bus: EventBus, viewer: bool = False):
+    def __init__(self, event_bus: EventBus|CoreEventBus, viewer: bool = False):
         """Set up GUI and establish communication with the EventBus."""
         super().__init__()
         self.setWindowTitle("Event Driven Acquisition")

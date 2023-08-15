@@ -2,6 +2,7 @@
 
 import json
 import logging
+import logging.handlers
 import os
 
 
@@ -49,6 +50,9 @@ def setup_logging():
     )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+
+    # handler = logging.handlers.SysLogHandler(address=('localhost', 514))
+    # logger.addHandler(handler)
 
 
 def install_mm_plugins():
