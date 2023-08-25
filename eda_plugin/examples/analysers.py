@@ -11,7 +11,7 @@ from eda_plugin.utility.image_processing import (
     prepare_wo_tiling,
     prepare_1c
 )
-from skimage import exposure, filters, transform
+from skimage import exposure, filters, transform, measure, segmentation, morphology
 
 import logging
 import time
@@ -114,4 +114,45 @@ class FtsWWorker(KerasWorker):
         tiles, positions = prepare_ftsw(images[:, :, 1], images[:, :, 0], self.model)
         data = {"pixels": tiles, "positions": positions}
         log.debug(f"timepoint {self.timepoint} images prepared")
+        return data
+
+
+class PDAWorker(KerasWorker):
+    """A KerasWorker for pearling detection that outputs the size of the biggest detected event.
+    Includes background subtraction and intensity normalization before inference."""
+
+    def __init__(self, *args, **kwargs):
+        """Call the init function of KerasWorker with the settings supplied on call."""
+        super().__init__(*args, **kwargs)
+        self.threshold = 0.25
+
+    def prepare_images(self, images: np.ndarray):
+        """Subtract background and normalize image intensity."""
+        # print(f"RescaleWorker Images incoming: {images.shape}")
+        images = images - images.min()
+        images = images/images.max()
+        data = {"pixels": np.expand_dims(images, 0)}
+        return data
+
+    def extract_decision_parameter(self, network_output: np.ndarray):
+        thresh_otsu = filters.threshold_otsu(network_output)
+        thresh = self.threshold
+        print(network_output.max())
+        print(thresh_otsu)
+        bw = network_output[0,:,:,0] > thresh
+        cleared = segmentation.clear_border(bw)
+        label_image = measure.label(cleared)
+        regions = measure.regionprops(label_image)
+        sizes = []
+        for region in regions:
+            sizes.append(region.area)
+        try:
+            maximum = np.max(sizes)
+        except ValueError:
+            maximum = 0
+        return maximum
+
+    def post_process_output(self, data: np.ndarray, positions):
+        """Strip off the dimensions that come from the network."""
+        data = data[0,:,:,0] > self.threshold
         return data
