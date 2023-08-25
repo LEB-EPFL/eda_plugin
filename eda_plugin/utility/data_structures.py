@@ -6,10 +6,9 @@ import numpy as np
 import logging
 
 # MMSettings
-from dataclasses import dataclass
-from typing import List, Any
-from pathlib import Path
-
+# from dataclasses import dataclass
+# from typing import List, Any
+# from pathlib import Path
 
 log = logging.getLogger("EDA")
 
@@ -25,13 +24,13 @@ class EDAEvent:
 
 
 @dataclass
-class ParameterSet:
+class  ParameterSet:
     """Set of parameters for the BinaryFrameRateInterpreter."""
 
-    slow_interval: float
-    fast_interval: float
-    lower_threshold: int
-    upper_threshold: int
+    slow_interval: float = 1.
+    fast_interval: float = 0.
+    lower_threshold: int = 80
+    upper_threshold: int = 100
 
     def __init__(self, *args, **params: dict):
         """If parameters were passed in as a dict, translate."""
@@ -51,8 +50,12 @@ class ParameterSet:
             self.upper_threshold = args[0]["upper_threshold"]
 
     def to_dict(self):
-        return{"slow_interval": self.slow_interval, "fast_interval": self.fast_interval,
-               "lower_threshold": self.lower_threshold, "upper_threshold": self.upper_threshold}
+        return {
+            "slow_interval": self.slow_interval,
+            "fast_interval": self.fast_interval,
+            "lower_threshold": self.lower_threshold,
+            "upper_threshold": self.upper_threshold,
+        }
 
 
 @dataclass
@@ -76,79 +79,83 @@ class MMChannel:
     exposure_ms: int
 
 
-@dataclass
-class MMSettings:
-    """Settings mainly as in MM, but some things are iSIM specific.
+# @dataclass
+# class MMSettings:
+#     """Settings mainly as in MM, but some things are iSIM specific.
 
-    Sweeps_per_frame: How many times does the galvo go back and forth during one exposure. Can be
-    bigger for longer exposure times, to reduce the time a specific part is exposed to light, to
-    reduce phototoxicity.
-    """
+#     Sweeps_per_frame: How many times does the galvo go back and forth during one exposure. Can be
+#     bigger for longer exposure times, to reduce the time a specific part is exposed to light, to
+#     reduce phototoxicity.
+#     """
 
-    java_settings: Any = None
+#     java_settings: Any = None
 
-    timepoints: int = 11
-    interval_ms: int = 1000
+#     timepoints: int = 11
+#     interval_ms: int = 1000
 
-    pre_delay: float = 0.0
-    post_delay: float = 0.03
+#     pre_delay: float = 0.0
+#     post_delay: float = 0.03
 
-    java_channels: Any = None
-    use_channels = True
-    channels: List[MMChannel] = None
-    n_channels: int = 0
+#     java_channels: Any = None
+#     use_channels = True
+#     channels: List[MMChannel] = None
+#     n_channels: int = 1
 
-    slices_start: float = None
-    slices_end: float = None
-    slices_step: float = None
-    slices: List[float] = None
-    n_slices: int = None
-    use_slices: bool = False
+#     slices_start: float = None
+#     slices_end: float = None
+#     slices_step: float = None
+#     slices: List[float] = None
+#     n_slices: int = 1
+#     use_slices: bool = False
 
-    save_path: Path = None
-    prefix: str = None
+#     save_path: Path = None
+#     prefix: str = None
 
-    sweeps_per_frame: int = 1
+#     sweeps_per_frame: int = 1
 
-    acq_order: str = None
+#     acq_order: str = "XYZCT"
 
-    def __post_init__(self):
-        """Take the settings from MM as a java object and get the settings are represented here.
+#     ome_metadata = None
 
-        Function that is called after parameters above are initialized by the dataclass.
-        """
-        if self.java_settings is not None:
-            # print(dir(self.java_settings))
-            self.interval_ms = self.java_settings.interval_ms()
-            self.timepoints = self.java_settings.num_frames()
-            self.java_channels = self.java_settings.channels()
-            self.acq_order = self.java_settings.acq_order_mode()
-            self.use_channels = self.java_settings.use_channels()
+#     microscope: object = iSIM()
 
-        try:
-            self.java_channels.size()
-        except:
-            return
+#     def __post_init__(self):
+#         """Take the settings from MM as a java object and get the settings are represented here.
 
-        self.channels = {}
-        self.n_channels = 0
-        for channel_ind in range(self.java_channels.size()):
-            channel = self.java_channels.get(channel_ind)
-            config = channel.config()
-            self.channels[config] = {
-                "name": config,
-                "use": channel.use_channel(),
-                "exposure": channel.exposure(),
-                "z_stack": channel.do_z_stack(),
-            }
-            if self.channels[config]["use"]:
-                self.n_channels += 1
+#         Function that is called after parameters above are initialized by the dataclass.
+#         """
+#         if self.java_settings is not None:
+#             # print(dir(self.java_settings))
+#             self.interval_ms = self.java_settings.interval_ms()
+#             self.timepoints = self.java_settings.num_frames()
+#             self.java_channels = self.java_settings.channels()
+#             self.acq_order = self.java_settings.acq_order_mode()
+#             self.use_channels = self.java_settings.use_channels()
 
-        self.use_slices = self.java_settings.use_slices()
-        self.java_slices = self.java_settings.slices()
-        self.slices = []
-        for slice_num in range(self.java_settings.slices().size()):
-            self.slices.append(self.java_slices.get(slice_num))
-        if len(self.slices) == 0:
-            self.slices = [0]
-        self.n_slices = len(self.slices)
+#         try:
+#             self.java_channels.size()
+#         except:
+#             return self
+
+#         self.channels = {}
+#         self.n_channels = 0
+#         for channel_ind in range(self.java_channels.size()):
+#             channel = self.java_channels.get(channel_ind)
+#             config = channel.config()
+#             self.channels[config] = {
+#                 "name": config,
+#                 "use": channel.use_channel(),
+#                 "exposure": channel.exposure(),
+#                 "z_stack": channel.do_z_stack(),
+#             }
+#             if self.channels[config]["use"]:
+#                 self.n_channels += 1
+
+#         self.use_slices = self.java_settings.use_slices()
+#         self.java_slices = self.java_settings.slices()
+#         self.slices = []
+#         for slice_num in range(self.java_settings.slices().size()):
+#             self.slices.append(self.java_slices.get(slice_num))
+#         if len(self.slices) == 0:
+#             self.slices = [0]
+#         self.n_slices = len(self.slices)

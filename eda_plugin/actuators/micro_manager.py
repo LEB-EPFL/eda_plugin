@@ -21,8 +21,8 @@ from __future__ import annotations
 import threading
 import time
 import numpy as np
-from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
-from PyQt5 import QtWidgets
+from qtpy.QtCore import QObject, QThread, QTimer, Signal, Slot
+from qtpy import QtWidgets
 import qdarkstyle
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.qt_classes import QWidgetRestore
@@ -42,9 +42,9 @@ class MMActuator(QObject):
     EventBus.
     """
 
-    stop_acq_signal = pyqtSignal()
-    start_acq_signal = pyqtSignal(object)
-    new_interval = pyqtSignal(float)
+    stop_acq_signal = Signal()
+    start_acq_signal = Signal(object)
+    new_interval = Signal(float)
 
     def __init__(
         self,
@@ -57,7 +57,7 @@ class MMActuator(QObject):
 
         self.event_bus = event_bus
         self.studio = event_bus.studio
-        self.core = event_bus.event_thread.bridge.get_core()
+        self.core = event_bus.event_thread.listener.core
         self.interval = 5
         self.acquisition = None
         self.acquisition_mode = (
@@ -79,7 +79,7 @@ class MMActuator(QObject):
         self.event_bus.acquisition_ended_event.connect(self._stop_acq)
         self.start_acq_signal.connect(self.event_bus.acquisition_started_event)
 
-    @pyqtSlot(float)
+    @Slot(float)
     def call_action(self, interval):
         """Information received from the interpreter, change the interval."""
         log.info(f"=== New interval: {interval} ===")
@@ -91,7 +91,7 @@ class MMActuator(QObject):
             warning_text = "Acquisition is already running, please stop first."
             log.warning(warning_text)
             msg = QtWidgets.QMessageBox()
-            msg.setIcon(2)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             msg.setText(warning_text)
             msg.exec()
             return False
@@ -163,7 +163,7 @@ class MMAcquisition(QThread):
     settings.json.
     """
 
-    acquisition_ended = pyqtSignal()
+    acquisition_ended = Signal()
 
     def __init__(self, event_bus: EventBus):
         """Get the settings from MM and settings.json and store."""
@@ -265,7 +265,7 @@ class TimerMMAcquisition(MMAcquisition):
         self.timer.setInterval(int(self.start_interval * 1_000))
         self.timer.start()
 
-    @pyqtSlot()
+    @Slot()
     def stop_acq(self):
         """Stop received from MM or GUI, stop."""
         self.timer.stop()
@@ -274,7 +274,7 @@ class TimerMMAcquisition(MMAcquisition):
         self.acquisition_ended.emit()
         self.datastore.freeze()
 
-    @pyqtSlot(float)
+    @Slot(float)
     def change_interval(self, new_interval: float):
         """Information received by MMACtuator from the interpreter, change internal interval.
 
@@ -434,7 +434,7 @@ class TimerMMAcquisition(MMAcquisition):
             warning_text = "Add any number of custom intervals in the MDA window -> Time Points -> Advanced and restart please"
             log.warning(warning_text)
             msg = QtWidgets.QMessageBox()
-            msg.setIcon(2)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             msg.setText(warning_text)
             msg.exec()
             return wait_time

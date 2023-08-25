@@ -2,6 +2,7 @@
 
 import json
 import logging
+import logging.handlers
 import os
 
 
@@ -50,10 +51,13 @@ def setup_logging():
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
+    # handler = logging.handlers.SysLogHandler(address=('localhost', 514))
+    # logger.addHandler(handler)
+
 
 def install_mm_plugins():
     """Transfer the .jar files to the folder in the Micro-Manager installation."""
-    from PyQt5 import QtWidgets
+    from qtpy import QtWidgets
     import shutil
     import sys
 
@@ -64,7 +68,7 @@ def install_mm_plugins():
     )
     plugin_folder = os.path.join(mm_folder, "mmplugins")
     directory = os.path.dirname(__file__)
-    files = ["ImageInjector.jar", "PythonEventServer.jar"]
+    files = ["ImageInjector.jar"]
     for file in files:
         print("src: ", os.path.join(directory, file))
         print("dst: ", os.path.join(plugin_folder, file))

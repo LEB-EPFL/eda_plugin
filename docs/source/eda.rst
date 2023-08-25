@@ -20,7 +20,7 @@ EventBus
 --------
 :py:class:`.EventBus`
 
-Communication between the components is realized using pyqtSignals and pyqtSlots. Components can
+Communication between the components is realized using Signals and Slots. Components can
 connect to the signals directly on the EventBus
 (``event_bus.new_image_event.connect(self.start_analysis)``). They can post on the EventBus by
 connecting their own signals to the corresponding signals on the EventBus

@@ -7,12 +7,13 @@ modify furhter imaging.
 
 import logging
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-from PyQt5 import QtWidgets
+from qtpy.QtCore import QObject, Signal, Slot
+from qtpy import QtWidgets
 import qdarkstyle
 
-from eda_plugin.utility.data_structures import ParameterSet
+from pymm_eventserver.data_structures import ParameterSet
 from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility.core_event_bus import CoreEventBus
 from eda_plugin.utility.qt_classes import QWidgetRestore
 from eda_plugin.utility import settings
 
@@ -22,10 +23,10 @@ log = logging.getLogger("EDA")
 class BinaryFrameRateInterpreter(QObject):
     """Take the output calcualted by an ImageAnalyser and decide which imaging speed to use next."""
 
-    new_interpretation = pyqtSignal(float)
-    new_parameters = pyqtSignal(ParameterSet)
+    new_interpretation = Signal(float)
+    new_parameters = Signal(ParameterSet)
 
-    def __init__(self, event_bus: EventBus, gui: bool = True):
+    def __init__(self, event_bus: EventBus|CoreEventBus, gui: bool = True):
         """Load the default values, start the GUI and connect the events."""
         super().__init__()
         self.gui = BinaryFrameRateParameterForm() if gui else None
@@ -36,7 +37,8 @@ class BinaryFrameRateInterpreter(QObject):
         self.interval = self.params.slow_interval
 
         self.num_fast_frames = 0
-        self.min_fast_frames = 30
+        self.min_fast_frames = 1
+        print(f"MIN FAST FRAMES {self.min_fast_frames}")
 
         # Emitted signals register at event_bus
         self.new_interpretation.connect(event_bus.new_interpretation)
@@ -47,7 +49,7 @@ class BinaryFrameRateInterpreter(QObject):
         self.new_parameters.emit(self.params)
         self.new_interpretation.emit(self.interval)
 
-    @pyqtSlot(object)
+    @Slot(object)
     def update_parameters(self, new_params: ParameterSet):
         """Update the settings with the new parameters received from the GUI."""
         if self.interval == self.params.slow_interval:
@@ -60,7 +62,7 @@ class BinaryFrameRateInterpreter(QObject):
         self.new_interpretation.emit(self.interval)
         self.new_parameters.emit(self.params)
 
-    @pyqtSlot(float, float, int)
+    @Slot(float, float, int)
     def calculate_interpretation(self, new_value: float, _, timepoint: int):
         """Calculate the new interval. Emit if changed and increase/reset the fast image counter."""
         old_interval = self.interval
@@ -69,9 +71,7 @@ class BinaryFrameRateInterpreter(QObject):
             self.new_interpretation.emit(self.interval)
 
         self._set_fast_count()
-        log.info(
-            f"timepoint {timepoint} decision: {new_value} -> {self.interval} interval"
-        )
+        log.info(f"timepoint {timepoint} decision: {new_value} -> {self.interval} interval")
 
     def _define_imaging_speed(self, new_value: float):
         new_interval = self.interval
@@ -101,7 +101,7 @@ class BinaryFrameRateInterpreter(QObject):
 class BinaryFrameRateParameterForm(QWidgetRestore):
     """GUI for input/update of the parameters used for a change between two frame rates."""
 
-    new_parameters = pyqtSignal(object)
+    new_parameters = Signal(object)
 
     def __init__(self):
         """Set up the PyQt GUI with all the parameters needed for interpretation."""

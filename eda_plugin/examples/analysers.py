@@ -43,6 +43,25 @@ class KerasRescaleWorker(KerasWorker):
         return data[0, :, :, 0]
 
 
+class KerasTester(KerasWorker):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def run(self):
+        network_input = self.prepare_images(self.local_images)
+        log.info(network_input["pixels"].shape)
+        self.signals.new_network_image.emit(network_input["pixels"][0, :, :,0 ], (self.timepoint, 0))
+
+    def prepare_images(self, images: np.ndarray):
+        log.info(images.shape) #returns a tuple containing the dimensions of the array
+    #    images = exposure.rescale_intensity(images)
+        images = prepare_1c(images)
+        data = {"pixels": np.expand_dims(images, 0)}
+        return data
+
+
+
 class Keras1CWorker(KerasWorker):
     """A KerasWorker with background subtraction and intensity normalization before inference."""
 
@@ -54,7 +73,8 @@ class Keras1CWorker(KerasWorker):
         """Subtract background and normalize image intensity."""
         # print(f"RescaleWorker Images incoming: {images.shape}")
         images = prepare_1c(images)
-        images = images[:, :, 0]
+        # images = images[:, :, 0]
+
         data = {"pixels": np.expand_dims(images, 0)}
         return data
 
@@ -101,20 +121,28 @@ class FtsWWorker(KerasWorker):
         """Call the init function of KerasWorker with the settings supplied."""
         super().__init__(*args, **kwargs)
 
-    def post_process_output(self, network_output: np.ndarray, input_data) -> np.ndarray:
-        """Stitch the images recevied from the network to an array with the same size as input."""
-        prep = stitchImage(input_data["pixels"], input_data["positions"], channel=1)
-        return prep
-
     def extract_decision_parameter(self, network_output: np.ndarray):
         return np.max(network_output)
 
+    #def run(self):
+     #   network_input = self.prepare_images(self.local_images)
+      #  log.info(network_input["pixels"].shape)
+       # self.signals.new_network_image.emit(network_input["pixels"][0, :, :,0 ], (self.timepoint, 0))
+
     def prepare_images(self, images: np.ndarray):
         """Background subtraction, resize, intensity normalization and tiling."""
-        tiles, positions = prepare_ftsw(images[:, :, 1], images[:, :, 0], self.model)
-        data = {"pixels": tiles, "positions": positions}
-        log.debug(f"timepoint {self.timepoint} images prepared")
+        # log.info(images.shape)
+        images = exposure.rescale_intensity(images)
+        images = images[:, :, 0]
+        data = {"pixels": np.expand_dims(images, 0)}
+        log.info(images.shape)
+        # log.debug(f"timepoint {self.timepoint} images prepared")
         return data
+
+    def post_process_output(self, data: np.ndarray, positions):
+        """Strip off the dimensions that come from the network."""
+        # print(data.shape)
+        return data[0, :, :, 0]
 
 
 class PDAWorker(KerasWorker):

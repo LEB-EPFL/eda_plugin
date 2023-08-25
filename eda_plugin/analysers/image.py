@@ -9,9 +9,10 @@ import logging
 import numpy as np
 import time
 
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThreadPool, QObject, QRunnable
+from qtpy.QtCore import Signal, Slot, QThreadPool, QObject, QRunnable
 from eda_plugin.utility.event_bus import EventBus
-from eda_plugin.utility.data_structures import PyImage, MMSettings
+from eda_plugin.utility.core_event_bus import CoreEventBus
+from pymm_eventserver.data_structures import PyImage, MMSettings
 from eda_plugin.utility import settings
 
 
@@ -26,9 +27,9 @@ class ImageAnalyser(QObject):
     value it calculated on to any expecting interpreters.
     """
 
-    new_decision_parameter = pyqtSignal(float, float, int)
+    new_decision_parameter = Signal(float, float, int)
 
-    def __init__(self, event_bus: EventBus):
+    def __init__(self, event_bus: EventBus|CoreEventBus):
         """Get settings from settings.json, set up the threadpool and connect signals."""
         super().__init__()
 
@@ -36,10 +37,19 @@ class ImageAnalyser(QObject):
         self.time = None
         self.images = None
         self.start_time = None
+        self.current_n_timepoints = 0
+        self.timepoint = 0
+        self.last_timepoint = 0
+        self.gui = AnalyserGUI()
+        self.n_timepoints = self.gui.settings["n_timepoints"]
 
-        settings = event_bus.studio.acquisitions().get_acquisition_settings()
-        settings = MMSettings(settings)
-        self.new_mda_settings(settings)
+        try:
+            settings = event_bus.studio.acquisitions().get_acquisition_settings()
+            settings = MMSettings(settings)
+            self.new_mda_settings(settings)
+        except AttributeError:
+            log.warning("MDA settings init failed!")
+
 
         # Attach the standard worker, subclasses can replace this.
         self.worker = ImageAnalyserWorker
@@ -60,19 +70,22 @@ class ImageAnalyser(QObject):
         event_bus.acquisition_started_event.connect(self._reset_time)
         event_bus.new_image_event.connect(self.start_analysis)
         event_bus.mda_settings_event.connect(self.new_mda_settings)
+        self.gui.new_settings.connect(self.new_gui_settings)
 
-    @pyqtSlot(PyImage)
+
+    @Slot(PyImage)
     def start_analysis(self, evt: PyImage):
         """Image arrived, see if all images were gathered and if so, start analysis."""
         ready = self.gather_images(evt)
         if not ready:
             return
-
         # Get the worker arguments from a different function so only that can be overwritten by
         # subclasses
         worker_args = self._get_worker_args(evt)
 
         local_images = self.images.copy()
+        if self.n_timepoints == 1:
+            local_images = local_images[..., 0]
         worker = self.worker(
             local_images, evt.timepoint, self.start_time, **worker_args
         )
@@ -85,24 +98,37 @@ class ImageAnalyser(QObject):
         """Connect worker signals in extra method, so that this can be overwritten independently."""
         worker.signals.new_decision_parameter.connect(self.new_decision_parameter)
 
+    def new_gui_settings(self, new_settings: dict):
+        self.n_timepoints = new_settings['n_timepoints']
+
     def new_mda_settings(self, new_settings: MMSettings):
         self.channels = new_settings.n_channels
         self.slices = new_settings.n_slices
         log.info(f"New settings: {self.channels} channels & {self.slices} slices")
 
     def gather_images(self, py_image: PyImage) -> bool:
-        """Gather the amount of images needed."""
-
+        """Gather the amount of images needed. Channels can be swapped by subclasses. So don't rely
+        on them coming in in the correct order."""
         try:
-            self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
+            self.images[:, :, py_image.channel, py_image.z_slice, self.timepoint] = py_image.raw_image
         except (ValueError, TypeError, IndexError):
             self._reset_shape(py_image)
-            self.images[:, :, py_image.channel, py_image.z_slice] = py_image.raw_image
+            self.images[:, :, py_image.channel, py_image.z_slice, self.timepoint] = py_image.raw_image
+
+
+        if py_image.timepoint != self.last_timepoint:
+            self.last_timepoint = py_image.timepoint
+            self.timepoint = min(self.n_timepoints - 1, self.timepoint + 1)
+
 
         self.time = py_image.timepoint
-        if py_image.channel < self.channels - 1 or py_image.z_slice < self.slices - 1:
+        if any([py_image.channel < self.channels - 1,
+                py_image.z_slice < self.slices - 1,
+                self.timepoint < self.n_timepoints - 1]):
             return False
         else:
+            if self.n_timepoints > 1:
+                self.images[..., :-1] = self.images[..., 1:]
             return True
 
     def _get_worker_args(self, evt):
@@ -110,11 +136,13 @@ class ImageAnalyser(QObject):
 
     def _reset_shape(self, image: PyImage):
         self.shape = image.raw_image.shape
-        self.images = np.ndarray([*self.shape, self.channels, self.slices])
+        self.images = np.ndarray([*self.shape, self.channels, self.slices, self.n_timepoints])
 
     def _reset_time(self):
         log.debug(f"start_time reset in {self.__class__.__name__}")
         self.start_time = round(time.time() * 1000)
+        self.timepoint = 0
+        self.last_timepoint = 0
 
 
 class ImageAnalyserWorker(QRunnable):
@@ -138,13 +166,13 @@ class ImageAnalyserWorker(QRunnable):
         )
 
     def extract_decision_parameter(self, network_output: np.ndarray):
-        """Return the first value of the ndarray."""
-        return float(network_output.flatten()[0])
+        """Return the a value of the ndarray."""
+        return float(network_output.flatten()[5000])
 
     class _Signals(QObject):
         """Signals have to be separate because QRunnable can't have its own."""
 
-        new_decision_parameter = pyqtSignal(float, float, int)
+        new_decision_parameter = Signal(float, float, int)
 
 
 class PycroImageAnalyser(ImageAnalyser):
@@ -177,3 +205,42 @@ class PycroImageAnalyser(ImageAnalyser):
         self.start_time = time.time()
         if self.images is not None:
             self._reset_shape(PyImage(self.images[0], 0, 0, 0, 0))
+
+
+class AnalyserGUI(QWidgetRestore):
+    """GUI to set number of timepoints to be analysed."""
+
+    new_settings = pyqtSignal(object)
+
+    def __init__(self):
+        """Set up GUI for the keras analyser.
+
+        Get the default settings from the settings file and set up the GUI
+        """
+        super().__init__()
+        self.setWindowTitle("AnalyserSettings")
+        default_settings = {"n_timepoints": 1}
+        self.settings = QSettings("Analyser", self.__class__.__name__).value("settings",
+                                                                             default_settings)
+        self.n_timepoints = self.settings["n_timepoints"]
+
+        self.timepoints_input = QtWidgets.QSpinBox()
+        self.timepoints_input.setMinimum(1)
+        self.timepoints_input.setValue(self.n_timepoints)
+        self.timepoints_input.valueChanged.connect(self._update_settings)
+
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.timepoints_input)
+
+        self.new_settings.emit(self.settings)
+
+    def _update_settings(self, value):
+        self.settings['n_timepoints'] = value
+        self.n_timepoints = value
+        self.new_settings.emit(self.settings)
+
+    def closeEvent(self, event):
+        """Save the settings to the settings file."""
+        QSettings("Analyser", self.__class__.__name__).setValue("settings", self.settings)
+        print("SETTINGS SAVED ", self.settings)
+        super().closeEvent(event)
