@@ -65,6 +65,8 @@ class KerasAnalyser(ImageAnalyser):
 
     def gather_images(self, py_image: PyImage) -> bool:
         """Limit the gathering to only the channels in channel_choosers and rearrange"""
+        print(py_image.channel)
+        print(list(self.mda_settings.channels.keys()))
         image_channel_name = list(self.mda_settings.channels.keys())[py_image.channel]
         if image_channel_name in self.keras_settings['channels_to_use']:
             py_image.channel = self.keras_settings['channels_to_use'].index(image_channel_name)
@@ -73,6 +75,8 @@ class KerasAnalyser(ImageAnalyser):
     def new_settings(self, new_settings):
         """Load and initialize model so first predict is fast(er)."""
         self.keras_settings = new_settings
+        self.worker = new_settings["worker"]
+        print("Worker set", self.worker)
         if self.model_path == new_settings["model"]:
             return
         self.model_path = new_settings["model"]
@@ -80,7 +84,6 @@ class KerasAnalyser(ImageAnalyser):
             # self.model = keras.models.load_model(self.model_path, compile=True)
             self.model = keras.models.load_model(self.model_path)
             self.model_channels = self.model.layers[0].input_shape[0][3]
-            self.worker = new_settings["worker"]
             self._init_model()
             self._compare_model_mda()
         except OSError:
@@ -280,6 +283,45 @@ class KerasSettingsGUI(QWidgetRestore):
         for channel_chooser in self.channel_choosers.values():
            self.keras_settings['channels_to_use'].append(channel_chooser['widget'].currentText())
         self.new_settings.emit(self.keras_settings)
+
+
+class NetworkImageTester(ImageAnalyser):
+    """Analyser without a network just to test the transmission of the network image"""
+    new_network_image = Signal(np.ndarray, tuple)
+    new_output_shape = Signal(tuple)
+
+    def __init__(self, event_bus: EventBus):
+        """Load and connect the GUI. Initialise settings from the GUI."""
+        super().__init__(event_bus=event_bus)
+        self.event_bus = event_bus
+        self.model_path = None
+        self.worker = NetworkImageTesterWorker
+
+        self.gui = QWidgetRestore()
+
+    def connect_worker_signals(self, worker: QRunnable):
+        """Connect the additional worker signals."""
+        worker.signals.new_network_image.connect(self.event_bus.new_network_image)
+        worker.signals.new_prepared_image.connect(self.event_bus.new_prepared_image)
+        worker.signals.new_output_shape.connect(self.event_bus.new_output_shape)
+        return super().connect_worker_signals(worker)
+    
+
+class NetworkImageTesterWorker(ImageAnalyserWorker):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.signals = self._Signals()
+
+    def run(self):
+        # print("Image Shape in network tester", self.local_images.shape)
+        fake_img = np.random.random_integers(100, 5000, self.local_images.shape[:2])
+        self.signals.new_network_image.emit(fake_img.astype(np.uint16), (self.timepoint, 0))
+
+    class _Signals(QObject):
+        new_output_shape = Signal(tuple)
+        new_network_image = Signal(np.ndarray, tuple)
+        new_decision_parameter = Signal(float, float, int)
+        new_prepared_image = Signal(np.ndarray, int)
 
 def main():
     """Nothing here yet."""

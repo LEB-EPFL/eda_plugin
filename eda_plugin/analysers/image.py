@@ -9,12 +9,13 @@ import logging
 import numpy as np
 import time
 
-from qtpy.QtCore import Signal, Slot, QThreadPool, QObject, QRunnable
+from qtpy.QtCore import Signal, Slot, QThreadPool, QObject, QRunnable, QSettings
+from qtpy import QtWidgets
 from eda_plugin.utility.event_bus import EventBus
 from eda_plugin.utility.core_event_bus import CoreEventBus
+from eda_plugin.utility.qt_classes import QWidgetRestore
 from pymm_eventserver.data_structures import PyImage, MMSettings
 from eda_plugin.utility import settings
-
 
 log = logging.getLogger("EDA")
 
@@ -210,7 +211,7 @@ class PycroImageAnalyser(ImageAnalyser):
 class AnalyserGUI(QWidgetRestore):
     """GUI to set number of timepoints to be analysed."""
 
-    new_settings = pyqtSignal(object)
+    new_settings = Signal(object)
 
     def __init__(self):
         """Set up GUI for the keras analyser.

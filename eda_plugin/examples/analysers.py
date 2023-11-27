@@ -142,6 +142,7 @@ class FtsWWorker(KerasWorker):
     def post_process_output(self, data: np.ndarray, positions):
         """Strip off the dimensions that come from the network."""
         # print(data.shape)
+        data = data/data.max()*5000
         return data[0, :, :, 0]
 
 
