@@ -51,16 +51,31 @@ class KerasTester(KerasWorker):
     def run(self):
         network_input = self.prepare_images(self.local_images)
         log.info(network_input["pixels"].shape)
-        self.signals.new_network_image.emit(network_input["pixels"][0, :, :,0 ], (self.timepoint, 0))
+        self.signals.new_network_image.emit(network_input["pixels"][0, :, :,0 ]*10_000, (self.timepoint, 0))
 
     def prepare_images(self, images: np.ndarray):
         log.info(images.shape) #returns a tuple containing the dimensions of the array
-    #    images = exposure.rescale_intensity(images)
-        images = prepare_1c(images)
+        # t0 = time.perf_counter()
+        # int_range = (images.min(), np.percentile(images, 97))
+        # print(int_range)
+        # print(time.perf_counter() - t0)
+        # images = exposure.rescale_intensity(images, in_range = tuple(int_range))
+        t0 = time.perf_counter()
+        tiles = 8
+        x,y = np.meshgrid(range(tiles), range(tiles))
+        x, y = x.flatten(), y.flatten()
+        for i in range(tiles*tiles):
+            images[x[i]*256:x[i]*256 + 256,
+                    y[i]*256:y[i]*256 + 256] = exposure.rescale_intensity(images[x[i]*256:x[i]*256 + 256,
+                                                                                 y[i]*256:y[i]*256 + 256])
+        print("rescale time:, ", time.perf_counter() - t0)
+        # images = exposure.rescale_intensity(images, (images.min(), 7_000))
+        log.info("BEFORE RESHAPE " + str(images.shape))
+        images = images[:, :, 0, 0, :]
         data = {"pixels": np.expand_dims(images, 0)}
+        log.info(data['pixels'].shape)
+        # log.debug(f"timepoint {self.timepoint} images prepared")
         return data
-
-
 
 class Keras1CWorker(KerasWorker):
     """A KerasWorker with background subtraction and intensity normalization before inference."""
@@ -145,6 +160,44 @@ class FtsWWorker(KerasWorker):
         data = data/data.max()*5000
         return data[0, :, :, 0]
 
+class TimeWorker(KerasWorker):
+    """KerasWorker for timepoint data"""
+    def __init__(self, *args, **kwargs):
+        """Call the init function of KerasWorker with the settings supplied."""
+        super().__init__(*args, **kwargs)
+
+    def extract_decision_parameter(self, network_output: np.ndarray):
+        return np.max(network_output)
+
+    def prepare_images(self, images: np.ndarray):
+        """Background subtraction, resize, intensity normalization and tiling."""
+        # log.info(images.shape)
+        t0 = time.perf_counter()
+        tiles = 8
+        x,y = np.meshgrid(range(tiles), range(tiles))
+        x, y = x.flatten(), y.flatten()
+        for i in range(tiles*tiles):
+            images[x[i]*256:x[i]*256 + 256,
+                    y[i]*256:y[i]*256 + 256] = exposure.rescale_intensity(images[x[i]*256:x[i]*256 + 256,
+                                                                                 y[i]*256:y[i]*256 + 256])
+        print("rescale time:, ", time.perf_counter() - t0)
+        # int_range = np.percentile(images, (1, 97))
+        # print(int_range)
+        # int_range[0] = max(1, int_range[0])
+        # images = exposure.rescale_intensity(images, in_range = tuple(int_range))
+        log.info("BEFORE RESHAPE " + str(images.shape))
+        images = images[:, :, 0, 0, :]
+        data = {"pixels": np.expand_dims(images, 0)}
+        log.info(data['pixels'].shape)
+        # log.debug(f"timepoint {self.timepoint} images prepared")
+        return data
+
+    def post_process_output(self, data: np.ndarray, positions):
+        """Strip off the dimensions that come from the network."""
+        # print(data.shape)
+        data = data*10000
+        return data[0, :, :, 0]
+    
 
 class PDAWorker(KerasWorker):
     """A KerasWorker for pearling detection that outputs the size of the biggest detected event.

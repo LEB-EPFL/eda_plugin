@@ -100,6 +100,7 @@ class CoreRunner():
             if self.full_sequence.sizes.get('t', 1) == self.timepoint + 1:
                 self.stop()
         self.timepoint += 1
+        print("current interval:", self.timer.interval)
 
     def on_new_interpretation(self, new_interval: float):
         """Add a new event to the queue with the new interval."""
@@ -131,7 +132,7 @@ class CoreRunner():
         self.current_iter = self.seq_iter
         self.current_sequence = self.sequence
         self.mmc.mda.events.sequenceStarted.emit(self.full_sequence)
-        self.acquire_event()
+        self.timer.interval = self.sequence.time_plan.phases[0].interval.seconds
         self.timer.start()
     
     def stop(self):

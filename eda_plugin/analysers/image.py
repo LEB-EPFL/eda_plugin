@@ -43,6 +43,7 @@ class ImageAnalyser(QObject):
         self.last_timepoint = 0
         self.gui = AnalyserGUI()
         self.n_timepoints = self.gui.settings["n_timepoints"]
+        self.channels = None
 
         try:
             settings = event_bus.studio.acquisitions().get_acquisition_settings()
@@ -77,6 +78,8 @@ class ImageAnalyser(QObject):
     @Slot(PyImage)
     def start_analysis(self, evt: PyImage):
         """Image arrived, see if all images were gathered and if so, start analysis."""
+        if self.channels is None:
+            return
         ready = self.gather_images(evt)
         if not ready:
             return
