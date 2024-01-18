@@ -8,6 +8,7 @@ behind.
 """
 
 import os
+import re
 import logging
 import time
 import numpy as np
@@ -41,16 +42,19 @@ class KerasAnalyser(ImageAnalyser):
 
     new_network_image = Signal(np.ndarray, tuple)
     new_output_shape = Signal(tuple)
+    settings_changed = Signal(dict)
 
     def __init__(self, event_bus: EventBus):
         """Load and connect the GUI. Initialise settings from the GUI."""
         super().__init__(event_bus=event_bus)
         self.event_bus = event_bus
         self.model_path = None
+        self.mda_settings = MMSettings()
 
         self.gui = KerasSettingsGUI()
         self.gui.new_settings.connect(self.new_settings)
-        self.new_settings(self.gui.keras_settings)
+        self.settings_changed.connect(self.gui._set_state)
+        self.new_settings(self.gui.keras_settings, init_model=False)
 
     def connect_worker_signals(self, worker: QRunnable):
         """Connect the additional worker signals."""
@@ -65,22 +69,25 @@ class KerasAnalyser(ImageAnalyser):
 
     def gather_images(self, py_image: PyImage) -> bool:
         """Limit the gathering to only the channels in channel_choosers and rearrange"""
+        print(py_image.channel)
+        print(list(self.mda_settings.channels.keys()))
         image_channel_name = list(self.mda_settings.channels.keys())[py_image.channel]
         if image_channel_name in self.keras_settings['channels_to_use']:
             py_image.channel = self.keras_settings['channels_to_use'].index(image_channel_name)
             return super().gather_images(py_image)
 
-    def new_settings(self, new_settings):
+    def new_settings(self, new_settings, init_model=True):
         """Load and initialize model so first predict is fast(er)."""
         self.keras_settings = new_settings
-        if self.model_path == new_settings["model"]:
+        self.worker = new_settings["worker"]
+        print("Worker set", self.worker)
+        if self.model_path == new_settings["model"] or not init_model:
             return
         self.model_path = new_settings["model"]
         try:
             # self.model = keras.models.load_model(self.model_path, compile=True)
             self.model = keras.models.load_model(self.model_path)
             self.model_channels = self.model.layers[0].input_shape[0][3]
-            self.worker = new_settings["worker"]
             self._init_model()
             self._compare_model_mda()
         except OSError:
@@ -118,6 +125,19 @@ class KerasAnalyser(ImageAnalyser):
     def _compare_model_mda(self):
         """Compare the model and the MDA settings and add info to GUI so the values can be chosen"""
         self.model_channels, model_slices = self._inspect_model(self.model)
+        # Check if there might be timepoints in this model
+        if self.keras_settings["manual_timepoints"] and self.keras_settings["timepoints"]:
+            self.n_timepoints, model_slices = self._inspect_model(self.model)
+            self.model_channels = 1
+        else:
+            timepoint_search = re.search(r'_n(\d*)_f[0-9.]{1,3}', self.keras_settings["model"])
+            if timepoint_search:
+                self.n_timepoints = int(timepoint_search.groups()[0])
+                self.model_channels = 1
+                self.keras_settings["timepoints"] = True
+            else:
+                self.keras_settings["timepoints"] = False
+            self.settings_changed.emit(self.keras_settings)
         if self.model_channels <= self.mda_settings.n_channels:
             self.gui.add_channel_chooser(self.model_channels, self.mda_settings.channels)
             self.channels = self.model_channels
@@ -198,6 +218,7 @@ class KerasSettingsGUI(QWidgetRestore):
         default_settings = settings.get_settings(self)
         available_workers = self._get_available_workers(default_settings)
         self.keras_settings = settings.get_settings(__class__)
+        print("SETTINGS", self.keras_settings)
 
         self.worker = QtWidgets.QComboBox()
         for worker in available_workers:
@@ -206,31 +227,36 @@ class KerasSettingsGUI(QWidgetRestore):
         self.worker.currentIndexChanged.connect(self._select_worker)
 
         self.model_label = QtWidgets.QLabel("Model")
-        self.model = QtWidgets.QLineEdit(self.keras_settings["model"])
-        if not os.path.isfile(self.keras_settings["model"]):
+        self.model = QtWidgets.QLineEdit(self.keras_settings.get("model", ""))
+        if not os.path.isfile(self.keras_settings.get("model", "")):
             corrected_path = os.path.join(
-                os.path.dirname(np.__path__[0]), self.keras_settings["model"]
+                os.path.dirname(np.__path__[0]), self.keras_settings.get("model", "")
             )
             self._select_model(corrected_path)
         self.model_select = QtWidgets.QPushButton("Select")
         self.model_select.clicked.connect(self._select_model)
+
+        self.timepoints_chbx = QtWidgets.QCheckBox("Timepoints")
+        self.timepoints_chbx.stateChanged.connect(self._timepoints_changed)
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().addWidget(self.worker)
         self.layout().addWidget(self.model_label)
         self.layout().addWidget(self.model)
         self.layout().addWidget(self.model_select)
+        self.layout().addWidget(self.timepoints_chbx)
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyqt5"))
 
         self.channel_choosers_title = QtWidgets.QLabel("Choose Channels to use:")
         self.channel_choosers = {}
 
-        self.model_load_dir = os.path.join(
-            os.path.abspath(os.path.join(__file__, "..", "..")), "utility", "models"
-        )
+        self.model_load_dir = self.keras_settings.get("model", os.path.join(
+            os.path.abspath(os.path.join(__file__, "..", "..")), "utility", "models", "fake"))
+        self.model_load_dir = os.path.dirname(self.model_load_dir)
+
 
     def _get_available_workers(self, settings):
-        modules = settings["worker_modules"]
+        modules = settings.get("worker_modules", ["eda_plugin.examples.analysers"])
         available_workers = []
         for module in modules:
             module = importlib.import_module(module)
@@ -251,6 +277,7 @@ class KerasSettingsGUI(QWidgetRestore):
         self.model_load_dir = os.path.dirname(new_model)
         self.keras_settings["model"] = new_model
         self.model.setText(new_model)
+        self.keras_settings["manual_timepoints"] = False
         self.new_settings.emit(self.keras_settings)
 
     def _select_worker(self, index):
@@ -263,6 +290,7 @@ class KerasSettingsGUI(QWidgetRestore):
             self.layout().removeWidget(channel_chooser['widget'])
 
     def add_channel_chooser(self, n_channels, channels):
+        print("ADDING CHANNELS", n_channels, channels)
         self._reset_choosers()
         self.channel_choosers = defaultdict(lambda: defaultdict())
         self.layout().addWidget(self.channel_choosers_title)
@@ -280,6 +308,62 @@ class KerasSettingsGUI(QWidgetRestore):
         for channel_chooser in self.channel_choosers.values():
            self.keras_settings['channels_to_use'].append(channel_chooser['widget'].currentText())
         self.new_settings.emit(self.keras_settings)
+
+    def _timepoints_changed(self, value):
+        if value == 2:
+            self.keras_settings["timepoints"] = True
+        else:
+            self.keras_settings["timepoints"] = False
+        self.keras_settings["manual_timepoints"] = True
+        self.new_settings.emit(self.keras_settings)
+
+    def _set_state(self, settings: dict):
+        self.keras_settings = settings
+        self.timepoints_chbx.setChecked(settings["timepoints"])
+
+    def closeEvent(self, e):
+        self.keras_settings['worker'] = str(self.keras_settings["worker"].__class__)
+        settings.set_settings(self.keras_settings, calling_class=__class__)
+        print("KERAS SETTINGS", self.keras_settings)
+        return super().closeEvent(e)
+
+class NetworkImageTester(ImageAnalyser):
+    """Analyser without a network just to test the transmission of the network image"""
+    new_network_image = Signal(np.ndarray, tuple)
+    new_output_shape = Signal(tuple)
+
+    def __init__(self, event_bus: EventBus):
+        """Load and connect the GUI. Initialise settings from the GUI."""
+        super().__init__(event_bus=event_bus)
+        self.event_bus = event_bus
+        self.model_path = None
+        self.worker = NetworkImageTesterWorker
+
+        self.gui = QWidgetRestore()
+
+    def connect_worker_signals(self, worker: QRunnable):
+        """Connect the additional worker signals."""
+        worker.signals.new_network_image.connect(self.event_bus.new_network_image)
+        worker.signals.new_prepared_image.connect(self.event_bus.new_prepared_image)
+        worker.signals.new_output_shape.connect(self.event_bus.new_output_shape)
+        return super().connect_worker_signals(worker)
+    
+
+class NetworkImageTesterWorker(ImageAnalyserWorker):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.signals = self._Signals()
+
+    def run(self):
+        # print("Image Shape in network tester", self.local_images.shape)
+        fake_img = np.random.random_integers(100, 5000, self.local_images.shape[:2])
+        self.signals.new_network_image.emit(fake_img.astype(np.uint16), (self.timepoint, 0))
+
+    class _Signals(QObject):
+        new_output_shape = Signal(tuple)
+        new_network_image = Signal(np.ndarray, tuple)
+        new_decision_parameter = Signal(float, float, int)
+        new_prepared_image = Signal(np.ndarray, int)
 
 def main():
     """Nothing here yet."""

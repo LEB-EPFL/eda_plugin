@@ -13,6 +13,7 @@ import qdarkstyle
 
 from pymm_eventserver.data_structures import ParameterSet
 from eda_plugin.utility.event_bus import EventBus
+from eda_plugin.utility.core_event_bus import CoreEventBus
 from eda_plugin.utility.qt_classes import QWidgetRestore
 from eda_plugin.utility import settings
 
@@ -25,7 +26,7 @@ class BinaryFrameRateInterpreter(QObject):
     new_interpretation = Signal(float)
     new_parameters = Signal(ParameterSet)
 
-    def __init__(self, event_bus: EventBus, gui: bool = True):
+    def __init__(self, event_bus: EventBus|CoreEventBus, gui: bool = True):
         """Load the default values, start the GUI and connect the events."""
         super().__init__()
         self.gui = BinaryFrameRateParameterForm() if gui else None

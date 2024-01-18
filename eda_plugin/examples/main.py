@@ -33,10 +33,10 @@ def basic():
     interpreter = BinaryFrameRateInterpreter(event_bus)
 
     # Start the main GUI showing the EDA plot and the controls for the specific components
-    gui = EDAMainGUI(event_bus, viewer=False)
+    gui = EDAMainGUI(event_bus, viewer=True)
+    gui.add_dock_widget(interpreter.gui, "Actuator")
+    gui.add_dock_widget(analyser.gui, "Analyser")
     gui.show()
-    actuator.gui.show()
-    interpreter.gui.show()
 
     # Start the event loop
     sys.exit(app.exec_())
@@ -82,6 +82,8 @@ def keras():
     """EDA loop using a neural network analyser that can be used for testing."""
     from eda_plugin.actuators.micro_manager import MMActuator
     from eda_plugin.analysers.keras import KerasAnalyser
+    from eda_plugin.utility.writers import Writer
+
 
     eda_plugin.utility.settings.setup_logging()
 
@@ -131,6 +133,7 @@ def pyro_keras():
 
 def main_isim():
     """EDA loop used on the iSIM."""
+    from eda_plugin.utility.writers import Writer
     from eda_plugin.actuators.daq import DAQActuator
     from eda_plugin.analysers.keras import KerasAnalyser
 
@@ -190,12 +193,42 @@ def presets():
     sys.exit(app.exec_())
 
 
+def core():
+    import sys
+    import time
+    # from eda_plugin.analysers.keras import KerasAnalyser
+    from eda_plugin.analysers.image import ImageAnalyser
+    from eda_plugin.utility.core_event_bus import CoreEventBus
+    from eda_plugin.actuators.pymmc import CoreActuator
+    from eda_plugin.utility.core_gui import CoreMDAWidget
+
+    eda_plugin.utility.settings.setup_logging()
+
+    app = QtWidgets.QApplication(sys.argv)
+
+    mda = CoreMDAWidget()
+    mda.show()
+
+    event_bus = CoreEventBus(mda)
+    actuator = CoreActuator(event_bus)
+    analyser = ImageAnalyser(event_bus)
+    interpreter = BinaryFrameRateInterpreter(event_bus)
+
+    gui = EDAMainGUI(event_bus, viewer=True)
+    gui.add_dock_widget(actuator.gui, "Actuator")
+    gui.add_dock_widget(interpreter.gui, "Interpreter")
+    gui.add_dock_widget(analyser.gui, "Analyser")
+    gui.show()
+
+    sys.exit(app.exec_())
+
+
 flavours = {"basic": basic, "pyro": pyro, "keras": keras, "pyro_keras": pyro_keras,
-            "main_isim": main_isim, "writer": writer, "presets": presets}
+            "main_isim": main_isim, "core": core}
 try:
     flavour = flavours[sys.argv[1]]
 except (IndexError, KeyError) as e:
-    flavour = keras
+    flavour = basic
 
 if __name__ == "__main__":
     flavour()
