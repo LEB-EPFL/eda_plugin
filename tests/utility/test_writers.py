@@ -40,6 +40,9 @@ def test_full(writer_plugin, java_settings_event_w_save_loc):
 
     # Acquisition is started
     # writer_plugin.event_bus.acquisition_started_event.emit(None)
+    writer_plugin.gui.save_nn_images.setChecked(True)
+    writer_plugin.gui.save_images.setChecked(True)
+    writer_plugin.gui.save_metadata.setChecked(True)
     writer_plugin.event_bus.acquisition_started_event.emit(java_settings_event_w_save_loc)
 
     # Image arrives
