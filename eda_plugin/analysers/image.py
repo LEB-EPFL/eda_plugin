@@ -38,6 +38,7 @@ class ImageAnalyser(QObject):
         self.time = None
         self.images = None
         self.start_time = None
+        self.mask = None
         self.current_n_timepoints = 0
         self.timepoint = 0
         self.last_timepoint = 0
@@ -72,6 +73,7 @@ class ImageAnalyser(QObject):
         event_bus.acquisition_started_event.connect(self._reset_time)
         event_bus.new_image_event.connect(self.start_analysis)
         event_bus.mda_settings_event.connect(self.new_mda_settings)
+        event_bus.new_mask_event.connect(self.on_new_mask)
         self.gui.new_settings.connect(self.new_gui_settings)
 
 
@@ -91,7 +93,7 @@ class ImageAnalyser(QObject):
         if self.n_timepoints == 1:
             local_images = local_images[..., 0]
         worker = self.worker(
-            local_images, evt.timepoint, self.start_time, **worker_args
+            local_images, evt.timepoint, self.start_time, self.mask, **worker_args
         )
         # Connect the signals to push through
         self.connect_worker_signals(worker)
@@ -135,6 +137,9 @@ class ImageAnalyser(QObject):
                 self.images[..., :-1] = self.images[..., 1:]
             return True
 
+    def on_new_mask(self, mask: np.ndarray):
+        self.mask = mask
+
     def _get_worker_args(self, evt):
         return {}
 
@@ -152,13 +157,14 @@ class ImageAnalyser(QObject):
 class ImageAnalyserWorker(QRunnable):
     """Worker to be executed in the threadpool of the ImageAnalyser."""
 
-    def __init__(self, local_images: np.ndarray, timepoint: int, start_time: int):
+    def __init__(self, local_images: np.ndarray, timepoint: int, start_time: int, mask: np.ndarray|None=None):
         """Initialise worker."""
         super().__init__()
         self.signals = self._Signals()
         self.local_images = local_images
         self.timepoint = timepoint
         self.start_time = start_time
+        self.mask = mask
         self.autoDelete = True
 
     def run(self):
@@ -171,6 +177,8 @@ class ImageAnalyserWorker(QRunnable):
 
     def extract_decision_parameter(self, network_output: np.ndarray):
         """Return the a value of the ndarray."""
+        if self.mask is not None:
+            network_output = network_output*self.mask
         return float(network_output.flatten()[5000])
 
     class _Signals(QObject):

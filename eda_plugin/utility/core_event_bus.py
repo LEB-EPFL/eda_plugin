@@ -33,9 +33,10 @@ class CoreEventBus(QObject):
     useq_settings_event = Signal(object)
     eda_useq_event = Signal(object)
     configuration_settings_event = Signal(str, str, object)
+    new_mask_event = Signal(np.ndarray)
 
 
-    def __init__(self, mmcore:CMMCorePlus, mda_gui: CoreMDAWidget, eda_gui):
+    def __init__(self, mmcore:CMMCorePlus, mda_gui: CoreMDAWidget, eda_gui, preview=None):
         """Connect to Micro-Manager using the EventThread. Pass these signals through to subs."""
         super().__init__()
         mmcore.mda.events.frameReady.connect(self.translate_image)
@@ -53,6 +54,8 @@ class CoreEventBus(QObject):
         except:
             log.warning("No EDA GUI connected!")
 
+        if preview is not None:
+            preview.new_mask.connect(self.new_mask_event.emit)
 
         self.initialized = True
         print("EventBus ready")

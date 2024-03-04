@@ -3,7 +3,7 @@
         "analysers": {
             "keras": {
                 "worker": "<class 'PyQt6.sip.wrappertype'>",
-                "model": "Z:/deep_events/data/original_data/training_data/20231212_1444_brightfield_cos7_n3_f0.2/20231212_1447_model.h5",
+                "model": "Z:/deep_events/data/original_data/training_data/20240224_0205_brightfield_cos7_n5_f1/20240224_0208_model.h5",
                 "manual_timepoints": true,
                 "timepoints": true,
                 "channels_to_use": [

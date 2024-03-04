@@ -173,19 +173,15 @@ class TimeWorker(KerasWorker):
         """Background subtraction, resize, intensity normalization and tiling."""
         # log.info(images.shape)
         t0 = time.perf_counter()
+        orig_shape = images.shape
         tiles = 8
-        x,y = np.meshgrid(range(tiles), range(tiles))
-        x, y = x.flatten(), y.flatten()
+        tile_size = 256 # tiles*tile_size should be image size
+        images = images.reshape((tiles*tiles, tile_size, tile_size, images.shape[-1])).astype(np.float32)
         for i in range(tiles*tiles):
-            images[x[i]*256:x[i]*256 + 256,
-                    y[i]*256:y[i]*256 + 256] = exposure.rescale_intensity(images[x[i]*256:x[i]*256 + 256,
-                                                                                 y[i]*256:y[i]*256 + 256])
+            images[i] -= np.min(images[i])
+            images[i] /= np.max(images[i])
+        images = images.reshape(orig_shape)
         print("rescale time:, ", time.perf_counter() - t0)
-        # int_range = np.percentile(images, (1, 97))
-        # print(int_range)
-        # int_range[0] = max(1, int_range[0])
-        # images = exposure.rescale_intensity(images, in_range = tuple(int_range))
-        log.info("BEFORE RESHAPE " + str(images.shape))
         images = images[:, :, 0, 0, :]
         data = {"pixels": np.expand_dims(images, 0)}
         log.info(data['pixels'].shape)
@@ -195,8 +191,10 @@ class TimeWorker(KerasWorker):
     def post_process_output(self, data: np.ndarray, positions):
         """Strip off the dimensions that come from the network."""
         # print(data.shape)
+        if self.mask is not None:
+            data[0, :, :, 0] = data[0, :, :, 0]*self.mask
         data = data*10000
-        return data[0, :, :, 0]
+        return data[0, :, :, 0].astype(np.uint16)
     
 
 class PDAWorker(KerasWorker):
