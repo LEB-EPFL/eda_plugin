@@ -1,30 +1,14 @@
 {
     "eda_plugin": {
-        "actuators": {
-            "micro_manager": {
-                "channel_switch_time_ms": 50,
-                "calibration": 347.61458333333337
-            }
-        },
         "analysers": {
             "keras": {
-                "worker_modules": [
-                    "eda_plugin.examples.analysers"
-                ],
-                "model": "W:/deep_events/training_data/20230426_1119/20230426_1121_model.h5"
-
-            },
-            "image": {
-                "channels": 1,
-                "z_slices": 1
-            }
-        },
-        "interpreters": {
-            "frame_rate": {
-                "slow_interval": 2,
-                "fast_interval": 0,
-                "lower_threshold": 200,
-                "upper_threshold": 500
+                "worker": "<class 'PyQt6.sip.wrappertype'>",
+                "model": "Z:/deep_events/data/original_data/training_data/20240224_0205_brightfield_cos7_n5_f1/20240224_0208_model.h5",
+                "manual_timepoints": true,
+                "timepoints": true,
+                "channels_to_use": [
+                    "Brightfield"
+                ]
             }
         }
     }

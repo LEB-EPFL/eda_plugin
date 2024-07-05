@@ -6,35 +6,40 @@ import logging.handlers
 import os
 
 
-def get_settings(calling_class=None):
+def get_settings(calling_class=None, name=None):
     """Get the settings from the settings.json file and extract a module if defined."""
-    with open(os.path.dirname(__file__) + "/../settings.json", "r") as j:
-        contents = json.loads(j.read())
-    if calling_class is None:
-        return contents
-    else:
-        trace = calling_class.__module__.split(".")
-        for module in trace:
-            contents = contents[module]
-        return contents
+    try:
+        with open(os.path.dirname(__file__) + "/../settings.json", "r") as j:
+            contents = json.loads(j.read())
+        if calling_class is None:
+            return contents
+        else:
+            trace = calling_class.__module__.split(".")
+            for module in trace:
+                contents = contents[module]
+            if name:
+                contents = contents[name]
+            return contents
+    except json.JSONDecodeError:
+        print("WARNING: settings could not be loaded", calling_class)
+        return {}
 
 
-def set_settings(name: str, value, calling_class=None):
+def set_settings(value, calling_class):
     settings_file = os.path.dirname(__file__) + "/../settings.json"
-    with open(settings_file, "r") as j:
-        contents = json.loads(j.read())
+    try:
+        with open(settings_file, "r") as j:
+            contents = json.loads(j.read())
+    except json.JSONDecodeError:
+        contents = {}
 
     def nested_set(dic, keys, value):
         for key in keys[:-1]:
             dic = dic.setdefault(key, {})
         dic[keys[-1]] = value
 
-    if calling_class is None:
-        contents[name] = value
-    else:
-        trace = calling_class.__module__.split(".")
-        trace = trace + [name]
-        nested_set(contents, trace, value)
+    trace = calling_class.__module__.split(".")
+    nested_set(contents, trace, value)
     with open(settings_file, "w") as fp:
         json.dump(contents, fp, indent=4)
 
